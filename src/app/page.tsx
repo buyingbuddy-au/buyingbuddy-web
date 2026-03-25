@@ -1,157 +1,242 @@
-"use client";
+import Link from "next/link";
+import {
+  CONFIDENCE_REPORT_LINK,
+  FULL_BUNDLE_LINK,
+} from "@/lib/site-content";
 
-const REPORT = "https://buy.stripe.com/9B614o8Qa1212ks8Jo7Zu01";
-const BUNDLE = "https://buy.stripe.com/dRmbJ27M6fWVcZ6f7M7Zu02";
+const reportItems = [
+  {
+    title: "PPSR Check",
+    description: "Finance owing, security interests, and encumbrance flags.",
+  },
+  {
+    title: "Stolen Vehicle",
+    description: "National stolen vehicle register results before you commit.",
+  },
+  {
+    title: "Write-Off Status",
+    description: "Repairable and statutory write-off history in one place.",
+  },
+  {
+    title: "Rego History",
+    description: "Registration status and recent history checks for the vehicle.",
+  },
+  {
+    title: "Vehicle Identity",
+    description: "VIN and identity details matched back to the listed vehicle.",
+  },
+  {
+    title: "Plain-English Summary",
+    description: "A clear PDF summary built for buyers, not just insiders.",
+  },
+] as const;
+
+const faqs = [
+  {
+    question: "How fast is the report?",
+    answer:
+      "Most reports are delivered in under 30 seconds after payment, straight to your inbox as a PDF.",
+  },
+  {
+    question: "What do I need to run a check?",
+    answer:
+      "Enter the VIN or rego number and complete payment. That is enough to start the search.",
+  },
+  {
+    question: "Where does the data come from?",
+    answer:
+      "Buying Buddy checks official PPSR data along with stolen vehicle, write-off, and rego history sources used in dealer workflows.",
+  },
+  {
+    question: "What if the report is incomplete?",
+    answer:
+      "If the lookup cannot return the promised core checks, contact us and we will sort it out, including a refund when appropriate.",
+  },
+] as const;
 
 export default function Home() {
   return (
     <>
-      {/* ═══ 1. HERO ═══════════════════════════════════ */}
-      <section className="hero">
-        <div className="w">
-          <h1>Check any car<br />before you buy.</h1>
-          <p className="hero-p">
-            We search official government databases — PPSR, rego history, stolen
-            register, write-off status — and send you a clear PDF report in
-            under 30 seconds.
-          </p>
-          <a className="cta cta-lime" href={REPORT} target="_blank" rel="noreferrer">
-            Get Report — $9.95
-          </a>
-          <div className="hero-badges">
-            <span>✓ Official PPSR data</span>
-            <span>⚡ 30-second delivery</span>
-            <span>🔒 Secure payment</span>
-            <span>🇦🇺 Australian owned</span>
+      <section className="section hero-section" id="report">
+        <div className="container hero-layout">
+          <div className="hero-copy">
+            <p className="eyebrow">Vehicle History Reports</p>
+            <h1 className="hero-title">Know the full story before you buy.</h1>
+            <p className="hero-description">
+              Search any car by VIN or rego. We check PPSR, stolen vehicle
+              register, write-off status, and rego history — then send you a
+              clear PDF report in under 30 seconds.
+            </p>
+          </div>
+          <div className="hero-search-card">
+            <form
+              action={CONFIDENCE_REPORT_LINK}
+              className="hero-form"
+              method="get"
+              target="_blank"
+            >
+              <label className="sr-only" htmlFor="vehicle-query">
+                Enter VIN or rego number
+              </label>
+              <input
+                className="hero-input"
+                id="vehicle-query"
+                name="vehicle"
+                placeholder="Enter VIN or rego number"
+                type="text"
+              />
+              <button className="button button-primary hero-submit" type="submit">
+                Check Now — $9.95
+              </button>
+            </form>
+            <div className="hero-trust" aria-label="Trust badges">
+              <span>✓ Official PPSR data</span>
+              <span>·</span>
+              <span>✓ 30-second delivery</span>
+              <span>·</span>
+              <span>✓ Money-back guarantee</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ 2. WHAT YOU GET ═══════════════════════════ */}
-      <section className="sec sec-white" id="report">
-        <div className="w">
-          <p className="label">Your Report Includes</p>
-          <h2>Everything a dealer checks — for $9.95.</h2>
-          <div className="report-grid">
-            {[
-              ["PPSR Check", "Finance owing, security interests, encumbrances"],
-              ["Stolen Vehicle", "National theft register status"],
-              ["Write-off Register", "Statutory and repairable write-offs"],
-              ["Rego History", "Registration status and transfer records"],
-              ["Vehicle Identity", "VIN verification and compliance data"],
-              ["Plain-English Summary", "No jargon — just what you need to know"],
-            ].map(([t, d]) => (
-              <div className="report-item" key={t}>
-                <strong>{t}</strong>
-                <span>{d}</span>
-              </div>
+      <section className="section section-alt">
+        <div className="container">
+          <p className="eyebrow">What&apos;s in the report</p>
+          <h2 className="section-title">Everything a licensed dealer checks.</h2>
+          <div className="included-grid">
+            {reportItems.map((item) => (
+              <article className="included-item" key={item.title}>
+                <span aria-hidden="true" className="included-icon">
+                  →
+                </span>
+                <h3 className="included-title">{item.title}</h3>
+                <p className="included-description">{item.description}</p>
+              </article>
             ))}
           </div>
-          <a className="cta cta-navy" href={REPORT} target="_blank" rel="noreferrer" style={{ marginTop: 24 }}>
-            Get Report — $9.95
-          </a>
+          <div className="report-preview">Sample report preview coming soon</div>
         </div>
       </section>
 
-      {/* ═══ 3. SOCIAL PROOF ══════════════════════════ */}
-      <section className="sec proof">
-        <div className="w">
-          <div className="proof-stat">
-            <span className="proof-num">$93.5M</span>
-            <span className="proof-text">lost by Australians to vehicle scams in 2023 — ACCC</span>
-          </div>
-          <div className="proof-quote">
+      <section className="section section-dark proof-section">
+        <div className="container">
+          <p className="proof-stat">
+            <span className="proof-amount">$93.5M</span> lost to vehicle scams
+            in 2023 — ACCC
+          </p>
+          <blockquote className="proof-quote">
             <p>
-              &ldquo;The report showed the car had been written off twice. The
-              seller swore it was perfect. Saved me from a $12,000
-              mistake.&rdquo;
+              “Buying Buddy flagged a repairable write-off before I sent the
+              deposit.”
             </p>
-            <cite>— Sarah M., Redcliffe QLD ★★★★★</cite>
-          </div>
+            <cite className="proof-meta">Leah T. · Brisbane, QLD · ★★★★★</cite>
+          </blockquote>
         </div>
       </section>
 
-      {/* ═══ 4. PRICING ═══════════════════════════════ */}
-      <section className="sec sec-white" id="pricing">
-        <div className="w">
-          <p className="label">Pricing</p>
-          <h2>No subscriptions. No accounts. Pay once.</h2>
-          <div className="price-row">
-            {/* Core product */}
-            <div className="pcard pcard-primary">
-              <div className="pcard-badge">Most Popular</div>
-              <p className="pcard-name">Confidence Report</p>
-              <p className="pcard-price">$9.95</p>
-              <ul className="pcard-list">
+      <section className="section" id="pricing">
+        <div className="container">
+          <h2 className="section-title">Simple pricing. No subscriptions.</h2>
+          <div className="pricing-grid">
+            <article className="pricing-card pricing-card-primary">
+              <span className="pricing-badge">Most Popular</span>
+              <div className="pricing-heading">
+                <h3 className="pricing-name">Confidence Report</h3>
+                <p className="pricing-price">$9.95</p>
+              </div>
+              <ul className="pricing-list">
                 <li>PPSR check</li>
+                <li>Stolen vehicle register check</li>
+                <li>Write-off status</li>
                 <li>Rego history</li>
-                <li>Stolen vehicle check</li>
-                <li>Write-off register</li>
-                <li>Contract template</li>
-                <li>Plain-English summary</li>
+                <li>Vehicle identity verification</li>
+                <li>Plain-English PDF summary</li>
               </ul>
-              <a className="cta cta-lime cta-full" href={REPORT} target="_blank" rel="noreferrer">
+              <a
+                className="button button-primary"
+                href={CONFIDENCE_REPORT_LINK}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Get Report — $9.95
               </a>
-            </div>
-            {/* Bundle */}
-            <div className="pcard">
-              <p className="pcard-name">Full Bundle</p>
-              <p className="pcard-price">$39</p>
-              <ul className="pcard-list">
-                <li>Everything above, plus:</li>
+            </article>
+
+            <article className="pricing-card">
+              <div className="pricing-heading">
+                <h3 className="pricing-name">Full Bundle</h3>
+                <p className="pricing-price">$39</p>
+              </div>
+              <ul className="pricing-list">
+                <li>Everything in the Confidence Report</li>
+                <li>Buyer checklist</li>
                 <li>Negotiation scripts</li>
-                <li>Detailed inspection guide</li>
-                <li>Premium contract templates</li>
+                <li>Extra purchase resources</li>
               </ul>
-              <a className="cta cta-navy cta-full" href={BUNDLE} target="_blank" rel="noreferrer">
+              <a
+                className="button button-dark"
+                href={FULL_BUNDLE_LINK}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Get Bundle — $39
               </a>
-            </div>
+            </article>
           </div>
-          <p className="price-free">
-            Just browsing? Grab our <a href="/blog" style={{ color: "#1A237E", fontWeight: 600, textDecoration: "underline" }}>free car-buying checklist</a>.
+          <p className="pricing-link-row">
+            Looking for free resources?{" "}
+            <Link className="pricing-link" href="/blog">
+              Visit our blog →
+            </Link>
           </p>
         </div>
       </section>
 
-      {/* ═══ 5. FAQ ═══════════════════════════════════ */}
-      <section className="sec" id="faq">
-        <div className="w">
-          <h2>Questions.</h2>
-          <div className="faq">
-            {[
-              ["How fast is the report?", "Usually under 30 seconds. The PDF is emailed directly to you after payment."],
-              ["Do I need an account?", "No. Paste the listing URL, pay, and it's sent to your email. That's it."],
-              ["Where does the data come from?", "Official Australian government databases — PPSR, NEVDIS, and state transport authorities. Same sources licensed dealers use."],
-              ["Can I get a refund?", "Yes. Not satisfied? Full refund, no questions asked."],
-            ].map(([q, a]) => (
-              <details className="faq-item" key={q}>
-                <summary>{q}</summary>
-                <div className="faq-a">{a}</div>
+      <section className="section section-alt" id="faq">
+        <div className="container">
+          <h2 className="section-title">Questions</h2>
+          <div className="faq-wrap">
+            {faqs.map((item) => (
+              <details className="faq-item" key={item.question}>
+                <summary>{item.question}</summary>
+                <div className="faq-answer">{item.answer}</div>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 6. FINAL CTA ═════════════════════════════ */}
-      <section className="sec-final">
-        <div className="w" style={{ textAlign: "center" }}>
-          <h2>Don&apos;t hand over your money blind.</h2>
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginBottom: 24, maxWidth: 400, marginLeft: "auto", marginRight: "auto" }}>
-            $9.95 is nothing compared to what a bad car costs.
+      <section className="section section-dark final-cta">
+        <div className="container">
+          <h2 className="final-cta-title">Check before you buy.</h2>
+          <p className="final-cta-copy">
+            Run the core PPSR, stolen, write-off, and rego checks before you
+            commit to the car.
           </p>
-          <a className="cta cta-lime" href={REPORT} target="_blank" rel="noreferrer">
+          <a
+            className="button button-on-dark"
+            href={CONFIDENCE_REPORT_LINK}
+            rel="noreferrer"
+            target="_blank"
+          >
             Get Report — $9.95
           </a>
         </div>
       </section>
 
-      {/* ═══ STICKY MOBILE BAR ════════════════════════ */}
-      <div className="sticky">
-        <span>Check before you buy</span>
-        <a className="cta cta-lime cta-sm" href={REPORT} target="_blank" rel="noreferrer">$9.95</a>
+      <div className="sticky-bar">
+        <div className="container sticky-bar-inner">
+          <span className="sticky-bar-copy">Check before you buy</span>
+          <a
+            className="button button-primary button-small"
+            href={CONFIDENCE_REPORT_LINK}
+            rel="noreferrer"
+            target="_blank"
+          >
+            $9.95
+          </a>
+        </div>
       </div>
     </>
   );
