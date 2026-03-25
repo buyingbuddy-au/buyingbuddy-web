@@ -10,12 +10,13 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          navy: "#1A237E",
-          lime: "#00C853",
-          cream: "#F5F7FF",
-          ink: "#0F164A",
-          mist: "#DCE3FF",
+          teal: "#0D9488",
+          ink: "#111827",
+          white: "#FFFFFF",
+          light: "#F9FAFB",
+          muted: "#6B7280",
           red: "#D32F2F",
+          green: "#16A34A",
         },
       },
       animation: {

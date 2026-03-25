@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { CONFIDENCE_REPORT_LINK } from "@/lib/site-content";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Buying Buddy | Vehicle History Reports",
+    default: "Buying Buddy | Vehicle Reports for Private Buyers",
     template: "%s | Buying Buddy",
   },
   description:
-    "Search any car by VIN or rego. Buying Buddy checks PPSR, stolen vehicle register, write-off status, and rego history, then sends a clear PDF report in under 30 seconds.",
+    "Paste any car listing from Facebook Marketplace, Carsales, or Gumtree. We'll tell you if it's worth your time — for free. Official PPSR checks, dealer-level verdicts, and QLD private sale contracts.",
 };
 
 export const viewport: Viewport = {
@@ -34,11 +33,14 @@ export default function RootLayout({
               </Link>
               <a
                 className="button button-primary button-small header-cta"
-                href={CONFIDENCE_REPORT_LINK}
-                rel="noreferrer"
-                target="_blank"
+                href="#hero-input"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("hero-input")?.scrollIntoView({ behavior: "smooth" });
+                  document.getElementById("hero-input")?.focus();
+                }}
               >
-                Get Report — $9.95
+                Check a Listing — Free
               </a>
             </div>
           </header>
@@ -47,10 +49,11 @@ export default function RootLayout({
             <div className="container site-footer-inner">
               <span>© 2026 Buying Buddy · Brisbane, Australia</span>
               <nav aria-label="Footer" className="site-footer-nav">
-                <Link href="/#report">Report</Link>
+                <Link href="/#how-it-works">How It Works</Link>
                 <Link href="/#pricing">Pricing</Link>
                 <Link href="/blog">Blog</Link>
                 <Link href="/#faq">FAQ</Link>
+                <a href="mailto:info@buyingbuddy.com.au">info@buyingbuddy.com.au</a>
               </nav>
             </div>
           </footer>

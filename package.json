@@ -9,11 +9,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/pdfkit": "^0.17.5",
+    "better-sqlite3": "^12.8.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "next": "^15.1.0",
+    "pdfkit": "^0.18.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "resend": "^6.9.4",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
