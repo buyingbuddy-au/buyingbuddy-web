@@ -1,15 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
-import { CONFIDENCE_REPORT_LINK, NAV_LINKS } from "@/lib/site-content";
+
+const REPORT_LINK = "https://buy.stripe.com/9B614o8Qa1212ks8Jo7Zu01";
 
 export const metadata: Metadata = {
-  title: {
-    default: "Buying Buddy",
-    template: "%s | Buying Buddy",
-  },
-  description:
-    "Used car checks, PPSR guidance, scam protection, and plain-English buying help for Aussie buyers.",
+  title: { default: "Buying Buddy — Check Any Car Before You Buy", template: "%s | Buying Buddy" },
+  description: "Official PPSR checks, rego history, and vehicle reports for Australian buyers. $9.95. PDF in 30 seconds.",
 };
 
 export const viewport: Viewport = {
@@ -18,85 +15,37 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen">
-          <header className="sticky top-0 z-30 border-b border-white/15 bg-[rgba(26,35,126,0.92)] text-white frosted">
-            <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-              <Link className="flex items-center gap-3" href="/">
-                <span className="rounded-full bg-brand-lime px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-brand-navy">
-                  Buying Buddy
-                </span>
-                <span className="hidden text-sm font-semibold text-white/70 sm:inline">
-                  Know before you go
-                </span>
-              </Link>
-              <nav className="hidden items-center gap-6 text-sm font-semibold md:flex">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    className="transition hover:text-brand-lime"
-                    href={link.href}
-                    key={link.label}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-              <div className="flex items-center gap-2">
-                <Link
-                  className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/20 px-4 py-2 text-sm font-bold transition hover:border-brand-lime hover:text-brand-lime md:hidden"
-                  href="/blog"
-                >
-                  Blog
-                </Link>
-                <a
-                  className="hidden min-h-10 items-center justify-center rounded-full bg-brand-lime px-5 py-2 text-sm font-black uppercase tracking-[0.08em] text-brand-navy transition hover:-translate-y-0.5 hover:shadow-lg md:inline-flex"
-                  href={CONFIDENCE_REPORT_LINK}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Get Report $9.95
-                </a>
-              </div>
-            </div>
-          </header>
-          <main>{children}</main>
-          <footer className="border-t border-white/15 bg-brand-navy text-white">
-            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                <div className="max-w-2xl space-y-3">
-                  <p className="display-font text-2xl uppercase tracking-[0.08em]">
-                    Don&apos;t risk buying the wrong car.
-                  </p>
-                  <p className="max-w-xl text-sm leading-7 text-white/75">
-                    Confident buyers ask the right questions. We don&apos;t sell
-                    cars. We protect buyers.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-4 text-sm font-semibold text-white/80">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      className="transition hover:text-brand-lime"
-                      href={link.href}
-                      key={link.label}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <p className="mt-10 text-xs uppercase tracking-[0.14em] text-white/55">
-                Built with ♥ in Brisbane. Prices in AUD.
-              </p>
-            </div>
-          </footer>
-        </div>
+        {/* Header */}
+        <header className="site-header">
+          <div className="wrap">
+            <Link href="/" className="logo">
+              <span className="logo-mark">BB</span>
+              Buying Buddy
+            </Link>
+            <a className="header-cta" href={REPORT_LINK} target="_blank" rel="noreferrer">
+              Get Report $9.95
+            </a>
+          </div>
+        </header>
+
+        <main>{children}</main>
+
+        {/* Footer */}
+        <footer className="site-footer">
+          <div className="wrap" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 16 }}>
+            <p>© 2026 Buying Buddy. Brisbane, Australia.</p>
+            <nav style={{ display: "flex", gap: 16 }}>
+              <Link href="/#how-it-works">How It Works</Link>
+              <Link href="/#pricing">Pricing</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/#faq">FAQ</Link>
+            </nav>
+          </div>
+        </footer>
       </body>
     </html>
   );
