@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { run_placeholder_free_check } from "@/lib/free-check";
+import { run_free_check } from "@/lib/free-check";
 
 export const runtime = "nodejs";
 
@@ -40,21 +40,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = run_placeholder_free_check({
-      email,
-      listing_url,
-    });
+    const result = await run_free_check({ email, listing_url });
 
-    return NextResponse.json({
-      ok: true,
-      ...result,
-    });
+    return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
-        error:
-          error instanceof Error ? error.message : "Unable to process the listing check.",
+        error: error instanceof Error ? error.message : "Unable to process the listing check.",
       },
       { status: 500 },
     );
