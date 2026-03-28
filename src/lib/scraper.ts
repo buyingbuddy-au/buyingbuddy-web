@@ -1,4 +1,4 @@
-import { to_sqlite_datetime } from "@/lib/db";
+import { to_sqlite_datetime } from "@/lib/time";
 import type { JsonValue, ScrapedListing } from "@/lib/types";
 
 const KNOWN_MAKES = [
@@ -220,7 +220,7 @@ function extract_vehicle_data_from_json_ld(html: string) {
   return null;
 }
 
-function build_fallback_listing(listing_url: string): ScrapedListing {
+export function build_fallback_listing(listing_url: string): ScrapedListing {
   const url = new URL(listing_url);
   const path_summary = decodeURIComponent(url.pathname.split("/").filter(Boolean).pop() ?? "vehicle listing")
     .replace(/[-_]+/g, " ");

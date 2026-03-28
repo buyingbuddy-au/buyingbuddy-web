@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { run_free_listing_check } from "@/lib/engine";
+import { run_placeholder_free_check } from "@/lib/free-check";
 
 export const runtime = "nodejs";
 
@@ -17,9 +17,9 @@ export async function POST(request: Request) {
     const email = body.email?.trim() ?? "";
     const listing_url = body.listing_url?.trim() || body.url?.trim() || "";
 
-    if (!email || !is_valid_email(email)) {
+    if (email && !is_valid_email(email)) {
       return NextResponse.json(
-        { ok: false, error: "A valid email address is required." },
+        { ok: false, error: "Email must be valid if you include it." },
         { status: 400 },
       );
     }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await run_free_listing_check({
+    const result = run_placeholder_free_check({
       email,
       listing_url,
     });

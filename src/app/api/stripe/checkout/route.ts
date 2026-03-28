@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { create_checkout_session, is_paid_product } from "@/lib/stripe";
+import { get_product_definition, get_stripe, is_paid_product } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -45,9 +45,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!customer_email || !is_valid_email(customer_email)) {
+    if (customer_email && !is_valid_email(customer_email)) {
       return NextResponse.json(
-        { ok: false, error: "A valid email address is required." },
+        { ok: false, error: "Email must be valid if you include it." },
         { status: 400 },
       );
     }
@@ -68,13 +68,41 @@ export async function POST(request: Request) {
       );
     }
 
-    const session = await create_checkout_session({
-      base_url: resolve_base_url(request),
+    const stripe = get_stripe();
+    const definition = get_product_definition(product);
+    const metadata = {
       customer_email,
-      customer_name,
+      customer_name: customer_name ?? "",
       listing_url,
       product,
+    };
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      ...(customer_email ? { customer_email } : {}),
+      success_url: `${resolve_base_url(request)}/order/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${resolve_base_url(request)}/?checkout=cancelled`,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "aud",
+            unit_amount: definition.price_cents,
+            product_data: {
+              name: definition.name,
+              description: definition.description,
+            },
+          },
+        },
+      ],
+      metadata,
+      payment_intent_data: {
+        metadata,
+      },
     });
+
+    if (!session.url) {
+      throw new Error("Stripe did not return a checkout URL.");
+    }
 
     return NextResponse.json({
       ok: true,

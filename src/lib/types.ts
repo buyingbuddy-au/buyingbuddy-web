@@ -112,6 +112,14 @@ export interface FreeCheckResult {
   vehicle_summary: string;
 }
 
+export interface FreeCheckApiResponse {
+  listing_title: string;
+  market_value_estimate: string;
+  days_listed: number;
+  red_flags: string[];
+  verdict: string;
+}
+
 export interface OrderReviewInput {
   dealer_verdict?: string | null;
   ppsr_result?: JsonValue | null;

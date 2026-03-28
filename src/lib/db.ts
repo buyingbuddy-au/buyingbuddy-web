@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
+import { to_sqlite_datetime } from "@/lib/time";
 import type {
   DashboardPayload,
   DashboardStats,
@@ -174,10 +175,6 @@ function deserialize_email_capture(
   row: EmailCaptureRecord | undefined,
 ): EmailCaptureRecord | null {
   return row ?? null;
-}
-
-export function to_sqlite_datetime(date = new Date()) {
-  return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
 export function insert_order(
