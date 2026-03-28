@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | Buying Buddy",
   },
   description:
-    "Paste any car listing from Facebook Marketplace, Carsales, or Gumtree. We'll tell you if it's worth your time — for free. Official PPSR checks, dealer-level verdicts, and QLD private sale contracts.",
+    "Paste any car listing from Facebook Marketplace, Carsales, or Gumtree. We'll tell you if it's worth your time for free. Official PPSR checks, dealer-level verdicts, and QLD private sale contract tools.",
 };
 
 export const viewport: Viewport = {
@@ -38,10 +38,11 @@ export default function RootLayout({
           <main className="site-main">{children}</main>
           <footer className="site-footer">
             <div className="container site-footer-inner">
-              <span>© 2026 Buying Buddy · Brisbane, Australia</span>
+              <span>&copy; 2026 Buying Buddy | Brisbane, Australia</span>
               <nav aria-label="Footer" className="site-footer-nav">
                 <Link href="/#how-it-works">How It Works</Link>
                 <Link href="/#pricing">Pricing</Link>
+                <Link href="/contract-pack">Contract Pack</Link>
                 <Link href="/blog">Blog</Link>
                 <Link href="/#faq">FAQ</Link>
                 <a href="mailto:info@buyingbuddy.com.au">info@buyingbuddy.com.au</a>

@@ -402,3 +402,5 @@ export function mark_order_refunded(stripe_payment_intent: string) {
 export function touch_database() {
   get_database();
 }
+
+export { to_sqlite_datetime };

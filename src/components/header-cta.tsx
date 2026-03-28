@@ -4,14 +4,20 @@ export function HeaderCta() {
   return (
     <a
       className="button button-primary button-small header-cta"
-      href="#hero-input"
+      href="/#hero-input"
       onClick={(e) => {
+        const heroInput = document.getElementById("hero-input");
+
+        if (!heroInput || window.location.pathname !== "/") {
+          return;
+        }
+
         e.preventDefault();
-        document.getElementById("hero-input")?.scrollIntoView({ behavior: "smooth" });
-        document.getElementById("hero-input")?.focus();
+        heroInput.scrollIntoView({ behavior: "smooth", block: "center" });
+        heroInput.focus();
       }}
     >
-      Check a Listing — Free
+      Run Free Check
     </a>
   );
 }

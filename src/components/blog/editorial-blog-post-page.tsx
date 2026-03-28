@@ -1,20 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import {
-  getEditorialBlogPost,
-  getEditorialBlogPosts,
-} from "@/lib/editorial-blog";
+  getAllBlogPosts,
+  getBlogPost,
+} from "@/lib/blog";
 
 export function EditorialBlogPostPage({ slug }: { slug: string }) {
-  const post = getEditorialBlogPost(slug);
+  const post = getBlogPost(slug);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = getEditorialBlogPosts()
+  const relatedPosts = getAllBlogPosts()
     .filter((candidate) => candidate.slug !== post.slug)
     .slice(0, 3);
 
@@ -38,11 +36,10 @@ export function EditorialBlogPostPage({ slug }: { slug: string }) {
       <section className="section">
         <div className="container blog-page-grid">
           <article className="panel blog-article-shell">
-            <div className="blog-body">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {post.markdown}
-              </ReactMarkdown>
-            </div>
+            <div
+              className="blog-body"
+              dangerouslySetInnerHTML={{ __html: post.bodyHtml }}
+            />
           </article>
 
           <aside className="blog-side-stack">
