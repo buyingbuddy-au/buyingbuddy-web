@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import type { FreeCheckResult } from "@/lib/types";
+import { useState, type FormEvent } from "react";
+import type { FreeCheckApiResponse } from "@/lib/types";
+
+type FreeCheckResponse =
+  | ({ ok: true } & FreeCheckApiResponse)
+  | { ok: false; error?: string };
 
 const STEPS = [
   {
@@ -142,11 +146,10 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
-  const [checkResult, setCheckResult] = useState<FreeCheckResult | null>(null);
+  const [checkResult, setCheckResult] = useState<FreeCheckApiResponse | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
-  async function handleFreeCheck(e: React.FormEvent) {
-    e.preventDefault();
+  async function runFreeCheck() {
     if (!url.trim()) return;
 
     setChecking(true);
@@ -160,18 +163,23 @@ export default function Home() {
         body: JSON.stringify({ listing_url: url.trim(), email: email.trim() || "" }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as FreeCheckResponse;
 
       if (!res.ok || !data.ok) {
         setCheckError(data.error ?? "Something went wrong. Please try again.");
       } else {
-        setCheckResult(data as FreeCheckResult);
+        setCheckResult(data);
       }
     } catch {
       setCheckError("Network error. Please check your connection and try again.");
     } finally {
       setChecking(false);
     }
+  }
+
+  function handleFreeCheck(e: FormEvent) {
+    e.preventDefault();
+    void runFreeCheck();
   }
 
   async function handleUpgrade(product: string) {
@@ -278,27 +286,20 @@ export default function Home() {
 
             {checkResult && (
               <div className="hero-result" role="region" aria-label="Listing result">
-                <p className="result-verdict">{checkResult.analysis.listing_verdict}</p>
-                {checkResult.analysis.market_value_low && (
-                  <p className="result-market">
-                    Market value:{" "}
-                    <strong>
-                      {formatDollars(checkResult.analysis.market_value_low)}–{formatDollars(checkResult.analysis.market_value_high ?? checkResult.analysis.market_value_low)}
-                    </strong>
-                  </p>
+                <p className="result-summary">{checkResult.listing_title}</p>
+                <p className="result-verdict">{checkResult.verdict}</p>
+                <p className="result-market">
+                  Market value estimate: <strong>{checkResult.market_value_estimate}</strong>
+                </p>
+                {checkResult.days_listed > 0 && (
+                  <p className="result-days">Listed {checkResult.days_listed} days</p>
                 )}
-                {checkResult.analysis.days_listed !== null && (
-                  <p className="result-days">Listed {checkResult.analysis.days_listed} days</p>
-                )}
-                {checkResult.analysis.red_flags.length > 0 && (
+                {checkResult.red_flags.length > 0 && (
                   <ul className="result-flags">
-                    {checkResult.analysis.red_flags.map((flag) => (
+                    {checkResult.red_flags.map((flag) => (
                       <li key={flag}>⚠ {flag}</li>
                     ))}
                   </ul>
-                )}
-                {checkResult.listing && (
-                  <p className="result-summary">{checkResult.listing.title}</p>
                 )}
                 <p className="result-upgrade">
                   Like what you see? Upgrade for the full PPSR check, dealer
