@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { HeaderCta } from "@/components/header-cta";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,17 +32,7 @@ export default function RootLayout({
               <Link className="site-logo" href="/">
                 Buying Buddy
               </Link>
-              <a
-                className="button button-primary button-small header-cta"
-                href="#hero-input"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("hero-input")?.scrollIntoView({ behavior: "smooth" });
-                  document.getElementById("hero-input")?.focus();
-                }}
-              >
-                Check a Listing — Free
-              </a>
+              <HeaderCta />
             </div>
           </header>
           <main className="site-main">{children}</main>

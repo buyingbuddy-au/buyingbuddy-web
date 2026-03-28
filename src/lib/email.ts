@@ -1,7 +1,9 @@
 import { Resend } from "resend";
 import type { ProductType } from "@/lib/types";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function get_resend() {
+  return new Resend(process.env.RESEND_API_KEY ?? "");
+}
 
 const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const BRAND_TEAL = "#0D9488";
@@ -105,7 +107,7 @@ export async function send_free_check_email({
     <a href="https://buyingbuddy.com.au" class="cta">Want the full picture? Get a PPSR Report for $4.95</a>
   </div>`;
 
-  await resend.emails.send({
+  await get_resend().emails.send({
     from: FROM,
     to: email,
     subject: "Your Free Listing Check — Buying Buddy",
@@ -163,7 +165,7 @@ export async function send_order_report_email({
     <a href="https://buyingbuddy.com.au" class="cta">Visit Buying Buddy</a>
   </div>`;
 
-  await resend.emails.send({
+  await get_resend().emails.send({
     from: FROM,
     to: email,
     subject: `Your ${label} — Buying Buddy`,
