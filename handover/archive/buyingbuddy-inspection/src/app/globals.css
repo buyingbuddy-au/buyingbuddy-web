@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: #0f172a;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 22%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 24%),
+    linear-gradient(180deg, #0b1222 0%, #0f172a 30%, #08101f 100%);
+  color: #f8fafc;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+textarea {
+  resize: vertical;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.38);
+  color: #f8fafc;
+}
+
+.inspection-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+  background-position: center;
+  background-size: 26px 26px;
+}
+
+.step-shell {
+  animation-duration: 320ms;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.step-shell[data-direction="forward"] {
+  animation-name: slide-in-forward;
+}
+
+.step-shell[data-direction="back"] {
+  animation-name: slide-in-back;
+}
+
+.camera-mask {
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.08) 0%, rgba(2, 6, 23, 0.32) 100%),
+    radial-gradient(circle at center, transparent 38%, rgba(2, 6, 23, 0.82) 82%);
+}
+
+@keyframes slide-in-forward {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide-in-back {
+  from {
+    opacity: 0;
+    transform: translate3d(-18px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}

@@ -27,8 +27,8 @@ const TRUST_INDICATORS = [
     body: "Market instinct, PPSR context, and practical buying advice shaped by years in the trade.",
   },
   {
-    title: "100% Aussie Owned",
-    body: "Built in Queensland for Australian private buyers who need a sharper process before they inspect.",
+    title: "Built for Australian Private Buyers",
+    body: "QLD-specific paperwork tools where relevant — built by a licensed QLD dealer.",
   },
 ] as const;
 
@@ -47,6 +47,29 @@ const STEPS = [
     number: "03",
     title: "Protect the deal properly",
     body: "Run the PPSR, get a dealer review, and bring the right QLD paperwork before money changes hands.",
+  },
+] as const;
+
+const STAGES = [
+  {
+    step: "01",
+    label: "Before inspection",
+    action: "Run Free Check",
+  },
+  {
+    step: "02",
+    label: "Before deposit",
+    action: "Run PPSR",
+  },
+  {
+    step: "03",
+    label: "Before making an offer",
+    action: "Get Dealer Review",
+  },
+  {
+    step: "04",
+    label: "At handover",
+    action: "Use Contract Pack",
   },
 ] as const;
 
@@ -83,6 +106,7 @@ const PAID_PRODUCTS = [
     name: "PPSR Report",
     price: "$4.95",
     description: "Official finance, stolen, and write-off checks before you send a deposit.",
+    useCase: "Is this car legally and financially safe to buy?",
     features: [
       "Finance owing and security interests",
       "Stolen vehicle register result",
@@ -92,12 +116,15 @@ const PAID_PRODUCTS = [
     cta: "Run PPSR Check - $4.95",
     type: "checkout",
     highlight: false,
+    blogHref: "/blog/how-to-check-ppsr-before-buying",
+    blogLabel: "Not sure what PPSR covers? Read our guide",
   },
   {
     key: "dealer_review",
     name: "Dealer Review",
     price: "$14.95",
     description: "A sharper opinion on price, risk, and whether the car is worth your time.",
+    useCase: "Is this car worth pursuing, and what would a dealer offer?",
     features: [
       "Everything in the PPSR Report",
       "Fair price opinion from a dealer's perspective",
@@ -108,12 +135,15 @@ const PAID_PRODUCTS = [
     type: "checkout",
     highlight: true,
     badge: "Best Value",
+    blogHref: "/blog/what-sellers-never-tell-buyers",
+    blogLabel: "See what a dealer review covers? Read more",
   },
   {
     key: "contract_pack",
     name: "Private Sale Contract Pack",
     price: "$9.95",
     description: "QLD-specific paperwork for the day you actually hand over money.",
+    useCase: "How do I protect handover day and document the deal properly?",
     features: [
       "QLD vehicle sale contract",
       "Receipt of payment template",
@@ -124,6 +154,8 @@ const PAID_PRODUCTS = [
     type: "link",
     href: "/contract-pack",
     highlight: false,
+    blogHref: "/blog/qld-private-car-sale-contract-guide",
+    blogLabel: "See what paperwork you need? QLD contract guide",
   },
 ] as const;
 
@@ -480,6 +512,22 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section stages-strip" aria-label="When to use each product">
+        <div className="container">
+          <div className="stages-scroll">
+            {STAGES.map((stage, i) => (
+              <div className="stage-item" key={stage.step}>
+                <span className="stage-step">{stage.step}</span>
+                <span className="stage-label">{stage.label}</span>
+                <span className="stage-arrow" aria-hidden="true">{">"}</span>
+                <span className="stage-action">{stage.action}</span>
+                {i < STAGES.length - 1 && <span className="stage-gap" aria-hidden="true" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {checkResult && (
         <section className="section premium-results-section" ref={resultsRef}>
           <div className="container">
@@ -637,6 +685,14 @@ export default function Home() {
                     <h3 className="pricing-name">{product.name}</h3>
                     <p className="pricing-price">{product.price}</p>
                     <p className="pricing-description">{product.description}</p>
+                    {"useCase" in product && product.useCase && (
+                      <p className="pricing-usecase">{product.useCase}</p>
+                    )}
+                    {"blogHref" in product && product.blogHref && (
+                      <a href={product.blogHref} className="pricing-blog-link">
+                        {product.blogLabel}
+                      </a>
+                    )}
                   </div>
 
                   <ul className="pricing-list">
@@ -666,11 +722,11 @@ export default function Home() {
 
           <div className="bundle-callout">
             <div>
-              <p className="eyebrow">Need the Whole Playbook?</p>
-              <h3 className="bundle-title">The Full Confidence Pack is still here when you want everything.</h3>
+              <p className="eyebrow">Full Confidence Pack</p>
+              <h3 className="bundle-title">Give me the full process.</h3>
               <p className="bundle-copy">
-                Dealer review, negotiation guidance, and buyer support in one checkout for buyers who want
-                the strongest version of the process.
+                PPSR, dealer review, negotiation guidance, and all the QLD paperwork in one checkout.
+                For buyers who want everything locked in before they start negotiating.
               </p>
             </div>
             <button className="button button-primary" onClick={() => void handleUpgrade("full_pack")} type="button" disabled={busy}>
