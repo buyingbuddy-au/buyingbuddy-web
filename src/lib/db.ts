@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS orders (
   stripe_session_id TEXT,
   stripe_payment_intent TEXT,
   listing_url TEXT,
+  vehicle_identifier TEXT,
   vehicle_make TEXT,
   vehicle_model TEXT,
   vehicle_year INTEGER,
@@ -81,6 +82,7 @@ const ORDER_COLUMNS = [
   "stripe_session_id",
   "stripe_payment_intent",
   "listing_url",
+  "vehicle_identifier",
   "vehicle_make",
   "vehicle_model",
   "vehicle_year",
@@ -130,6 +132,15 @@ function get_database() {
     database_instance = new Database(database_path);
     database_instance.pragma("journal_mode = WAL");
     database_instance.exec(schema_sql);
+
+    const columns = database_instance
+      .prepare("PRAGMA table_info(orders)")
+      .all() as Array<{ name: string }>;
+    const has_vehicle_identifier = columns.some((column) => column.name === "vehicle_identifier");
+
+    if (!has_vehicle_identifier) {
+      database_instance.exec("ALTER TABLE orders ADD COLUMN vehicle_identifier TEXT");
+    }
   }
 
   return database_instance;

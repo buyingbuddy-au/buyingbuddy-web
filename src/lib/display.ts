@@ -59,6 +59,7 @@ export function format_timestamp(value: string | null) {
 
 export function build_vehicle_summary(order: Pick<
   OrderRecord,
+  | "vehicle_identifier"
   | "vehicle_make"
   | "vehicle_model"
   | "vehicle_year"
@@ -75,5 +76,7 @@ export function build_vehicle_summary(order: Pick<
     .filter(Boolean)
     .join(" | ");
 
-  return [heading || "Vehicle details pending", details].filter(Boolean).join(" | ");
+  return [heading || order.vehicle_identifier || "Vehicle details pending", details]
+    .filter(Boolean)
+    .join(" | ");
 }

@@ -127,6 +127,7 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
   }
 
   const listing_url = session.metadata?.listing_url?.trim() || null;
+  const vehicle_identifier = session.metadata?.vehicle_identifier?.trim() || null;
   const customer_email =
     session.customer_details?.email?.trim() ||
     session.metadata?.customer_email?.trim() ||
@@ -143,6 +144,9 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
 
   const scraped_listing = listing_url ? await scrape_listing(listing_url) : null;
   const analysis = scraped_listing ? analyse_listing(scraped_listing) : null;
+  const looks_like_vin = vehicle_identifier
+    ? /^[A-HJ-NPR-Z0-9]{11,17}$/i.test(vehicle_identifier.replace(/\s+/g, ""))
+    : false;
   const definition = get_product_definition(product);
   const order = insert_order({
     id: randomUUID(),
@@ -157,11 +161,12 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
         ? session.payment_intent
         : session.payment_intent?.id ?? null,
     listing_url,
+    vehicle_identifier,
     vehicle_make: scraped_listing?.vehicle_make ?? null,
     vehicle_model: scraped_listing?.vehicle_model ?? null,
     vehicle_year: scraped_listing?.vehicle_year ?? null,
-    vehicle_rego: scraped_listing?.vehicle_rego ?? null,
-    vehicle_vin: scraped_listing?.vehicle_vin ?? null,
+    vehicle_rego: scraped_listing?.vehicle_rego ?? (!looks_like_vin ? vehicle_identifier : null),
+    vehicle_vin: scraped_listing?.vehicle_vin ?? (looks_like_vin ? vehicle_identifier : null),
     vehicle_mileage: scraped_listing?.vehicle_mileage ?? null,
     vehicle_price_listed: scraped_listing?.vehicle_price_listed ?? null,
     market_value_low: analysis?.market_value_low ?? null,
@@ -174,13 +179,6 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
   });
 
   link_email_capture_to_order(customer_email, order!.id);
-
-  console.info("[BuyingBuddy] Telegram notification stub", {
-    order_id: order!.id,
-    product,
-    listing_url,
-    customer_email,
-  });
 
   return order!;
 }

@@ -10,16 +10,20 @@ export default async function OrderSuccessPage({
   const params = await searchParams;
   const session_id = params.session_id ?? "";
   const order = session_id ? get_order_by_stripe_session_id(session_id) : null;
+  const is_ppsr = order?.product === "ppsr";
 
   return (
     <section className="section">
       <div className="container admin-auth-wrap">
         <div className="admin-card admin-auth-card">
           <p className="eyebrow">Payment Received</p>
-          <h1 className="section-title">Your order is in the queue</h1>
+          <h1 className="section-title">
+            {is_ppsr ? "Your PPSR report is being prepared" : "Your order is in the queue"}
+          </h1>
           <p className="section-intro">
-            Payment succeeded. Buying Buddy will process the order and send the report once it
-            clears review.
+            {is_ppsr
+              ? "Your PPSR report is being prepared by our team. You'll receive it by email within 2 hours."
+              : "Payment succeeded. Buying Buddy will process the order and send the report once it clears review."}
           </p>
           {order ? (
             <div className="admin-success-summary">

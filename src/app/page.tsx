@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { FreeCheckApiResponse } from "@/lib/types";
+import BuddyChat from "@/components/buddy-chat";
 
 type FreeCheckResponse =
   | ({ ok: true } & FreeCheckApiResponse)
@@ -246,9 +247,13 @@ function getProductLabel(product: SupportedUpgradeProduct) {
 
 export default function Home() {
   const [url, setUrl] = useState("");
-  const [carName, setCarName] = useState("");
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [year, setYear] = useState("");
+  const [rego, setRego] = useState("");
   const [askingPrice, setAskingPrice] = useState("");
   const [email, setEmail] = useState("");
+  const [ppsrIdentifier, setPpsrIdentifier] = useState("");
   const [busyAction, setBusyAction] = useState<BusyAction>(null);
   const [checkError, setCheckError] = useState<string | null>(null);
   const [checkResult, setCheckResult] = useState<FreeCheckApiResponse | null>(null);
@@ -259,7 +264,14 @@ export default function Home() {
   const busy = busyAction !== null;
   const risk = checkResult ? getRiskLabel(checkResult.red_flags) : null;
   const selectedProductLabel = selectedProduct ? getProductLabel(selectedProduct) : null;
-  const vehicleHeading = carName.trim() || checkResult?.listing_title || "your listing";
+  const vehicleHeading = checkResult?.listing_title || [year.trim(), make.trim(), model.trim()].filter(Boolean).join(" ") || "your listing";
+  const hasManualVehicle = Boolean(make.trim() && model.trim() && year.trim());
+  const canRunCheck = Boolean(url.trim() || hasManualVehicle);
+  const needsEmailForUrlCheck = Boolean(url.trim());
+  const report = checkResult?.report;
+  const negotiationScript = checkResult && "negotiation_script" in checkResult && typeof checkResult.negotiation_script === "string"
+    ? checkResult.negotiation_script
+    : null;
 
   useEffect(() => {
     if (!checkResult) {
@@ -275,7 +287,7 @@ export default function Home() {
   }
 
   async function runFreeCheck() {
-    if (!url.trim()) return;
+    if (!canRunCheck) return;
 
     setBusyAction({ type: "check" });
     setCheckError(null);
@@ -285,7 +297,15 @@ export default function Home() {
       const res = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listing_url: url.trim(), email: email.trim() || "" }),
+        body: JSON.stringify({
+          listing_url: url.trim() || undefined,
+          email: email.trim() || undefined,
+          make: make.trim() || undefined,
+          model: model.trim() || undefined,
+          year: year.trim() || undefined,
+          rego: rego.trim() || undefined,
+          asking_price: askingPrice.trim() || undefined,
+        }),
       });
 
       const data = (await res.json()) as FreeCheckResponse;
@@ -311,7 +331,17 @@ export default function Home() {
     setSelectedProduct(product);
     setCheckError(null);
 
-    if (!url.trim()) {
+    if (product === "ppsr") {
+      if (!ppsrIdentifier.trim()) {
+        setCheckError("Enter the rego or VIN first.");
+        return;
+      }
+
+      if (!email.trim()) {
+        setCheckError("Enter your email so we know where to send the report.");
+        return;
+      }
+    } else if (!url.trim()) {
       focusHeroInput();
       return;
     }
@@ -326,6 +356,7 @@ export default function Home() {
           listing_url: url.trim(),
           email: email.trim() || `upgrade-${Date.now()}@buyingbuddy.local`,
           product,
+          vehicle_identifier: product === "ppsr" ? ppsrIdentifier.trim().toUpperCase() : undefined,
         }),
       });
 
@@ -383,7 +414,7 @@ export default function Home() {
             <div className="hero-card-head">
               <p className="hero-card-kicker">Free Listing Check</p>
               <p className="hero-card-copy">
-                Optional car details make the snapshot clearer. The listing URL is the only required field.
+                Paste a listing URL or skip the link and enter make, model, and year for a real buyer's brief.
               </p>
             </div>
 
@@ -408,15 +439,60 @@ export default function Home() {
               <div className="hero-field-row">
                 <div className="hero-field">
                   <label className="hero-label" htmlFor="car-name">
-                    Car Name
+                    Make
                   </label>
                   <input
                     className="hero-input"
-                    id="car-name"
-                    placeholder="2019 Mazda CX-3 Akari"
+                    id="vehicle-make"
+                    placeholder="Toyota"
                     type="text"
-                    value={carName}
-                    onChange={(e) => setCarName(e.target.value)}
+                    value={make}
+                    onChange={(e) => setMake(e.target.value)}
+                  />
+                </div>
+
+                <div className="hero-field">
+                  <label className="hero-label" htmlFor="vehicle-model">
+                    Model
+                  </label>
+                  <input
+                    className="hero-input"
+                    id="vehicle-model"
+                    placeholder="RAV4"
+                    type="text"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="hero-field-row">
+                <div className="hero-field">
+                  <label className="hero-label" htmlFor="vehicle-year">
+                    Year
+                  </label>
+                  <input
+                    className="hero-input"
+                    id="vehicle-year"
+                    inputMode="numeric"
+                    placeholder="2019"
+                    type="number"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                  />
+                </div>
+
+                <div className="hero-field">
+                  <label className="hero-label" htmlFor="vehicle-rego">
+                    Rego (optional)
+                  </label>
+                  <input
+                    className="hero-input"
+                    id="vehicle-rego"
+                    placeholder="123ABC"
+                    type="text"
+                    value={rego}
+                    onChange={(e) => setRego(e.target.value.toUpperCase())}
                   />
                 </div>
 
@@ -443,19 +519,20 @@ export default function Home() {
               <div className="hero-field-row hero-field-row-action">
                 <div className="hero-field">
                   <label className="hero-label" htmlFor="check-email">
-                    Email
+                    Email {needsEmailForUrlCheck ? "(required for URL checks)" : "(optional)"}
                   </label>
                   <input
                     className="hero-input"
                     id="check-email"
-                    placeholder="Optional for the free check"
+                    placeholder={needsEmailForUrlCheck ? "Where should we send your report?" : "Optional if you're just using make/model/year"}
                     type="email"
+                    required={needsEmailForUrlCheck}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
 
-                <button className="button button-primary hero-submit" type="submit" disabled={busy || !url.trim()}>
+                <button className="button button-primary hero-submit" type="submit" disabled={busy || !canRunCheck || (needsEmailForUrlCheck && !email.trim())}>
                   {isChecking ? "Checking listing..." : "Run Free Check"}
                 </button>
               </div>
@@ -491,7 +568,7 @@ export default function Home() {
                   onClick={() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                   type="button"
                 >
-                  View premium snapshot
+                  View vehicle snapshot
                 </button>
               </div>
             )}
@@ -574,10 +651,10 @@ export default function Home() {
                     <span className="results-summary-label">Listing title</span>
                     <p className="results-summary-copy">{checkResult.listing_title}</p>
                   </div>
-                  {carName.trim() && (
+                  {checkResult.vehicle?.rego && (
                     <div>
-                      <span className="results-summary-label">Your supplied car name</span>
-                      <p className="results-summary-copy">{carName.trim()}</p>
+                      <span className="results-summary-label">Rego supplied</span>
+                      <p className="results-summary-copy">{checkResult.vehicle.rego}</p>
                     </div>
                   )}
                 </div>
@@ -585,7 +662,7 @@ export default function Home() {
 
               <div className="results-side-stack">
                 <article className="results-side-card">
-                  <h3 className="results-side-title">What stood out</h3>
+                  <h3 className="results-side-title">🚩 Red flags</h3>
                   {checkResult.red_flags.length > 0 ? (
                     <ul className="results-flag-list">
                       {checkResult.red_flags.map((flag) => (
@@ -600,6 +677,49 @@ export default function Home() {
                   )}
                 </article>
 
+                {report && (
+                  <article className="results-side-card results-side-card-dark">
+                    <div className="results-report-grid">
+                      <div className="results-report-section">
+                        <h3 className="results-side-title">🔧 Known issues</h3>
+                        <ul className="results-flag-list">
+                          {report.known_issues.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="results-report-section">
+                        <h3 className="results-side-title">👀 What to check</h3>
+                        <ul className="results-flag-list">
+                          {report.what_to_check.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="results-report-section">
+                        <h3 className="results-side-title">💰 Fair price range</h3>
+                        <p className="results-side-copy">{report.fair_price_range}</p>
+                      </div>
+
+                      <div className="results-report-section">
+                        <h3 className="results-side-title">✅ Verdict</h3>
+                        <p className="results-side-copy results-side-copy-strong">{report.verdict}</p>
+                      </div>
+                    </div>
+                  </article>
+                )}
+
+                {negotiationScript && (
+                  <article className="results-side-card" style={{ marginTop: "16px", background: "#F0FDF9", borderLeft: "4px solid #0D9488" }}>
+                    <h3 className="results-side-title" style={{ color: "#065F55" }}>Opening Offer Strategy</h3>
+                    <p className="results-side-copy" style={{ color: "#065F55", lineHeight: "1.5" }}>
+                      {negotiationScript}
+                    </p>
+                  </article>
+                )}
+
                 <article className="results-side-card">
                   <h3 className="results-side-title">Best next step</h3>
                   <div className="results-action-list">
@@ -610,7 +730,7 @@ export default function Home() {
                       disabled={busy}
                     >
                       <span className="results-action-meta">PPSR Report - $4.95</span>
-                      <strong>Check finance, stolen status, and write-offs</strong>
+                      <strong>Want to verify this car is financially safe? Run PPSR Check →</strong>
                     </button>
                     <button
                       className="results-action-card"
@@ -659,6 +779,65 @@ export default function Home() {
             Start with the free listing check. When the car still looks promising, add the official data,
             dealer judgement, or the paperwork that keeps the handover tight.
           </p>
+
+          <div className="pricing-card pricing-card-primary" style={{ marginBottom: "24px" }}>
+            <div className="pricing-heading">
+              <h3 className="pricing-name">Run a PPSR Check now</h3>
+              <p className="pricing-price">$4.95</p>
+              <p className="pricing-description">
+                Enter the rego or VIN, pay securely with Stripe, and we&apos;ll email the report within 2 hours.
+              </p>
+            </div>
+
+            <div className="hero-field-row" style={{ marginTop: "20px" }}>
+              <div className="hero-field">
+                <label className="hero-label" htmlFor="ppsr-identifier">
+                  Rego or VIN
+                </label>
+                <input
+                  className="hero-input"
+                  id="ppsr-identifier"
+                  placeholder="ABC123 or JM0DK2W7601234567"
+                  type="text"
+                  value={ppsrIdentifier}
+                  onChange={(e) => {
+                    setPpsrIdentifier(e.target.value.toUpperCase());
+                    setCheckError(null);
+                  }}
+                />
+              </div>
+
+              <div className="hero-field">
+                <label className="hero-label" htmlFor="ppsr-email">
+                  Email
+                </label>
+                <input
+                  className="hero-input"
+                  id="ppsr-email"
+                  placeholder="you@example.com"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setCheckError(null);
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="admin-button-row" style={{ marginTop: "20px" }}>
+              <button
+                className="button button-primary"
+                onClick={() => void handleUpgrade("ppsr")}
+                disabled={busy}
+                type="button"
+              >
+                {busyAction?.type === "checkout" && busyAction.product === "ppsr"
+                  ? "Opening checkout..."
+                  : "Run PPSR Check — $4.95"}
+              </button>
+            </div>
+          </div>
 
           <div className="pricing-grid premium-pricing-grid">
             {PAID_PRODUCTS.map((product) => {
@@ -794,6 +973,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <BuddyChat />
 
       <section className="section section-dark final-cta">
         <div className="container">

@@ -1851,6 +1851,34 @@ body {
   box-shadow: var(--shadow-card);
 }
 
+.results-side-card-dark {
+  background: linear-gradient(180deg, #0f172a 0%, #162033 100%);
+  border-color: rgba(45, 212, 191, 0.18);
+}
+
+.results-side-card-dark .results-side-title,
+.results-side-card-dark .results-side-copy,
+.results-side-card-dark .results-flag-list {
+  color: #e2e8f0;
+}
+
+.results-side-copy-strong {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.results-report-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.results-report-section {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .results-side-title {
   margin: 0 0 14px;
   color: var(--color-text);
@@ -2449,5 +2477,205 @@ body {
 
   .final-cta-actions {
     justify-content: center;
+  }
+}
+
+/* ── Buddy Chat ── */
+.buddy-section {
+  background: var(--color-section-alt);
+}
+
+.buddy-section .section-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 17px;
+  max-width: 52ch;
+  margin-top: 12px;
+}
+
+.buddy-chat-window {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  min-height: 240px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 24px;
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.buddy-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.buddy-welcome-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin: 0;
+}
+
+.buddy-welcome-text {
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  text-align: center;
+  margin: 0;
+}
+
+.buddy-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.buddy-message {
+  display: flex;
+}
+
+.buddy-message--user {
+  justify-content: flex-end;
+}
+
+.buddy-message--assistant {
+  justify-content: flex-start;
+}
+
+.buddy-message-bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.buddy-message--user .buddy-message-bubble {
+  background: var(--color-accent);
+  color: #ffffff;
+  border-bottom-right-radius: 3px;
+}
+
+.buddy-message--assistant .buddy-message-bubble {
+  background: #f3f4f6;
+  color: var(--color-text);
+  border-bottom-left-radius: 3px;
+}
+
+.buddy-typing {
+  background: #f3f4f6;
+  color: var(--color-text);
+  border-radius: 12px;
+  border-bottom-left-radius: 3px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.buddy-typing span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: buddyBounce 1.2s ease-in-out infinite;
+}
+
+.buddy-typing span:nth-child(2) { animation-delay: 0.2s; }
+.buddy-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes buddyBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+.buddy-error {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.buddy-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.buddy-quick-reply {
+  background: #ffffff;
+  border: 1.5px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.buddy-quick-reply:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.buddy-quick-reply:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buddy-input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.buddy-input {
+  flex: 1;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: var(--color-text);
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.buddy-input:focus {
+  border-color: var(--color-accent);
+}
+
+.buddy-send {
+  flex-shrink: 0;
+  min-width: 72px;
+}
+
+.buddy-disclaimer {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .buddy-message-bubble {
+    max-width: 90%;
+  }
+
+  .buddy-chat-window {
+    min-height: 200px;
+    max-height: 320px;
+    padding: 16px;
   }
 }

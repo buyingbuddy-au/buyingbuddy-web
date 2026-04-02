@@ -52,12 +52,14 @@ export async function create_checkout_session({
   customer_name,
   listing_url,
   product,
+  vehicle_identifier,
 }: {
   base_url: string;
   customer_email: string;
   customer_name?: string | null;
-  listing_url: string;
+  listing_url?: string | null;
   product: PaidProductType;
+  vehicle_identifier?: string | null;
 }) {
   const stripe = get_stripe();
   const definition = get_product_definition(product);
@@ -83,15 +85,17 @@ export async function create_checkout_session({
     metadata: {
       customer_email,
       customer_name: customer_name ?? "",
-      listing_url,
+      listing_url: listing_url ?? "",
       product,
+      vehicle_identifier: vehicle_identifier?.trim() ?? "",
     },
     payment_intent_data: {
       metadata: {
         customer_email,
         customer_name: customer_name ?? "",
-        listing_url,
+        listing_url: listing_url ?? "",
         product,
+        vehicle_identifier: vehicle_identifier?.trim() ?? "",
       },
     },
   });

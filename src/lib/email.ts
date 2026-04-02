@@ -115,6 +115,47 @@ export async function send_free_check_email({
   });
 }
 
+export async function send_ppsr_confirmation_email({
+  email,
+  order_id,
+  vehicle_identifier,
+}: {
+  email: string;
+  order_id: string;
+  vehicle_identifier: string;
+}) {
+  const content = `
+  <div class="header">
+    <h1>Buying Buddy</h1>
+    <p>Your PPSR report is being prepared</p>
+  </div>
+  <div class="body">
+    <p style="font-size:15px; color:#374151;">Hi there,</p>
+    <p style="font-size:15px; color:#374151;">
+      Thanks for ordering a <strong>PPSR Report</strong> from Buying Buddy. We&apos;ve received your payment and our team is now preparing your report.
+    </p>
+
+    <div class="vehicle-card">
+      <p><strong>Order ID:</strong> ${order_id}</p>
+      <p><strong>VIN / Rego:</strong> ${vehicle_identifier}</p>
+      <p><strong>Delivery window:</strong> Within 2 hours</p>
+    </div>
+
+    <div class="verdict-box">
+      Your PPSR report will be emailed to you within 2 hours. If anything urgent comes up, reply to this email or contact Jordan at <a href="mailto:info@buyingbuddy.com.au" style="color:${BRAND_TEAL};">info@buyingbuddy.com.au</a>.
+    </div>
+
+    <a href="https://buyingbuddy.com.au" class="cta">Visit Buying Buddy</a>
+  </div>`;
+
+  await get_resend().emails.send({
+    from: FROM,
+    to: email,
+    subject: "Your PPSR Report is Being Prepared",
+    html: email_html(content),
+  });
+}
+
 export async function send_order_report_email({
   email,
   order_id,

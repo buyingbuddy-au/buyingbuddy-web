@@ -15,6 +15,7 @@ async function main() {
     stripe_session_id: null,
     stripe_payment_intent: null,
     listing_url: "https://example.com/car-listing",
+    vehicle_identifier: "888XYZ",
     vehicle_make: "Toyota",
     vehicle_model: "Hilux",
     vehicle_year: 2019,

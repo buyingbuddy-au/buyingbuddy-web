@@ -28,6 +28,7 @@ export interface OrderRecord {
   stripe_session_id: string | null;
   stripe_payment_intent: string | null;
   listing_url: string | null;
+  vehicle_identifier: string | null;
   vehicle_make: string | null;
   vehicle_model: string | null;
   vehicle_year: number | null;
@@ -112,12 +113,30 @@ export interface FreeCheckResult {
   vehicle_summary: string;
 }
 
+export interface VehicleSnapshotReport {
+  known_issues: string[];
+  what_to_check: string[];
+  fair_price_range: string;
+  red_flags: string[];
+  verdict: string;
+  source?: "openai" | "gemini" | "fallback";
+}
+
 export interface FreeCheckApiResponse {
   listing_title: string;
   market_value_estimate: string;
   days_listed: number;
   red_flags: string[];
   verdict: string;
+  report?: VehicleSnapshotReport;
+  vehicle?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    rego?: string;
+    asking_price?: number;
+    source?: "listing" | "manual";
+  };
 }
 
 export interface OrderReviewInput {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HandoverPackButton } from "@/components/handover-pack-button";
 
 const CONTRACT_PACK_ITEMS = [
   {
@@ -77,26 +78,26 @@ export default function ContractPackPage() {
               <li>Transfer of registration guide</li>
             </ul>
 
-            {checkoutReady ? (
-              <a
-                className="button button-primary contract-buy-button"
-                href={contractPackCheckoutUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Buy Contract Pack - $9.95
-              </a>
-            ) : (
-              <button className="button button-primary contract-buy-button" disabled type="button">
-                Contract Pack Checkout Coming Soon
-              </button>
-            )}
+            <HandoverPackButton />
 
             <p className="contract-buy-note">
-              {checkoutReady
-                ? "Secure Stripe checkout. Opens in a new tab."
-                : "Stripe checkout will appear here once the payment link is connected."}
+              Free download — enter your email and get all 4 PDFs instantly.
             </p>
+
+            {checkoutReady && (
+              <>
+                <p className="contract-buy-note" style={{ marginTop: "8px" }}>Or purchase the full pack with Stripe:</p>
+                <a
+                  className="button button-secondary contract-buy-button"
+                  href={contractPackCheckoutUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                  style={{ marginTop: "8px" }}
+                >
+                  Buy Contract Pack - $9.95
+                </a>
+              </>
+            )}
           </aside>
         </div>
       </section>
@@ -151,20 +152,7 @@ export default function ContractPackPage() {
             in the buying process.
           </p>
           <div className="final-cta-actions">
-            {checkoutReady ? (
-              <a
-                className="button button-on-dark"
-                href={contractPackCheckoutUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Buy Contract Pack
-              </a>
-            ) : (
-              <button className="button button-on-dark" disabled type="button">
-                Checkout Coming Soon
-              </button>
-            )}
+            <HandoverPackButton />
             <Link className="button button-secondary" href="/">
               Back to free check
             </Link>
