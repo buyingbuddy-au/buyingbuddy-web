@@ -62,11 +62,7 @@ export default function AboutPage() {
 
             <div>
               <div className="relative aspect-[4/3] bg-gray-200 rounded-xl overflow-hidden">
-                <img
-                  src="https://cdn.abacus.ai/images/212fdf3c-0662-451a-bbab-044757acd017.png"
-                  alt="Experienced car dealer helping customers"
-                  className="object-cover w-full h-full"
-                />
+                <div className="flex h-full w-full flex-col items-center justify-center border-2 border-dashed border-gray-300 p-8"><span className="text-2xl font-black text-navy-700">JL</span><p className="mt-2 text-sm font-bold text-navy-700">Jordan Lansbury</p><p className="mt-1 text-xs text-gray-500">[Insert real photo here]</p></div>
               </div>
             </div>
           </div>
@@ -287,3 +283,4 @@ export default function AboutPage() {
     </>
   )
 }
+
