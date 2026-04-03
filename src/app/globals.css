@@ -10,7 +10,7 @@
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
+  --primary: 173 80% 31%;
   --primary-foreground: 210 40% 98%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,12 +22,12 @@
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --ring: 173 80% 31%;
   --radius: 0.5rem;
-  --navy: #1A237E;
-  --lime: #00C853;
-  --navy-light: #303F9F;
-  --lime-light: #4CAF50;
+  --navy: #0D9488;
+  --lime: #0D9488;
+  --navy-light: #0f766e;
+  --lime-light: #14b8a6;
   --gray-50: #fafafa;
   --gray-100: #f5f5f5;
   --gray-200: #eeeeee;
@@ -47,15 +47,15 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
   }
 
   .btn-secondary {
-    @apply bg-navy-700 hover:bg-navy-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
   }
 
   .btn-outline {
-    @apply border-2 border-navy-700 text-navy-700 hover:bg-navy-700 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+    @apply border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200;
   }
 
   .section-container {

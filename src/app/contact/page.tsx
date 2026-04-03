@@ -28,7 +28,7 @@ const CONTACT_METHODS = [
     title: "Free listing check",
     description: "Need a fast verdict on a car right now? Paste the listing URL into the homepage check flow.",
     value: "Run the homepage check",
-    href: "/#free-check",
+    href: "/check",
     icon: MessageCircle,
     recommended: false,
   },
@@ -173,7 +173,7 @@ export default function ContactPage() {
         title="Still choosing between tools?"
         subtitle="Start with the free checklist or run a live listing check on the homepage."
         primaryText="Run Free Check"
-        primaryHref="/#free-check"
+        primaryHref="/check"
         secondaryText="Download Free Checklist"
         secondaryHref="/free-checklist"
       />

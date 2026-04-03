@@ -90,7 +90,7 @@ export default function PricingPage() {
                 "PDF hits your inbox in 30 seconds"
               ]}
               buttonText="Run Free Check"
-              buttonHref="/#free-check"
+              buttonHref="/check"
               isPopular={true}
             />
 
@@ -241,7 +241,7 @@ export default function PricingPage() {
         title="Don't Be the Mug Who Buys Blind"
         subtitle="Join 10,000+ smart Aussies who didn't get scammed on Facebook Marketplace"
         primaryText="Get My Report - $9.95"
-        primaryHref="/#free-check"
+        primaryHref="/check"
         secondaryText="View Contract Pack"
         secondaryHref="/contract-pack"
       />

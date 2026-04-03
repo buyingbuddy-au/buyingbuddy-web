@@ -39,7 +39,7 @@ const flagOptions: Array<{
     label: "OK",
     description: "Nothing obvious here.",
     tone:
-      "border-emerald-400/40 bg-emerald-500/14 text-emerald-50 shadow-[0_0_0_1px_rgba(16,185,129,0.18)]",
+      "border-teal-400/40 bg-teal-500/14 text-teal-50 shadow-[0_0_0_1px_rgba(13,148,136,0.18)]",
   },
   {
     value: "amber",
@@ -105,7 +105,7 @@ function getProgress(stage: InspectionSession["stage"], currentStep: number): nu
 function getVerdictTone(verdict: "Buy" | "Caution" | "Walk Away"): string {
   switch (verdict) {
     case "Buy":
-      return "border-emerald-400/28 bg-emerald-500/14 text-emerald-50";
+      return "border-teal-400/28 bg-teal-500/14 text-teal-50";
     case "Caution":
       return "border-amber-400/30 bg-amber-500/14 text-amber-50";
     default:
@@ -334,11 +334,14 @@ export function InspectionApp() {
           : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
 
     return (
-      <header className="sticky top-0 z-20 px-4 pb-4 backdrop-blur-xl" style={safeTopStyle}>
+      <header
+        className="sticky top-14 z-20 px-4 pb-4 backdrop-blur-xl lg:top-16"
+        style={safeTopStyle}
+      >
         <div className="mx-auto max-w-3xl rounded-[1.75rem] border border-white/10 bg-slate-950/72 px-4 py-4 shadow-panel">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-emerald-300/80">
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-teal-200/80">
                 BuyingBuddy
               </p>
               <h1 className="font-display text-lg font-semibold text-white">
@@ -367,7 +370,7 @@ export function InspectionApp() {
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/8">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-cyan-400 transition-[width] duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-400 transition-[width] duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -381,7 +384,7 @@ export function InspectionApp() {
     return (
       <section className="grid gap-5">
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/68 p-6 shadow-panel">
-          <div className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-200">
+          <div className="inline-flex rounded-full border border-teal-400/20 bg-teal-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-teal-200">
             Mobile-first flow
           </div>
 
@@ -415,7 +418,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Year</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 maxLength={4}
                 onChange={(event) =>
@@ -430,7 +433,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Make</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(event) => updateVehicleField("make", event.target.value)}
                 placeholder="Toyota"
                 type="text"
@@ -441,7 +444,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Model</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(event) => updateVehicleField("model", event.target.value)}
                 placeholder="Yaris"
                 type="text"
@@ -452,7 +455,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Price</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 onChange={(event) =>
                   updateVehicleField("price", event.target.value.replace(/[^\d]/g, ""))
@@ -478,7 +481,7 @@ export function InspectionApp() {
           ) : null}
 
           <button
-            className="mt-5 min-h-[3.75rem] w-full rounded-2xl bg-emerald-500 px-5 text-base font-semibold text-slate-950 transition hover:bg-emerald-400"
+            className="mt-5 min-h-[3.75rem] w-full rounded-2xl bg-teal-600 px-5 text-base font-semibold text-white transition hover:bg-teal-700"
             onClick={startInspection}
             type="button"
           >
@@ -536,7 +539,7 @@ export function InspectionApp() {
               {currentCheckpoint.id}/{TOTAL_CHECKPOINTS}
             </div>
             <button
-              className="text-xs text-slate-400 hover:text-emerald-400"
+              className="text-xs text-slate-400 hover:text-teal-300"
               onClick={skipSection}
               type="button"
             >
@@ -590,7 +593,7 @@ export function InspectionApp() {
             Note
           </span>
           <textarea
-            className="min-h-[10rem] rounded-[1.5rem] border border-white/10 bg-slate-950/72 px-4 py-4 text-base leading-7 text-white outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/20"
+            className="min-h-[10rem] rounded-[1.5rem] border border-white/10 bg-slate-950/72 px-4 py-4 text-base leading-7 text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
             onChange={(event) => setNote(event.target.value)}
             placeholder={currentCheckpoint.notePlaceholder}
             value={currentCheckpointState.note}
@@ -608,7 +611,7 @@ export function InspectionApp() {
           </button>
 
           <button
-            className="min-h-[3.5rem] rounded-2xl bg-emerald-500 px-4 text-base font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-h-[3.5rem] rounded-2xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-45"
             disabled={!canAdvance}
             onClick={goNext}
             type="button"
@@ -624,7 +627,7 @@ export function InspectionApp() {
     const totalIssues = summary.redCount + summary.amberCount;
     const estimatedSavings = totalIssues * 500;
     const riskColor =
-      summary.verdict === "Buy" ? "text-emerald-400" : summary.verdict === "Caution" ? "text-amber-400" : "text-rose-400";
+      summary.verdict === "Buy" ? "text-teal-300" : summary.verdict === "Caution" ? "text-amber-400" : "text-rose-400";
 
     function copyResults() {
       const text = `Inspection Summary for ${formatVehicleLabel(session.vehicle)}\nVerdict: ${summary.verdict}\nIssues found: ${totalIssues}\nEstimated savings: $${estimatedSavings}\nScore: ${summary.score}/10`;
@@ -671,10 +674,10 @@ export function InspectionApp() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-            <a href="/ppi" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl bg-emerald-500 px-4 text-base font-semibold text-slate-950 transition hover:bg-emerald-400">
+            <a href="/ppi" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700">
               Book a PPI
             </a>
-            <a href="/ppi" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10">
+            <a href="/ppsr" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10">
               Get PPSR Report
             </a>
         </div>
@@ -690,7 +693,7 @@ export function InspectionApp() {
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-panel">
             <h3 className="text-xl font-semibold text-white">Detailed Findings</h3>
             {summary.flaggedItems.length === 0 ? (
-            <div className="mt-4 rounded-[1.5rem] border border-emerald-400/18 bg-emerald-500/10 px-4 py-4 text-sm leading-6 text-emerald-50">
+            <div className="mt-4 rounded-[1.5rem] border border-teal-400/18 bg-teal-500/10 px-4 py-4 text-sm leading-6 text-teal-50">
               Every checkpoint was marked OK.
             </div>
             ) : (

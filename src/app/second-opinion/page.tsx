@@ -162,7 +162,7 @@ export default function SecondOpinionPage() {
         title="If the listing still looks legit, do the proper checks next."
         subtitle="Run the homepage free check, book a PPI, or use the QLD contract pack before you hand over cash."
         primaryText="Run Free Check"
-        primaryHref="/#free-check"
+        primaryHref="/check"
         secondaryText="Book a PPI"
         secondaryHref="/ppi"
       />

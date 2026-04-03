@@ -45,7 +45,7 @@ export default function SiteHeader() {
               Free Toolkit
             </Link>
             <Link
-              href="/#free-check"
+              href="/check"
               className="inline-flex items-center justify-center rounded-full bg-[#0D9488] px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0f766e]"
             >
               Run Free Check
@@ -88,7 +88,7 @@ export default function SiteHeader() {
                   Free Toolkit
                 </Link>
                 <Link
-                  href="/#free-check"
+                  href="/check"
                   className="inline-flex items-center justify-center rounded-full bg-[#0D9488] px-5 py-2.5 text-sm font-bold text-white"
                   onClick={() => setIsMenuOpen(false)}
                 >

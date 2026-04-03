@@ -259,7 +259,7 @@ export default function HowItWorksPage() {
                 Perfect for your next purchase - PPSR report + contracts
               </p>
               <a
-                href="/#free-check"
+                href="/check"
                 className="btn-primary w-full block text-center"
               >
                 Run Free Check
@@ -287,7 +287,7 @@ export default function HowItWorksPage() {
         title="Ready to Stop Being the Mug?"
         subtitle="Get our tools and stop getting ripped off by dodgy Facebook Marketplace sellers"
         primaryText="Run Free Check"
-        primaryHref="/#free-check"
+        primaryHref="/check"
         secondaryText="Start with Free Kit"
         secondaryHref="/free-kit"
       />

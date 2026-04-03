@@ -14,7 +14,7 @@ interface StickyCTAProps {
 export default function SiteStickyCTA({
   text = "Don't get scammed",
   buttonText = "Run Free Check",
-  buttonHref = "/#free-check",
+  buttonHref = "/check",
   showClose = true
 }: StickyCTAProps) {
   const [isVisible, setIsVisible] = useState(true)
@@ -32,10 +32,10 @@ export default function SiteStickyCTA({
   if (!isVisible || !isScrolled) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <div className="fixed bottom-0 left-0 right-0 z-50 hidden border-t border-gray-200 bg-white p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:block">
       <div className="flex items-center justify-between max-w-screen-xl mx-auto px-4">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-sm sm:text-base text-gray-900">Free listing check for QLD buyers</span>
+          <span className="font-bold text-sm sm:text-base text-gray-900">{text}</span>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -43,7 +43,7 @@ export default function SiteStickyCTA({
             href={buttonHref}
             className="bg-[#0D9488] text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-[#0f766e] transition-colors"
           >
-            Check Free
+            {buttonText}
           </Link>
 
           {showClose && (

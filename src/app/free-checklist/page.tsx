@@ -23,7 +23,7 @@ const UPGRADE_ITEMS = [
   {
     title: "Run a live listing check",
     body: "Paste the seller's URL on the homepage and get a dealer-style snapshot before you book the inspection.",
-    href: "/#free-check",
+    href: "/check",
     cta: "Run Free Check",
   },
   {
@@ -142,7 +142,7 @@ export default function FreeChecklistPage() {
         title="Don't stop at the checklist if the car looks promising."
         subtitle="Run the free listing check, book a PPI, or grab the QLD contract pack before you hand over money."
         primaryText="Run Free Check"
-        primaryHref="/#free-check"
+        primaryHref="/check"
         secondaryText="Book a PPI"
         secondaryHref="/ppi"
       />
