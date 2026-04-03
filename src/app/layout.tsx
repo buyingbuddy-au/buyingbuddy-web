@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
-import { HeaderCta } from "@/components/header-cta";
+import { Inter } from "next/font/google";
+import SiteFooter from "@/components/site-footer";
+import SiteHeader from "@/components/site-header";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#FFFFFF",
+  themeColor: "#1A237E",
 };
 
 export default function RootLayout({
@@ -25,30 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <div className="site-shell">
-          <header className="site-header">
-            <div className="container site-header-inner">
-              <Link className="site-logo" href="/">
-                Buying Buddy
-              </Link>
-              <HeaderCta />
-            </div>
-          </header>
-          <main className="site-main">{children}</main>
-          <footer className="site-footer">
-            <div className="container site-footer-inner">
-              <span>&copy; 2026 Buying Buddy | Brisbane, Australia</span>
-              <nav aria-label="Footer" className="site-footer-nav">
-                <Link href="/#how-it-works">How It Works</Link>
-                <Link href="/#pricing">Pricing</Link>
-                <Link href="/contract-pack">Contract Pack</Link>
-                <Link href="/blog">Blog</Link>
-                <Link href="/#faq">FAQ</Link>
-                <a href="mailto:info@buyingbuddy.com.au">info@buyingbuddy.com.au</a>
-              </nav>
-            </div>
-          </footer>
+      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
+        <div className="flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
         </div>
       </body>
     </html>

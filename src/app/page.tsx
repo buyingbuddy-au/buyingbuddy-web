@@ -2,12 +2,31 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { FreeCheckApiResponse } from "@/lib/types";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Car,
+  CheckCircle,
+  ClipboardList,
+  FileSearch,
+  FileText,
+  Landmark,
+  Loader2,
+  Shield,
+  Sparkles,
+  Star,
+  Wrench,
+} from "lucide-react";
 import BuddyChat from "@/components/buddy-chat";
-
-type FreeCheckResponse =
-  | ({ ok: true } & FreeCheckApiResponse)
-  | { ok: false; error?: string };
+import CTASection from "@/components/cta-section";
+import SiteStickyCTA from "@/components/site-sticky-cta";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import type { FreeCheckApiResponse } from "@/lib/types";
 
 type SupportedUpgradeProduct = "ppsr" | "dealer_review" | "full_pack";
 
@@ -16,147 +35,125 @@ type BusyAction =
   | { type: "checkout"; product: SupportedUpgradeProduct }
   | null;
 
-const URL_INPUT_ID = "hero-input";
+type HomepageCheckResult = FreeCheckApiResponse & {
+  negotiation_script?: string | null;
+};
 
-const TRUST_INDICATORS = [
+type HomepageCheckResponse =
+  | ({ ok: true } & HomepageCheckResult)
+  | { ok: false; error?: string };
+
+const URL_INPUT_ID = "free-check-listing-url";
+
+const TRUST_STATS = [
   {
-    title: "Built by a Licensed QLD Car Dealer",
-    body: "Straight advice from the side of the desk that has seen bad private deals unravel in real life.",
+    icon: Shield,
+    value: "PPSR + dealer context",
+    label: "Know the legal and practical risk before you send a deposit.",
   },
   {
-    title: "15+ Years Industry Experience",
-    body: "Market instinct, PPSR context, and practical buying advice shaped by years in the trade.",
+    icon: BadgeCheck,
+    value: "QLD dealer-built workflow",
+    label: "Written for private buyers who need sharper process, not sales fluff.",
   },
   {
-    title: "Built for Australian Private Buyers",
-    body: "QLD-specific paperwork tools where relevant — built by a licensed QLD dealer.",
+    icon: Landmark,
+    value: "Contracts, PPI, blog, inspect",
+    label: "Move from listing check to paperwork and inspection without leaving the site.",
   },
 ] as const;
 
-const STEPS = [
-  {
-    number: "01",
-    title: "Paste the listing",
-    body: "Drop in the Marketplace, Carsales, or Gumtree URL. Add the car name and seller ask if you want a cleaner snapshot.",
-  },
-  {
-    number: "02",
-    title: "Read the quick verdict",
-    body: "You get a fast read on market position, listing age, and obvious ad-level red flags before you waste a trip.",
-  },
-  {
-    number: "03",
-    title: "Protect the deal properly",
-    body: "Run the PPSR, get a dealer review, and bring the right QLD paperwork before money changes hands.",
-  },
-] as const;
-
-const STAGES = [
+const HOW_IT_WORKS = [
   {
     step: "01",
-    label: "Before inspection",
-    action: "Run Free Check",
+    title: "Paste the listing",
+    body: "Drop in the Facebook Marketplace, Carsales, or Gumtree URL. If you don't have the link yet, enter make, model, and year for a manual snapshot.",
+    icon: FileSearch,
   },
   {
     step: "02",
-    label: "Before deposit",
-    action: "Run PPSR",
+    title: "Read the fast verdict",
+    body: "Get the market read, ad-level red flags, and what to inspect next before you waste a Saturday driving across town.",
+    icon: ClipboardList,
   },
   {
     step: "03",
-    label: "Before making an offer",
-    action: "Get Dealer Review",
-  },
-  {
-    step: "04",
-    label: "At handover",
-    action: "Use Contract Pack",
+    title: "Do the proper checks",
+    body: "Escalate to PPSR, dealer review, PPI, and the QLD contract pack when the car still looks worth chasing.",
+    icon: Wrench,
   },
 ] as const;
 
-const CHECK_TABLE = [
+const PRODUCT_CARDS = [
   {
-    check: "Ad quality and seller signals",
-    description: "Whether the listing reads clean, vague, rushed, or too good to be true.",
-  },
-  {
-    check: "Market value context",
-    description: "A fast sense-check on where the ad sits versus what similar cars should be worth.",
-  },
-  {
-    check: "Time on market",
-    description: "Long-running ads can tell you more than the seller ever will.",
-  },
-  {
-    check: "PPSR risk checks",
-    description: "Finance owing, stolen status, and write-off history when you upgrade to a paid check.",
-  },
-  {
-    check: "Dealer review notes",
-    description: "Known issues, inspection traps, and what an experienced buyer would offer.",
-  },
-  {
-    check: "QLD paperwork readiness",
-    description: "Contract, receipt, condition report, and transfer guidance for the handover day.",
-  },
-] as const;
-
-const PAID_PRODUCTS = [
-  {
-    key: "ppsr",
+    product: "ppsr" as const,
     name: "PPSR Report",
     price: "$4.95",
-    description: "Official finance, stolen, and write-off checks before you send a deposit.",
-    useCase: "Is this car legally and financially safe to buy?",
-    features: [
-      "Finance owing and security interests",
-      "Stolen vehicle register result",
-      "Statutory and repairable write-off status",
-      "Fast, plain-English summary",
-    ],
-    cta: "Run PPSR Check - $4.95",
-    type: "checkout",
+    summary: "Finance owing, stolen status, and write-off history before you send money.",
+    actionLabel: "Run PPSR Checkout",
     highlight: false,
-    blogHref: "/blog/how-to-check-ppsr-before-buying",
-    blogLabel: "Not sure what PPSR covers? Read our guide",
+    bullets: [
+      "Official ownership and security-interest checks",
+      "Plain-English risk summary",
+      "Use before any deposit or final transfer",
+    ],
   },
   {
-    key: "dealer_review",
+    product: "dealer_review" as const,
     name: "Dealer Review",
     price: "$14.95",
-    description: "A sharper opinion on price, risk, and whether the car is worth your time.",
-    useCase: "Is this car worth pursuing, and what would a dealer offer?",
-    features: [
-      "Everything in the PPSR Report",
-      "Fair price opinion from a dealer's perspective",
-      "Known issues for that make, model, and year",
-      "Inspection traps and opening-offer guidance",
-    ],
-    cta: "Get Dealer Review - $14.95",
-    type: "checkout",
+    summary: "A sharper call on price, known faults, and whether the car is worth pursuing.",
+    actionLabel: "Get Dealer Review",
     highlight: true,
-    badge: "Best Value",
-    blogHref: "/blog/what-sellers-never-tell-buyers",
-    blogLabel: "See what a dealer review covers? Read more",
+    bullets: [
+      "Everything in the PPSR layer",
+      "Known make/model failure points",
+      "Inspection and negotiation angles",
+    ],
   },
   {
-    key: "contract_pack",
-    name: "Private Sale Contract Pack",
-    price: "$9.95",
-    description: "QLD-specific paperwork for the day you actually hand over money.",
-    useCase: "How do I protect handover day and document the deal properly?",
-    features: [
-      "QLD vehicle sale contract",
-      "Receipt of payment template",
-      "Vehicle condition report",
-      "Transfer of registration guide",
-    ],
-    cta: "View Contract Pack - $9.95",
-    type: "link",
-    href: "/contract-pack",
+    product: "full_pack" as const,
+    name: "Full Confidence Pack",
+    price: "$34.95",
+    summary: "Bundle the report workflow with QLD paperwork so handover day stays tight.",
+    actionLabel: "Get Full Pack",
     highlight: false,
-    blogHref: "/blog/qld-private-car-sale-contract-guide",
-    blogLabel: "See what paperwork you need? QLD contract guide",
+    bullets: [
+      "Dealer review plus negotiation guidance",
+      "Contract pack for QLD private sales",
+      "Best when you're ready to move on one car",
+    ],
+  },
+] as const;
+
+const RESOURCE_CARDS = [
+  {
+    title: "Inspect the car yourself",
+    body: "Use the guided inspection checklist while you're standing next to the vehicle.",
+    href: "/inspect",
+    cta: "Open Inspect Tool",
+    icon: Car,
+  },
+  {
+    title: "Book a pre-purchase inspection",
+    body: "If you want a mechanic involved, submit the car details and we'll follow up.",
+    href: "/ppi",
+    cta: "Book PPI",
+    icon: Wrench,
+  },
+  {
+    title: "Use the QLD contract pack",
+    body: "Get the paperwork sorted before handover so the deal isn't just a messy chat thread.",
+    href: "/contract-pack",
+    cta: "View Contract Pack",
+    icon: FileText,
+  },
+  {
+    title: "Read the buyer guides",
+    body: "Use the blog when you want the longer version on scams, PPSR, and private-sale process.",
+    href: "/blog",
+    cta: "Browse Blog",
+    icon: Star,
   },
 ] as const;
 
@@ -164,40 +161,26 @@ const FAQS = [
   {
     question: "What does the free listing check actually do?",
     answer:
-      "It gives you a fast dealer-style read on the listing: market position, time listed, and obvious ad-level red flags. It is designed to help you decide whether the car is worth more effort.",
+      "It gives you a fast dealer-style read on the listing: market position, time listed, and obvious ad-level red flags. If you enter make/model/year manually, it generates a vehicle snapshot instead.",
   },
   {
-    question: "When should I pay for the PPSR?",
+    question: "When should I pay for PPSR?",
     answer:
-      "Before you send a deposit and definitely before final payment. If there is finance owing or write-off history, you want to know before the deal gets emotional.",
+      "Before you send a deposit and definitely before final payment. If there's finance owing, stolen status, or write-off history, you want that confirmed before the deal gets emotional.",
   },
   {
-    question: "Who writes the Dealer Review?",
+    question: "What if I need a mechanic?",
     answer:
-      "Buying Buddy is built by a licensed QLD dealer with more than 15 years in the industry, so the advice is grounded in real appraisal and trade experience.",
+      "Use /ppi. The self-guided /inspect flow is useful, but a qualified PPI is still the move when the car is expensive or the seller story feels thin.",
   },
   {
-    question: "Why would I buy the contract pack?",
+    question: "Is the contract pack a replacement for PPSR?",
     answer:
-      "Private sales in Queensland do not give you dealer protections. The contract pack makes the paperwork tighter, records the condition properly, and reduces the chance of a messy handover.",
-  },
-  {
-    question: "Does the contract pack replace a PPSR check?",
-    answer:
-      "No. The contract pack protects the paperwork side of the deal. The PPSR protects you from buying a car with finance, theft, or write-off issues.",
-  },
-  {
-    question: "Is this just for Queensland buyers?",
-    answer:
-      "The listing check, PPSR, and Dealer Review work for Australian buyers broadly. The contract pack is specifically written for Queensland private sale handovers.",
+      "No. The contract pack tightens the paperwork and handover process. PPSR is what checks finance, theft, and write-off risk. Use both when the car still looks promising.",
   },
 ] as const;
 
 function formatCurrency(value: string) {
-  if (!value.trim()) {
-    return "Not supplied";
-  }
-
   const amount = Number(value);
 
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -213,23 +196,31 @@ function formatCurrency(value: string) {
 
 function getListingSource(value: string) {
   try {
-    const hostname = new URL(value).hostname.replace(/^www\./, "");
-    return hostname;
+    return new URL(value).hostname.replace(/^www\./, "");
   } catch {
-    return "Listing link";
+    return "Manual snapshot";
   }
 }
 
-function getRiskLabel(redFlags: string[]) {
+function getRiskTone(redFlags: string[]) {
   if (redFlags.length >= 3) {
-    return { label: "High caution", tone: "high" as const };
+    return {
+      label: "High caution",
+      className: "bg-red-50 text-red-700 border-red-100",
+    };
   }
 
   if (redFlags.length >= 1) {
-    return { label: "Proceed carefully", tone: "medium" as const };
+    return {
+      label: "Proceed carefully",
+      className: "bg-amber-50 text-amber-700 border-amber-100",
+    };
   }
 
-  return { label: "Cleaner listing", tone: "low" as const };
+  return {
+    label: "Cleaner listing",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-100",
+  };
 }
 
 function getProductLabel(product: SupportedUpgradeProduct) {
@@ -240,12 +231,10 @@ function getProductLabel(product: SupportedUpgradeProduct) {
       return "Dealer Review";
     case "full_pack":
       return "Full Confidence Pack";
-    default:
-      return "product";
   }
 }
 
-export default function Home() {
+export default function HomePage() {
   const [url, setUrl] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -255,46 +244,43 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [ppsrIdentifier, setPpsrIdentifier] = useState("");
   const [busyAction, setBusyAction] = useState<BusyAction>(null);
-  const [checkError, setCheckError] = useState<string | null>(null);
-  const [checkResult, setCheckResult] = useState<FreeCheckApiResponse | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<SupportedUpgradeProduct | null>(null);
+  const [checkError, setCheckError] = useState("");
+  const [checkResult, setCheckResult] = useState<HomepageCheckResult | null>(null);
+  const [, setSelectedProduct] = useState<SupportedUpgradeProduct | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
 
   const isChecking = busyAction?.type === "check";
-  const busy = busyAction !== null;
-  const risk = checkResult ? getRiskLabel(checkResult.red_flags) : null;
-  const selectedProductLabel = selectedProduct ? getProductLabel(selectedProduct) : null;
-  const vehicleHeading = checkResult?.listing_title || [year.trim(), make.trim(), model.trim()].filter(Boolean).join(" ") || "your listing";
-  const hasManualVehicle = Boolean(make.trim() && model.trim() && year.trim());
-  const canRunCheck = Boolean(url.trim() || hasManualVehicle);
+  const canRunCheck = Boolean(url.trim() || (make.trim() && model.trim() && year.trim()));
   const needsEmailForUrlCheck = Boolean(url.trim());
-  const report = checkResult?.report;
-  const negotiationScript = checkResult && "negotiation_script" in checkResult && typeof checkResult.negotiation_script === "string"
-    ? checkResult.negotiation_script
-    : null;
+  const vehicleHeading =
+    checkResult?.listing_title ||
+    [year.trim(), make.trim(), model.trim()].filter(Boolean).join(" ") ||
+    "your listing";
+  const riskTone = checkResult ? getRiskTone(checkResult.red_flags) : null;
 
   useEffect(() => {
-    if (!checkResult) {
-      return;
+    if (checkResult) {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-
-    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [checkResult]);
 
   function focusHeroInput() {
-    document.getElementById(URL_INPUT_ID)?.scrollIntoView({ behavior: "smooth", block: "center" });
-    document.getElementById(URL_INPUT_ID)?.focus();
+    const input = document.getElementById(URL_INPUT_ID);
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    input?.focus();
   }
 
   async function runFreeCheck() {
-    if (!canRunCheck) return;
+    if (!canRunCheck) {
+      return;
+    }
 
     setBusyAction({ type: "check" });
-    setCheckError(null);
+    setCheckError("");
     setCheckResult(null);
 
     try {
-      const res = await fetch("/api/check", {
+      const response = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -308,13 +294,18 @@ export default function Home() {
         }),
       });
 
-      const data = (await res.json()) as FreeCheckResponse;
+      const data = (await response.json()) as HomepageCheckResponse;
 
-      if (!res.ok || !data.ok) {
-        setCheckError(("error" in data ? data.error : undefined) ?? "Something went wrong. Please try again.");
-      } else {
-        setCheckResult(data);
+      if (!response.ok || !data.ok) {
+        setCheckError(
+          "error" in data && data.error
+            ? data.error
+            : "Something went wrong. Please try again.",
+        );
+        return;
       }
+
+      setCheckResult(data);
     } catch {
       setCheckError("Network error. Please check your connection and try again.");
     } finally {
@@ -322,14 +313,14 @@ export default function Home() {
     }
   }
 
-  function handleFreeCheck(e: FormEvent) {
-    e.preventDefault();
+  function handleFreeCheck(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     void runFreeCheck();
   }
 
   async function handleUpgrade(product: SupportedUpgradeProduct) {
     setSelectedProduct(product);
-    setCheckError(null);
+    setCheckError("");
 
     if (product === "ppsr") {
       if (!ppsrIdentifier.trim()) {
@@ -342,6 +333,9 @@ export default function Home() {
         return;
       }
     } else if (!url.trim()) {
+      setCheckError(
+        `Paste the listing URL first so we can start the ${getProductLabel(product)} checkout with the right car attached.`,
+      );
       focusHeroInput();
       return;
     }
@@ -349,24 +343,30 @@ export default function Home() {
     setBusyAction({ type: "checkout", product });
 
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           listing_url: url.trim(),
           email: email.trim() || `upgrade-${Date.now()}@buyingbuddy.local`,
           product,
-          vehicle_identifier: product === "ppsr" ? ppsrIdentifier.trim().toUpperCase() : undefined,
+          vehicle_identifier:
+            product === "ppsr" ? ppsrIdentifier.trim().toUpperCase() : undefined,
         }),
       });
 
-      const data = await res.json();
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        checkout_url?: string;
+      };
 
-      if (!res.ok || !data.ok) {
+      if (!response.ok || !data.ok || !data.checkout_url) {
         setCheckError(data.error ?? "Could not start checkout. Please try again.");
-      } else if (data.checkout_url) {
-        window.location.href = data.checkout_url;
+        return;
       }
+
+      window.location.href = data.checkout_url;
     } catch {
       setCheckError("Network error. Please try again.");
     } finally {
@@ -376,635 +376,537 @@ export default function Home() {
 
   return (
     <>
-      <section className="section hero-section">
-        <div className="container hero-layout">
-          <div className="hero-copy">
-            <p className="eyebrow">Private Car Buying Tools for Queensland</p>
-            <h1 className="hero-title">
-              Spot risky private car listings before you inspect, negotiate, or pay.
+      <section
+        id="free-check"
+        className="relative overflow-hidden bg-gradient-to-br from-navy-700 via-blue-900 to-navy-900 py-16 text-white"
+      >
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute left-[10%] top-16 h-64 w-64 rounded-full bg-lime-500 blur-[100px]" />
+          <div className="absolute right-[5%] top-24 h-72 w-72 rounded-full bg-blue-500 blur-[120px]" />
+        </div>
+
+        <div className="section-container relative grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              Private Car Buying Support for Queensland
+            </p>
+            <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.05em] sm:text-6xl">
+              Don&apos;t be the <span className="text-lime-500">mug who gets scammed</span> on
+              Facebook Marketplace.
             </h1>
-            <p className="hero-description">
-              Buying Buddy gives QLD private buyers a sharper process: a free listing check, official
-              PPSR protection, a dealer review, and the paperwork to close the deal properly.
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
+              Paste any listing and get the quick verdict first. Then move into PPSR, dealer review,
+              PPI, and QLD paperwork when the car still stacks up.
             </p>
 
-            <div className="hero-chip-row" aria-label="What Buying Buddy helps with">
-              <span className="hero-chip">Free listing sanity check</span>
-              <span className="hero-chip">Official PPSR protection</span>
-              <span className="hero-chip">QLD handover paperwork</span>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <button
+                type="button"
+                onClick={focusHeroInput}
+                className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-base"
+              >
+                Run Free Check
+                <Sparkles className="h-5 w-5" />
+              </button>
+              <Link
+                href="/free-checklist"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-white px-8 py-4 text-center text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-navy-700"
+              >
+                Get Free Checklist
+              </Link>
             </div>
 
-            <div className="hero-proof-grid" aria-label="Key benefits">
-              <div className="hero-proof-card">
-                <span className="hero-proof-value">Free</span>
-                <p className="hero-proof-label">Quick read before you waste a trip</p>
-              </div>
-              <div className="hero-proof-card">
-                <span className="hero-proof-value">$4.95</span>
-                <p className="hero-proof-label">PPSR check before any deposit or transfer</p>
-              </div>
-              <div className="hero-proof-card">
-                <span className="hero-proof-value">$9.95</span>
-                <p className="hero-proof-label">QLD contract pack for a tighter handover day</p>
-              </div>
+            <div className="mt-12 grid gap-4 sm:grid-cols-3">
+              {TRUST_STATS.map((item) => (
+                <article
+                  key={item.value}
+                  className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur"
+                >
+                  <item.icon className="h-7 w-7 text-lime-500" />
+                  <p className="mt-4 text-sm font-black text-white">{item.value}</p>
+                  <p className="mt-2 text-xs leading-6 text-white/70">{item.label}</p>
+                </article>
+              ))}
             </div>
           </div>
 
-          <div className="hero-search-card">
-            <div className="hero-card-head">
-              <p className="hero-card-kicker">Free Listing Check</p>
-              <p className="hero-card-copy">
-                Paste a listing URL or skip the link and enter make, model, and year for a real buyer's brief.
-              </p>
-            </div>
+          <div className="card border-0 p-8 shadow-2xl">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              Free Listing Check
+            </p>
+            <h2 className="mt-3 text-3xl font-black text-navy-700">
+              Paste the ad or enter the car manually.
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-gray-600">
+              URL checks need an email address so the existing report flow can attach the listing to a
+              lead. Manual make/model/year checks can run without one.
+            </p>
 
-            <form className="hero-form" onSubmit={handleFreeCheck}>
-              <div className="hero-field hero-field-wide">
-                <label className="hero-label" htmlFor={URL_INPUT_ID}>
+            <form className="mt-8 space-y-5" onSubmit={handleFreeCheck}>
+              <div>
+                <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor={URL_INPUT_ID}>
                   Listing URL
                 </label>
                 <input
-                  className="hero-input"
                   id={URL_INPUT_ID}
-                  placeholder="Paste a Facebook Marketplace, Carsales, or Gumtree link"
-                  type="text"
+                  type="url"
                   value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    setCheckError(null);
+                  onChange={(event) => {
+                    setUrl(event.target.value);
+                    setCheckError("");
                   }}
+                  placeholder="Paste a Marketplace, Carsales, or Gumtree link"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
                 />
               </div>
 
-              <div className="hero-field-row">
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="car-name">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="vehicle-make">
                     Make
                   </label>
                   <input
-                    className="hero-input"
                     id="vehicle-make"
-                    placeholder="Toyota"
                     type="text"
                     value={make}
-                    onChange={(e) => setMake(e.target.value)}
+                    onChange={(event) => setMake(event.target.value)}
+                    placeholder="Toyota"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
                   />
                 </div>
-
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="vehicle-model">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="vehicle-model">
                     Model
                   </label>
                   <input
-                    className="hero-input"
                     id="vehicle-model"
-                    placeholder="RAV4"
                     type="text"
                     value={model}
-                    onChange={(e) => setModel(e.target.value)}
+                    onChange={(event) => setModel(event.target.value)}
+                    placeholder="Yaris"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
                   />
                 </div>
-              </div>
-
-              <div className="hero-field-row">
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="vehicle-year">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="vehicle-year">
                     Year
                   </label>
                   <input
-                    className="hero-input"
                     id="vehicle-year"
-                    inputMode="numeric"
-                    placeholder="2019"
                     type="number"
+                    inputMode="numeric"
                     value={year}
-                    onChange={(e) => setYear(e.target.value)}
+                    onChange={(event) => setYear(event.target.value)}
+                    placeholder="2019"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
                   />
                 </div>
+              </div>
 
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="vehicle-rego">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="vehicle-rego">
                     Rego (optional)
                   </label>
                   <input
-                    className="hero-input"
                     id="vehicle-rego"
-                    placeholder="123ABC"
                     type="text"
                     value={rego}
-                    onChange={(e) => setRego(e.target.value.toUpperCase())}
+                    onChange={(event) => setRego(event.target.value.toUpperCase())}
+                    placeholder="123ABC"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm uppercase focus:border-transparent focus:ring-2 focus:ring-lime-500"
                   />
                 </div>
-
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="asking-price">
-                    Asking Price
-                  </label>
-                  <div className="hero-price-input">
-                    <span aria-hidden="true">$</span>
-                    <input
-                      className="hero-input hero-input-price"
-                      id="asking-price"
-                      inputMode="numeric"
-                      min="0"
-                      placeholder="24500"
-                      type="number"
-                      value={askingPrice}
-                      onChange={(e) => setAskingPrice(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="hero-field-row hero-field-row-action">
-                <div className="hero-field">
-                  <label className="hero-label" htmlFor="check-email">
-                    Email {needsEmailForUrlCheck ? "(required for URL checks)" : "(optional)"}
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="asking-price">
+                    Asking price
                   </label>
                   <input
-                    className="hero-input"
-                    id="check-email"
-                    placeholder={needsEmailForUrlCheck ? "Where should we send your report?" : "Optional if you're just using make/model/year"}
-                    type="email"
-                    required={needsEmailForUrlCheck}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="asking-price"
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    value={askingPrice}
+                    onChange={(event) => setAskingPrice(event.target.value)}
+                    placeholder="24500"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
                   />
                 </div>
-
-                <button className="button button-primary hero-submit" type="submit" disabled={busy || !canRunCheck || (needsEmailForUrlCheck && !email.trim())}>
-                  {isChecking ? "Checking listing..." : "Run Free Check"}
-                </button>
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-navy-700" htmlFor="check-email">
+                    Email {needsEmailForUrlCheck ? "(required)" : "(optional)"}
+                  </label>
+                  <input
+                    id="check-email"
+                    type="email"
+                    value={email}
+                    required={needsEmailForUrlCheck}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      setCheckError("");
+                    }}
+                    placeholder="you@example.com"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-transparent focus:ring-2 focus:ring-lime-500"
+                  />
+                </div>
               </div>
+
+              {checkError && (
+                <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {checkError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={
+                  isChecking ||
+                  !canRunCheck ||
+                  (needsEmailForUrlCheck && !email.trim())
+                }
+                className="btn-primary inline-flex w-full items-center justify-center gap-2 px-8 py-4 text-base disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isChecking ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Checking listing...
+                  </>
+                ) : (
+                  "Run Free Check"
+                )}
+              </button>
             </form>
-
-            <div className="hero-trust" aria-label="Trust badges">
-              <span>Licensed QLD dealer built</span>
-              <span>15+ years in the trade</span>
-              <span>Australian owned</span>
-              <span>Private-buyer focused</span>
-            </div>
-
-            {selectedProductLabel && !url.trim() && (
-              <p className="hero-inline-tip">
-                Paste the listing URL first so we can start the {selectedProductLabel} checkout with the
-                right vehicle attached.
-              </p>
-            )}
-
-            {checkError && (
-              <p className="hero-error" role="alert">
-                {checkError}
-              </p>
-            )}
-
-            {checkResult && (
-              <div className="hero-result" role="status" aria-live="polite">
-                <p className="hero-result-kicker">Free snapshot ready</p>
-                <p className="hero-result-title">{vehicleHeading}</p>
-                <p className="hero-result-copy">{checkResult.verdict}</p>
-                <button
-                  className="button button-secondary hero-result-button"
-                  onClick={() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                  type="button"
-                >
-                  View vehicle snapshot
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="section trust-band" id="trust">
-        <div className="container">
-          <div className="trust-band-grid">
-            {TRUST_INDICATORS.map((item) => (
-              <article className="trust-card" key={item.title}>
-                <p className="trust-card-title">{item.title}</p>
-                <p className="trust-card-copy">{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section stages-strip" aria-label="When to use each product">
-        <div className="container">
-          <div className="stages-scroll">
-            {STAGES.map((stage, i) => (
-              <div className="stage-item" key={stage.step}>
-                <span className="stage-step">{stage.step}</span>
-                <span className="stage-label">{stage.label}</span>
-                <span className="stage-arrow" aria-hidden="true">{">"}</span>
-                <span className="stage-action">{stage.action}</span>
-                {i < STAGES.length - 1 && <span className="stage-gap" aria-hidden="true" />}
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
       {checkResult && (
-        <section className="section premium-results-section" ref={resultsRef}>
-          <div className="container">
-            <div className="results-heading">
+        <section ref={resultsRef} className="bg-white py-16">
+          <div className="section-container">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="eyebrow">Your Free Snapshot</p>
-                <h2 className="section-title">Dealer-style read on {vehicleHeading}</h2>
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+                  Your Snapshot
+                </p>
+                <h2 className="mt-4 text-4xl font-black text-navy-700">
+                  Dealer-style read on {vehicleHeading}.
+                </h2>
               </div>
-              {risk && (
-                <span className={`results-risk results-risk-${risk.tone}`}>
-                  {risk.label}
+              {riskTone && (
+                <span
+                  className={`inline-flex self-start rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${riskTone.className}`}
+                >
+                  {riskTone.label}
                 </span>
               )}
             </div>
 
-            <div className="results-shell">
-              <article className="results-primary-card">
-                <p className="results-title">{vehicleHeading}</p>
-                <p className="results-verdict">{checkResult.verdict}</p>
+            <div className="mt-10 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+              <article className="rounded-[2rem] bg-gradient-to-br from-navy-700 to-blue-950 p-8 text-white shadow-2xl">
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+                  {vehicleHeading}
+                </p>
+                <p className="mt-4 text-3xl font-black leading-tight tracking-[-0.04em] sm:text-4xl">
+                  {checkResult.verdict}
+                </p>
 
-                <div className="results-metric-grid">
-                  <div className="results-metric-card">
-                    <span className="results-metric-label">Seller asking</span>
-                    <strong className="results-metric-value">{formatCurrency(askingPrice)}</strong>
-                  </div>
-                  <div className="results-metric-card">
-                    <span className="results-metric-label">Market estimate</span>
-                    <strong className="results-metric-value">{checkResult.market_value_estimate}</strong>
-                  </div>
-                  <div className="results-metric-card">
-                    <span className="results-metric-label">Days listed</span>
-                    <strong className="results-metric-value">
-                      {checkResult.days_listed > 0 ? `${checkResult.days_listed} days live` : "Fresh or unknown"}
-                    </strong>
-                  </div>
-                  <div className="results-metric-card">
-                    <span className="results-metric-label">Listing source</span>
-                    <strong className="results-metric-value">{getListingSource(url)}</strong>
-                  </div>
-                </div>
-
-                <div className="results-summary-strip">
-                  <div>
-                    <span className="results-summary-label">Listing title</span>
-                    <p className="results-summary-copy">{checkResult.listing_title}</p>
-                  </div>
-                  {checkResult.vehicle?.rego && (
-                    <div>
-                      <span className="results-summary-label">Rego supplied</span>
-                      <p className="results-summary-copy">{checkResult.vehicle.rego}</p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {[
+                    ["Seller asking", formatCurrency(askingPrice)],
+                    ["Market estimate", checkResult.market_value_estimate],
+                    [
+                      "Days listed",
+                      checkResult.days_listed > 0
+                        ? `${checkResult.days_listed} days live`
+                        : "Fresh or unknown",
+                    ],
+                    ["Listing source", getListingSource(url)],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="rounded-3xl border border-white/10 bg-white/5 p-5"
+                    >
+                      <span className="text-xs font-black uppercase tracking-[0.16em] text-white/60">
+                        {label}
+                      </span>
+                      <strong className="mt-3 block text-2xl font-black text-white">
+                        {value}
+                      </strong>
                     </div>
-                  )}
+                  ))}
                 </div>
               </article>
 
-              <div className="results-side-stack">
-                <article className="results-side-card">
-                  <h3 className="results-side-title">🚩 Red flags</h3>
+              <div className="space-y-6">
+                <article className="card p-8">
+                  <h3 className="text-2xl font-black text-navy-700">Red flags</h3>
                   {checkResult.red_flags.length > 0 ? (
-                    <ul className="results-flag-list">
+                    <ul className="mt-5 space-y-3 text-sm leading-7 text-gray-700">
                       {checkResult.red_flags.map((flag) => (
-                        <li key={flag}>{flag}</li>
+                        <li key={flag} className="flex items-start gap-3">
+                          <AlertTriangle className="mt-1 h-5 w-5 shrink-0 text-red-500" />
+                          <span>{flag}</span>
+                        </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="results-side-copy">
-                      No obvious red flags surfaced in the ad copy. That does not replace a PPSR or proper
-                      inspection, but it is a cleaner start than most private listings.
+                    <p className="mt-4 text-sm leading-7 text-gray-700">
+                      No obvious ad-level red flags surfaced. That still does not replace PPSR or a proper
+                      inspection, but it&apos;s a cleaner start than most listings.
                     </p>
                   )}
                 </article>
 
-                {report && (
-                  <article className="results-side-card results-side-card-dark">
-                    <div className="results-report-grid">
-                      <div className="results-report-section">
-                        <h3 className="results-side-title">🔧 Known issues</h3>
-                        <ul className="results-flag-list">
-                          {report.known_issues.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
+                {checkResult.report && (
+                  <article className="card p-8">
+                    <h3 className="text-2xl font-black text-navy-700">What to inspect next</h3>
+                    <ul className="mt-5 space-y-3 text-sm leading-7 text-gray-700">
+                      {checkResult.report.what_to_check.map((item) => (
+                        <li key={item} className="flex items-start gap-3">
+                          <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-lime-500" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                      <div className="results-report-section">
-                        <h3 className="results-side-title">👀 What to check</h3>
-                        <ul className="results-flag-list">
-                          {report.what_to_check.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="results-report-section">
-                        <h3 className="results-side-title">💰 Fair price range</h3>
-                        <p className="results-side-copy">{report.fair_price_range}</p>
-                      </div>
-
-                      <div className="results-report-section">
-                        <h3 className="results-side-title">✅ Verdict</h3>
-                        <p className="results-side-copy results-side-copy-strong">{report.verdict}</p>
-                      </div>
-                    </div>
+                    <h4 className="mt-8 text-sm font-black uppercase tracking-[0.16em] text-lime-500">
+                      Known issues
+                    </h4>
+                    <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-700">
+                      {checkResult.report.known_issues.map((item) => (
+                        <li key={item} className="flex items-start gap-3">
+                          <Wrench className="mt-1 h-5 w-5 shrink-0 text-navy-700" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </article>
                 )}
 
-                {negotiationScript && (
-                  <article className="results-side-card" style={{ marginTop: "16px", background: "#F0FDF9", borderLeft: "4px solid #0D9488" }}>
-                    <h3 className="results-side-title" style={{ color: "#065F55" }}>Opening Offer Strategy</h3>
-                    <p className="results-side-copy" style={{ color: "#065F55", lineHeight: "1.5" }}>
-                      {negotiationScript}
+                {checkResult.negotiation_script && (
+                  <article className="rounded-[2rem] border border-lime-500/20 bg-lime-500/10 p-8">
+                    <h3 className="text-2xl font-black text-navy-700">
+                      Opening offer strategy
+                    </h3>
+                    <p className="mt-4 text-sm leading-7 text-navy-700">
+                      {checkResult.negotiation_script}
                     </p>
                   </article>
                 )}
-
-                <article className="results-side-card">
-                  <h3 className="results-side-title">Best next step</h3>
-                  <div className="results-action-list">
-                    <button
-                      className="results-action-card"
-                      onClick={() => void handleUpgrade("ppsr")}
-                      type="button"
-                      disabled={busy}
-                    >
-                      <span className="results-action-meta">PPSR Report - $4.95</span>
-                      <strong>Want to verify this car is financially safe? Run PPSR Check →</strong>
-                    </button>
-                    <button
-                      className="results-action-card"
-                      onClick={() => void handleUpgrade("dealer_review")}
-                      type="button"
-                      disabled={busy}
-                    >
-                      <span className="results-action-meta">Dealer Review - $14.95</span>
-                      <strong>Get a sharper verdict before you inspect</strong>
-                    </button>
-                    <Link className="results-action-card results-action-link" href="/contract-pack">
-                      <span className="results-action-meta">Contract Pack - $9.95</span>
-                      <strong>Lock down the QLD paperwork before payment day</strong>
-                    </Link>
-                  </div>
-                </article>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      <section className="section section-alt" id="how-it-works">
-        <div className="container">
-          <p className="eyebrow">How It Works</p>
-          <h2 className="section-title">A cleaner buying process in three steps.</h2>
-          <div className="steps-grid">
-            {STEPS.map((step) => (
-              <div className="step-card" key={step.number}>
-                <span className="step-number" aria-hidden="true">
-                  {step.number}
-                </span>
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-body">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="pricing">
-        <div className="container">
-          <p className="eyebrow">Paid Products</p>
-          <h2 className="section-title">Buy only the layer of protection you need.</h2>
-          <p className="section-intro pricing-intro">
-            Start with the free listing check. When the car still looks promising, add the official data,
-            dealer judgement, or the paperwork that keeps the handover tight.
-          </p>
-
-          <div className="pricing-card pricing-card-primary" style={{ marginBottom: "24px" }}>
-            <div className="pricing-heading">
-              <h3 className="pricing-name">Run a PPSR Check now</h3>
-              <p className="pricing-price">$4.95</p>
-              <p className="pricing-description">
-                Enter the rego or VIN, pay securely with Stripe, and we&apos;ll email the report within 2 hours.
-              </p>
-            </div>
-
-            <div className="hero-field-row" style={{ marginTop: "20px" }}>
-              <div className="hero-field">
-                <label className="hero-label" htmlFor="ppsr-identifier">
-                  Rego or VIN
-                </label>
-                <input
-                  className="hero-input"
-                  id="ppsr-identifier"
-                  placeholder="ABC123 or JM0DK2W7601234567"
-                  type="text"
-                  value={ppsrIdentifier}
-                  onChange={(e) => {
-                    setPpsrIdentifier(e.target.value.toUpperCase());
-                    setCheckError(null);
-                  }}
-                />
-              </div>
-
-              <div className="hero-field">
-                <label className="hero-label" htmlFor="ppsr-email">
-                  Email
-                </label>
-                <input
-                  className="hero-input"
-                  id="ppsr-email"
-                  placeholder="you@example.com"
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setCheckError(null);
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="admin-button-row" style={{ marginTop: "20px" }}>
-              <button
-                className="button button-primary"
-                onClick={() => void handleUpgrade("ppsr")}
-                disabled={busy}
-                type="button"
-              >
-                {busyAction?.type === "checkout" && busyAction.product === "ppsr"
-                  ? "Opening checkout..."
-                  : "Run PPSR Check — $4.95"}
-              </button>
-            </div>
-          </div>
-
-          <div className="pricing-grid premium-pricing-grid">
-            {PAID_PRODUCTS.map((product) => {
-              const isSelected = selectedProduct === product.key;
-              const badge = "badge" in product ? product.badge : null;
-              const checkoutLabel =
-                busyAction?.type === "checkout" && busyAction.product === product.key
-                  ? "Opening checkout..."
-                  : product.cta;
-
-              return (
-                <article
-                  className={[
-                    "pricing-card",
-                    product.highlight ? "pricing-card-primary" : "",
-                    isSelected ? "pricing-card-selected" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  key={product.key}
-                >
-                  {badge && <span className="pricing-badge">{badge}</span>}
-                  <div className="pricing-heading">
-                    <h3 className="pricing-name">{product.name}</h3>
-                    <p className="pricing-price">{product.price}</p>
-                    <p className="pricing-description">{product.description}</p>
-                    {"useCase" in product && product.useCase && (
-                      <p className="pricing-usecase">{product.useCase}</p>
-                    )}
-                    {"blogHref" in product && product.blogHref && (
-                      <a href={product.blogHref} className="pricing-blog-link">
-                        {product.blogLabel}
-                      </a>
-                    )}
-                  </div>
-
-                  <ul className="pricing-list">
-                    {product.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-
-                  {product.type === "checkout" ? (
-                    <button
-                      className={`button ${product.highlight ? "button-primary" : "button-dark"}`}
-                      onClick={() => void handleUpgrade(product.key)}
-                      disabled={busy}
-                      type="button"
-                    >
-                      {checkoutLabel}
-                    </button>
-                  ) : (
-                    <Link className="button button-dark" href={product.href}>
-                      {product.cta}
-                    </Link>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-
-          <div className="bundle-callout">
-            <div>
-              <p className="eyebrow">Full Confidence Pack</p>
-              <h3 className="bundle-title">Give me the full process.</h3>
-              <p className="bundle-copy">
-                PPSR, dealer review, negotiation guidance, and all the QLD paperwork in one checkout.
-                For buyers who want everything locked in before they start negotiating.
-              </p>
-            </div>
-            <button className="button button-primary" onClick={() => void handleUpgrade("full_pack")} type="button" disabled={busy}>
-              {busyAction?.type === "checkout" && busyAction.product === "full_pack"
-                ? "Opening checkout..."
-                : "Get Full Confidence Pack - $34.95"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-alt">
-        <div className="container">
-          <p className="eyebrow">What Gets Checked</p>
-          <h2 className="section-title">The parts private buyers usually miss.</h2>
-          <div className="check-table">
-            <div className="check-table-header">
-              <span>Check</span>
-              <span>What it tells you</span>
-            </div>
-            {CHECK_TABLE.map((row) => (
-              <div className="check-table-row" key={row.check}>
-                <span className="check-name">{row.check}</span>
-                <span className="check-description">{row.description}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-dark proof-section">
-        <div className="container dealer-proof-shell">
-          <div>
-            <p className="eyebrow eyebrow-on-dark">Dealer-Built Protection</p>
-            <h2 className="final-cta-title dealer-proof-title">
-              Built by a licensed dealer who has seen every scam.
+      <section className="bg-gray-50 py-16" id="how-it-works">
+        <div className="section-container">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              How It Works
+            </p>
+            <h2 className="mt-4 text-4xl font-black text-navy-700">
+              Three steps. No showroom theatre.
             </h2>
-            <p className="final-cta-copy dealer-proof-copy">
-              Deposits sent too early. Cars with finance still attached. Sellers who promise one thing and
-              hand over another. Buying Buddy exists because private buyers need better process, not better
-              slogans.
+            <p className="mt-4 text-lg text-gray-600">
+              Start free, then only pay for the extra protection when the car still looks worth chasing.
             </p>
           </div>
 
-          <blockquote className="proof-quote dealer-proof-quote">
-            <p>
-              "The goal is simple: help private buyers slow the deal down, check the right things, and show
-              up with paperwork that makes the seller take them seriously."
-            </p>
-            <cite className="proof-meta">Buying Buddy, Brisbane QLD</cite>
-          </blockquote>
-        </div>
-      </section>
-
-      <section className="section" id="faq">
-        <div className="container">
-          <h2 className="section-title">Questions</h2>
-          <div className="faq-wrap">
-            {FAQS.map((item) => (
-              <details className="faq-item" key={item.question}>
-                <summary>{item.question}</summary>
-                <div className="faq-answer">{item.answer}</div>
-              </details>
+          <div className="mt-12 grid gap-8 lg:grid-cols-3">
+            {HOW_IT_WORKS.map((item) => (
+              <article key={item.step} className="card p-8">
+                <div className="inline-flex rounded-2xl bg-navy-700 p-4">
+                  <item.icon className="h-8 w-8 text-lime-500" />
+                </div>
+                <p className="mt-6 text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+                  Step {item.step}
+                </p>
+                <h3 className="mt-3 text-2xl font-black text-navy-700">{item.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-gray-700">{item.body}</p>
+              </article>
             ))}
           </div>
-        </div>
-      </section>
 
-      <BuddyChat />
-
-      <section className="section section-dark final-cta">
-        <div className="container">
-          <h2 className="final-cta-title">Check the listing before you chase the car.</h2>
-          <p className="final-cta-copy">
-            Start free. Add the PPSR, Dealer Review, or QLD contract pack when the deal starts getting real.
-          </p>
-          <div className="final-cta-actions">
-            <button className="button button-on-dark" onClick={focusHeroInput} type="button">
-              Run Free Check
-            </button>
-            <Link className="button button-secondary" href="/contract-pack">
-              View Contract Pack
+          <div className="mt-10 text-center">
+            <Link
+              href="/how-it-works"
+              className="inline-flex font-black text-navy-700 underline decoration-lime-500/50 underline-offset-4 hover:text-lime-500"
+            >
+              Read the full process
             </Link>
           </div>
         </div>
       </section>
 
-      <div className="sticky-bar">
-        <div className="container sticky-bar-inner">
-          <span className="sticky-bar-copy">Free listing check for QLD buyers</span>
-          <button
-            className="button button-primary button-small"
-            onClick={focusHeroInput}
-            type="button"
-          >
-            Check Free
-          </button>
+      <section className="bg-white py-16" id="pricing">
+        <div className="section-container">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              Pricing
+            </p>
+            <h2 className="mt-4 text-4xl font-black text-navy-700">
+              Pick the layer of protection that matches the risk.
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              If you&apos;re not ready to pay yet, use the free checklist or the live listing check first.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-8 xl:grid-cols-3">
+            {PRODUCT_CARDS.map((product) => {
+              const checkoutPending =
+                busyAction?.type === "checkout" &&
+                busyAction.product === product.product;
+
+              return (
+                <article
+                  key={product.product}
+                  className={`card p-8 ${
+                    product.highlight ? "ring-2 ring-lime-500 shadow-2xl" : ""
+                  }`}
+                >
+                  {product.highlight && (
+                    <div className="-mt-11 mb-6 inline-flex rounded-full bg-lime-500 px-4 py-1 text-sm font-semibold text-white">
+                      Best Value
+                    </div>
+                  )}
+
+                  <h3 className="text-2xl font-black text-navy-700">{product.name}</h3>
+                  <p className="mt-3 text-5xl font-black tracking-[-0.05em] text-gray-900">
+                    {product.price}
+                  </p>
+                  <p className="mt-4 text-sm leading-7 text-gray-700">{product.summary}</p>
+
+                  <ul className="mt-8 space-y-3 text-sm leading-7 text-gray-700">
+                    {product.bullets.map((bullet) => (
+                      <li key={bullet} className="flex items-start gap-3">
+                        <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-lime-500" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {product.product === "ppsr" && (
+                    <div className="mt-8">
+                      <label
+                        className="mb-2 block text-sm font-bold text-navy-700"
+                        htmlFor="ppsr-identifier"
+                      >
+                        Rego or VIN
+                      </label>
+                      <input
+                        id="ppsr-identifier"
+                        type="text"
+                        value={ppsrIdentifier}
+                        onChange={(event) =>
+                          setPpsrIdentifier(event.target.value.toUpperCase())
+                        }
+                        placeholder="ABC123 or JM0DK2W7601234567"
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm uppercase focus:border-transparent focus:ring-2 focus:ring-lime-500"
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={busyAction !== null}
+                    onClick={() => void handleUpgrade(product.product)}
+                    className={`mt-8 inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-center font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                      product.highlight
+                        ? "bg-lime-500 text-white hover:bg-lime-600"
+                        : "border-2 border-navy-700 text-navy-700 hover:bg-navy-700 hover:text-white"
+                    }`}
+                  >
+                    {checkoutPending ? "Opening checkout..." : product.actionLabel}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link
+              href="/pricing"
+              className="inline-flex font-black text-navy-700 underline decoration-lime-500/50 underline-offset-4 hover:text-lime-500"
+            >
+              Compare the packages
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className="bg-gray-50 py-16">
+        <div className="section-container">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              More Tools
+            </p>
+            <h2 className="mt-4 text-4xl font-black text-navy-700">
+              Keep moving once the car passes the first sniff test.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-8 lg:grid-cols-4">
+            {RESOURCE_CARDS.map((item) => (
+              <article key={item.title} className="card p-8">
+                <item.icon className="h-10 w-10 text-lime-500" />
+                <h3 className="mt-5 text-2xl font-black text-navy-700">{item.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-gray-700">{item.body}</p>
+                <Link
+                  href={item.href}
+                  className="mt-6 inline-flex font-black text-navy-700 underline decoration-lime-500/50 underline-offset-4 hover:text-lime-500"
+                >
+                  {item.cta}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16" id="faq">
+        <div className="section-container">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
+              FAQ
+            </p>
+            <h2 className="mt-4 text-4xl font-black text-navy-700">
+              The short answers before you start clicking around.
+            </h2>
+          </div>
+
+          <Accordion type="single" collapsible className="mx-auto mt-12 max-w-4xl">
+            {FAQS.map((faq) => (
+              <AccordionItem
+                key={faq.question}
+                value={faq.question}
+                className="mb-4 rounded-2xl border border-gray-200 bg-gray-50 px-6"
+              >
+                <AccordionTrigger className="py-6 text-left text-base font-black text-navy-700 hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="pb-6 text-sm leading-7 text-gray-700">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      <BuddyChat />
+
+      <CTASection
+        title="Check the listing before you chase the car."
+        subtitle="Start free. If the seller story still stacks up, run PPSR, book a PPI, or grab the QLD contract pack before you hand over money."
+        primaryText="Run Free Check"
+        primaryHref="/#free-check"
+        secondaryText="View Contract Pack"
+        secondaryHref="/contract-pack"
+      />
+
+      <SiteStickyCTA text="Run the free listing check" buttonText="Check Free" />
     </>
   );
 }
