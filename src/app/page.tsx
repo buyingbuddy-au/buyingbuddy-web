@@ -5,16 +5,13 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   AlertTriangle,
   BadgeCheck,
-  Car,
   CheckCircle,
   ClipboardList,
   FileSearch,
-  FileText,
   Landmark,
   Loader2,
   Shield,
   Sparkles,
-  Star,
   Wrench,
 } from "lucide-react";
 import BuddyChat from "@/components/buddy-chat";
@@ -123,37 +120,6 @@ const PRODUCT_CARDS = [
       "Contract pack for QLD private sales",
       "Best when you're ready to move on one car",
     ],
-  },
-] as const;
-
-const RESOURCE_CARDS = [
-  {
-    title: "Inspect the car yourself",
-    body: "Use the guided inspection checklist while you're standing next to the vehicle.",
-    href: "/inspect",
-    cta: "Open Inspect Tool",
-    icon: Car,
-  },
-  {
-    title: "Book a pre-purchase inspection",
-    body: "If you want a mechanic involved, submit the car details and we'll follow up.",
-    href: "/ppi",
-    cta: "Book PPI",
-    icon: Wrench,
-  },
-  {
-    title: "Use the QLD contract pack",
-    body: "Get the paperwork sorted before handover so the deal isn't just a messy chat thread.",
-    href: "/contract-pack",
-    cta: "View Contract Pack",
-    icon: FileText,
-  },
-  {
-    title: "Read the buyer guides",
-    body: "Use the blog when you want the longer version on scams, PPSR, and private-sale process.",
-    href: "/blog",
-    cta: "Browse Blog",
-    icon: Star,
   },
 ] as const;
 
@@ -836,57 +802,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-gray-50 py-16">
-        <div className="section-container">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
-              More Tools
-            </p>
-            <h2 className="mt-4 text-4xl font-black text-navy-700">
-              Keep moving once the car passes the first sniff test.
-            </h2>
-          </div>
-
-          <div className="mt-12 grid gap-8 lg:grid-cols-4">
-            {RESOURCE_CARDS.map((item) => (
-              <article key={item.title} className="card p-8">
-                <item.icon className="h-10 w-10 text-lime-500" />
-                <h3 className="mt-5 text-2xl font-black text-navy-700">{item.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-gray-700">{item.body}</p>
-                <Link
-                  href={item.href}
-                  className="mt-6 inline-flex font-black text-navy-700 underline decoration-lime-500/50 underline-offset-4 hover:text-lime-500"
-                >
-                  {item.cta}
-                </Link>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="bg-white py-16" id="faq">
         <div className="section-container">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-lime-500">
-              FAQ
-            </p>
-            <h2 className="mt-4 text-4xl font-black text-navy-700">
-              The short answers before you start clicking around.
+          <div className="mx-auto max-w-4xl text-left sm:text-center">
+            <h2 className="text-4xl font-black text-gray-900 tracking-[-0.05em] sm:text-5xl">
+              Questions
             </h2>
           </div>
 
-          <Accordion type="single" collapsible className="mx-auto mt-12 max-w-4xl">
+          <Accordion type="single" collapsible className="mx-auto mt-10 max-w-3xl space-y-4">
             {FAQS.map((faq) => (
               <AccordionItem
                 key={faq.question}
                 value={faq.question}
-                className="mb-4 rounded-2xl border border-gray-200 bg-gray-50 px-6"
+                className="rounded-3xl border-none bg-navy-700 px-6 sm:px-8 shadow-sm"
               >
-                <AccordionTrigger className="py-6 text-left text-base font-black text-navy-700 hover:no-underline">
+                <AccordionTrigger className="py-5 text-left text-base sm:text-lg font-bold text-white hover:no-underline [&>svg]:text-white">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="pb-6 text-sm leading-7 text-gray-700">
+                <AccordionContent className="pb-6 text-sm sm:text-base leading-7 text-white/80">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -899,14 +833,14 @@ export default function HomePage() {
 
       <CTASection
         title="Check the listing before you chase the car."
-        subtitle="Start free. If the seller story still stacks up, run PPSR, book a PPI, or grab the QLD contract pack before you hand over money."
+        subtitle="Start free. Add the PPSR, Dealer Review, or QLD contract pack when the deal starts getting real."
         primaryText="Run Free Check"
         primaryHref="/#free-check"
         secondaryText="View Contract Pack"
         secondaryHref="/contract-pack"
       />
 
-      <SiteStickyCTA text="Run the free listing check" buttonText="Check Free" />
+      <SiteStickyCTA text="Free listing check for QLD buyers" buttonText="Check Free" />
     </>
   );
 }

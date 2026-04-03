@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { ArrowRight, Shield, CheckCircle } from 'lucide-react'
 
 interface CTASectionProps {
   title?: string
@@ -21,46 +20,29 @@ export default function CTASection({
   className = ""
 }: CTASectionProps) {
   return (
-    <section className={`bg-navy py-16 ${className}`}>
-      <div className="section-container text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+    <section className={`bg-navy-700 py-16 ${className}`}>
+      <div className="section-container">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-4xl font-black tracking-[-0.05em] text-white md:text-6xl">
             {title}
           </h2>
-          <p className="text-xl text-gray-200 mb-8 leading-relaxed">
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
             {subtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={primaryHref}
-              className="bg-lime-500 hover:bg-lime-600 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex items-center space-x-2 group w-full sm:w-auto justify-center"
+              className="inline-flex w-full sm:w-auto min-w-[240px] items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-navy-700 transition-all duration-200 hover:bg-gray-100"
             >
-              <span>{primaryText}</span>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              {primaryText}
             </Link>
             <Link
               href={secondaryHref}
-              className="border-2 border-white text-white hover:bg-white hover:text-navy-700 font-semibold py-4 px-8 rounded-lg transition-all duration-200 w-full sm:w-auto text-center"
+              className="inline-flex w-full sm:w-auto min-w-[240px] items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-navy-700 transition-all duration-200 hover:bg-gray-100"
             >
               {secondaryText}
             </Link>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-gray-300">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-lime-500" />
-              <span className="text-sm">Verified PPSR Reports</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-5 w-5 text-lime-500" />
-              <span className="text-sm">30+ Years Experience</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-5 w-5 text-lime-500" />
-              <span className="text-sm">QLD Specialists</span>
-            </div>
           </div>
         </div>
       </div>

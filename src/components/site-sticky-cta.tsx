@@ -32,24 +32,24 @@ export default function SiteStickyCTA({
   if (!isVisible || !isScrolled) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-navy-700/20 bg-lime-500 p-3 text-navy-700 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between max-w-screen-xl mx-auto px-4">
         <div className="flex items-center space-x-2">
-          <span className="font-semibold text-sm sm:text-base text-navy-700">{text}</span>
+          <span className="font-bold text-sm sm:text-base text-gray-900">Free listing check for QLD buyers</span>
         </div>
 
         <div className="flex items-center space-x-2">
           <Link
             href={buttonHref}
-            className="bg-navy-700 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-navy-800 transition-colors"
+            className="bg-[#0D9488] text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-[#0f766e] transition-colors"
           >
-            {buttonText}
+            Check Free
           </Link>
 
           {showClose && (
             <button
               onClick={() => setIsVisible(false)}
-              className="text-navy-700/70 hover:text-navy-700 p-1"
+              className="text-gray-400 hover:text-gray-600 p-1"
               aria-label="Close banner"
             >
               <X className="h-4 w-4" />

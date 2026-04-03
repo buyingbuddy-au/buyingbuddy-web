@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Car } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 export default function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -10,62 +10,45 @@ export default function SiteHeader() {
   const navigation = [
     { name: 'How It Works', href: '/how-it-works' },
     { name: 'Pricing', href: '/pricing' },
-    { name: 'Inspect', href: '/inspect' },
-    { name: 'PPI', href: '/ppi' },
-    { name: 'Contract Pack', href: '/contract-pack' },
     { name: 'Blog', href: '/blog' },
     { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 border-b border-navy-700/10 bg-white/95 shadow-lg backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <div className="section-container">
         <div className="flex items-center justify-between py-4">
-          <Link
-            href="/"
-            className="flex items-center space-x-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <div className="rounded-lg bg-navy p-2">
-              <Car className="h-6 w-6 text-white" />
+          <Link href="/" className="flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D9488]">
+              <span className="text-sm font-black text-white">BB</span>
             </div>
-            <div>
-              <span className="text-xl font-bold text-navy-700">Buying Buddy</span>
-              <div className="text-xs text-gray-600">Smart Car Buying</div>
-            </div>
+            <span className="text-lg font-black text-navy-700">Buying Buddy</span>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm lg:flex">
+          <nav className="hidden items-center gap-8 text-sm lg:flex">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-navy-700 font-medium transition-colors"
+                className="font-medium text-gray-600 transition-colors hover:text-navy-700"
               >
                 {item.name}
               </Link>
             ))}
           </nav>
 
-          <div className="hidden items-center space-x-4 lg:flex">
+          <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/free-kit"
-              className="text-navy-700 font-semibold hover:text-lime-500 transition-colors"
+              className="text-sm font-semibold text-navy-700 transition-colors hover:text-lime-500"
             >
-              Free Kit
+              Free Toolkit
             </Link>
             <Link
-              href="/free-checklist"
-              className="text-navy-700 font-semibold hover:text-lime-500 transition-colors"
+              href="/#free-check"
+              className="inline-flex items-center justify-center rounded-full bg-[#0D9488] px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0f766e]"
             >
-              Free Checklist
-            </Link>
-            <Link
-              href="/second-opinion"
-              className="btn-primary"
-            >
-              Second Opinion
+              Run Free Check
             </Link>
           </div>
 
@@ -73,7 +56,6 @@ export default function SiteHeader() {
             className="p-2 lg:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
-            aria-expanded={isMenuOpen}
             type="button"
           >
             {isMenuOpen ? (
@@ -85,39 +67,32 @@ export default function SiteHeader() {
         </div>
 
         {isMenuOpen && (
-          <div className="border-t border-gray-200 py-4 lg:hidden">
-            <nav className="flex flex-col space-y-4">
+          <div className="border-t border-gray-100 py-4 lg:hidden">
+            <nav className="flex flex-col gap-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="px-4 py-2 font-medium text-gray-700 transition-colors hover:text-navy-700"
+                  className="rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-navy-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="space-y-3 border-t border-gray-200 px-4 pt-4">
+              <div className="mt-2 flex flex-col gap-2 px-4 pt-2">
                 <Link
                   href="/free-kit"
-                  className="block text-navy-700 font-semibold hover:text-lime-500 transition-colors"
+                  className="font-semibold text-navy-700 hover:text-lime-500"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Free Kit
+                  Free Toolkit
                 </Link>
                 <Link
-                  href="/free-checklist"
-                  className="block text-navy-700 font-semibold hover:text-lime-500 transition-colors"
+                  href="/#free-check"
+                  className="inline-flex items-center justify-center rounded-full bg-[#0D9488] px-5 py-2.5 text-sm font-bold text-white"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Free Checklist
-                </Link>
-                <Link
-                  href="/second-opinion"
-                  className="block btn-primary text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Second Opinion
+                  Run Free Check
                 </Link>
               </div>
             </nav>
