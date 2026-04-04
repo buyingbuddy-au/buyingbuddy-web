@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -38,19 +38,19 @@ const flagOptions: Array<{
     value: "ok",
     label: "OK",
     description: "Nothing obvious here.",
-    tone: "border-teal-200 bg-teal-50 text-teal-900 shadow-[0_0_0_2px_rgba(13,148,136,0.2)]",
+    tone: "border-teal-400/40 bg-teal-500/14 text-teal-50 shadow-[0_0_0_1px_rgba(13,148,136,0.18)]",
   },
   {
     value: "amber",
     label: "Concern",
     description: "Something to dig into.",
-    tone: "border-amber-200 bg-amber-50 text-amber-900 shadow-[0_0_0_2px_rgba(245,158,11,0.2)]",
+    tone: "border-amber-400/40 bg-amber-500/12 text-amber-50 shadow-[0_0_0_1px_rgba(251,191,36,0.16)]",
   },
   {
     value: "red",
     label: "Problem",
     description: "This can kill the deal.",
-    tone: "border-rose-200 bg-rose-50 text-rose-900 shadow-[0_0_0_2px_rgba(225,29,72,0.2)]",
+    tone: "border-rose-400/40 bg-rose-500/12 text-rose-50 shadow-[0_0_0_1px_rgba(248,113,113,0.16)]",
   },
 ];
 
@@ -217,27 +217,27 @@ export function InspectionApp() {
         : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
 
     return (
-      <header className={`${session.stage === "inspection" ? "sticky top-14 z-20 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm" : "relative bg-transparent"} px-4 pb-4 lg:top-16 transition-all duration-300`} style={safeTopStyle}>
+      <header className={`${session.stage === "inspection" ? "sticky top-0 z-20 bg-slate-950/72 backdrop-blur-xl shadow-panel" : "relative"} px-4 pb-4 transition-all duration-300`} style={safeTopStyle}>
         <div className="mx-auto max-w-3xl pt-2">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-teal-600">BuyingBuddy</p>
-              <h1 className="font-display text-xl font-bold text-gray-900 mt-1">Guided Inspection</h1>
-              <p className="mt-1 truncate text-sm font-medium text-gray-500">{formatVehicleLabel(session.vehicle)}</p>
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-teal-200/80">BuyingBuddy</p>
+              <h1 className="font-display text-xl font-semibold text-white mt-1">Guided Inspection</h1>
+              <p className="mt-1 truncate text-sm font-medium text-slate-300">{formatVehicleLabel(session.vehicle)}</p>
             </div>
             {savedProgressExists && (
-              <button onClick={startFresh} className="shrink-0 rounded-full bg-gray-100 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-200">
-                Reset
+              <button onClick={startFresh} className="shrink-0 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
+                Start fresh
               </button>
             )}
           </div>
           <div className="mt-4 grid gap-2">
-            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div className="flex items-center justify-between text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
               <span>{subtitle}</span>
               <span>{formatPrice(session.vehicle.price)}</span>
             </div>
-            <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
-              <div className="h-full rounded-full bg-teal-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+            <div className="h-2 overflow-hidden rounded-full bg-white/8">
+              <div className="h-full rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-400 transition-[width] duration-300" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
@@ -247,25 +247,25 @@ export function InspectionApp() {
 
   function renderIntro() {
     return (
-      <section className="grid gap-6">
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-teal-700">
+      <section className="grid gap-5">
+        <div className="rounded-[2rem] border border-white/10 bg-slate-950/68 p-6 shadow-panel">
+          <div className="inline-flex rounded-full border border-teal-400/20 bg-teal-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-teal-200">
             Mobile-first flow
           </div>
-          <h2 className="mt-4 font-display text-3xl font-black leading-tight text-gray-900">
+          <h2 className="mt-4 font-display text-4xl font-semibold leading-none text-white">
             Walk the car, flag what you see, and get a straight verdict.
           </h2>
-          <p className="mt-4 text-base leading-7 text-gray-600">
+          <p className="mt-4 text-base leading-7 text-slate-300">
             Enter the car details, move through 20 practical checkpoints one at a time, and finish with a score out of 10 plus a buy, caution, or walk away call.
           </p>
         </div>
 
-        <div className="rounded-3xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+        <div className="rounded-[2rem] border border-white/10 bg-[#10192f]/84 p-6 shadow-panel">
           <div className="grid gap-4">
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-gray-700">Year</span>
+              <span className="text-sm font-semibold text-slate-200">Year</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 maxLength={4}
                 onChange={(e) => updateVehicleField("year", e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
@@ -274,27 +274,27 @@ export function InspectionApp() {
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-gray-700">Make</span>
+              <span className="text-sm font-semibold text-slate-200">Make</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(e) => updateVehicleField("make", e.target.value)}
                 placeholder="Toyota"
                 value={session.vehicle.make}
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-gray-700">Model</span>
+              <span className="text-sm font-semibold text-slate-200">Model</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(e) => updateVehicleField("model", e.target.value)}
                 placeholder="Yaris"
                 value={session.vehicle.model}
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-gray-700">Price</span>
+              <span className="text-sm font-semibold text-slate-200">Price</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 onChange={(e) => updateVehicleField("price", e.target.value.replace(/[^\d]/g, ""))}
                 placeholder="18950"
@@ -303,7 +303,7 @@ export function InspectionApp() {
             </label>
           </div>
 
-          {entryError && <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm font-medium text-rose-700">{entryError}</div>}
+          {entryError && <div className="mt-4 rounded-2xl border border-rose-400/24 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{entryError}</div>}
           
           <button
             className="mt-6 min-h-[4rem] w-full rounded-2xl bg-teal-600 px-5 text-lg font-bold text-white transition hover:bg-teal-700 shadow-md"
@@ -325,32 +325,32 @@ export function InspectionApp() {
       "Pick OK, Concern, or Problem to unlock the next checkpoint.";
 
     return (
-      <section className="flex flex-col gap-6 rounded-3xl bg-white pb-8">
+      <section className="flex flex-col gap-6 rounded-[2rem] border border-white/10 bg-[#0b1326]/84 p-5 shadow-panel min-h-[calc(100svh-12rem)]">
         <div>
-          <p className="text-sm font-black uppercase tracking-widest text-teal-600">{currentCheckpoint.section}</p>
-          <h2 className="mt-2 font-display text-4xl font-black leading-tight text-gray-900">{currentCheckpoint.title}</h2>
+          <p className="text-[0.72rem] font-bold uppercase tracking-[0.26em] text-slate-400">{currentCheckpoint.section}</p>
+          <h2 className="mt-2 font-display text-4xl font-semibold leading-tight text-white">{currentCheckpoint.title}</h2>
         </div>
 
-        <div className="rounded-3xl border border-gray-100 bg-gray-50 p-6">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-500">What to check</p>
-          <p className="mt-3 text-lg leading-relaxed text-gray-800 font-medium">{currentCheckpoint.instructions}</p>
+        <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/68 p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">What to check</p>
+          <p className="mt-3 text-lg leading-relaxed text-slate-200">{currentCheckpoint.instructions}</p>
         </div>
 
         <div className="grid gap-3">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-500">Your call</p>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Your call</p>
           <div className="grid gap-3 sm:grid-cols-3">
             {flagOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setFlag(option.value)}
-                className={`min-h-[6rem] rounded-2xl border px-5 py-4 text-left transition ${
+                className={`min-h-[6rem] rounded-[1.5rem] border px-5 py-4 text-left transition ${
                   selectedFlag === option.value
                     ? option.tone
-                    : "border-gray-200 bg-white text-gray-900 hover:border-gray-300 hover:bg-gray-50 shadow-sm"
+                    : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10"
                 }`}
               >
-                <span className="block text-xl font-black">{option.label}</span>
-                <span className={`mt-1 block text-sm font-medium ${selectedFlag === option.value ? "" : "text-gray-500"}`}>
+                <span className="block text-xl font-semibold">{option.label}</span>
+                <span className={`mt-1 block text-sm ${selectedFlag === option.value ? "" : "text-slate-300"}`}>
                   {option.description}
                 </span>
               </button>
@@ -358,28 +358,28 @@ export function InspectionApp() {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-blue-50 px-5 py-4 text-sm font-medium text-blue-800">{helperText}</div>
+        <div className="rounded-[1.5rem] border border-cyan-400/18 bg-cyan-500/10 px-4 py-3 text-sm leading-6 text-cyan-100">{helperText}</div>
 
         <label className="grid gap-3">
-          <span className="text-xs font-black uppercase tracking-widest text-gray-500">Add a Note (Optional)</span>
+          <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Add a Note (Optional)</span>
           <textarea
-            className="min-h-[8rem] rounded-2xl border border-gray-300 bg-white px-5 py-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 shadow-sm"
+            className="min-h-[8rem] rounded-[1.5rem] border border-white/10 bg-slate-950/72 px-5 py-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
             onChange={(e) => setNote(e.target.value)}
             placeholder={currentCheckpoint.notePlaceholder}
             value={currentCheckpointState.note}
           />
         </label>
 
-        <div className="grid gap-3 pt-4 sm:grid-cols-2">
+        <div className="mt-auto grid gap-3 pt-4 sm:grid-cols-2">
           <button
-            className="min-h-[4rem] rounded-2xl border border-gray-200 bg-white px-4 text-lg font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 shadow-sm"
+            className="min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10 disabled:opacity-45"
             disabled={session.currentStep === 0}
             onClick={goBack}
           >
             ← Back
           </button>
           <button
-            className="min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-bold text-white transition hover:bg-teal-700 disabled:opacity-50 shadow-md"
+            className="min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700 disabled:opacity-45"
             disabled={!canAdvance}
             onClick={goNext}
           >
@@ -394,9 +394,9 @@ export function InspectionApp() {
     const totalIssues = summary.redCount + summary.amberCount;
     const estimatedSavings = totalIssues * 500;
     const riskColor =
-      summary.verdict === "Buy" ? "text-teal-600 bg-teal-50 border-teal-200" :
-      summary.verdict === "Caution" ? "text-amber-600 bg-amber-50 border-amber-200" :
-      "text-rose-600 bg-rose-50 border-rose-200";
+      summary.verdict === "Buy" ? "text-teal-300" :
+      summary.verdict === "Caution" ? "text-amber-400" :
+      "text-rose-400";
 
     function handleShare() {
       const shareData = {
@@ -421,51 +421,51 @@ export function InspectionApp() {
 
     return (
       <section className="grid gap-6">
-        <div className={`rounded-3xl border p-8 text-center shadow-sm ${riskColor}`}>
-          <p className="text-xs font-black uppercase tracking-widest opacity-80">Final result</p>
-          <h2 className="mt-3 font-display text-5xl font-black">{summary.verdict}</h2>
-          <p className="mt-4 text-lg font-bold opacity-90">{summary.verdictDetail}</p>
+        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950 via-[#0f172a] to-[#07111f] p-8 text-center shadow-panel">
+          <p className="text-[0.72rem] font-bold uppercase tracking-[0.26em] text-slate-400">Final result</p>
+          <h2 className={`mt-3 font-display text-5xl font-semibold ${riskColor}`}>{summary.verdict}</h2>
+          <p className="mt-4 text-lg text-slate-200">{summary.verdictDetail}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-xs font-black uppercase tracking-widest text-gray-500">Score</p>
-            <p className="mt-2 text-4xl font-black text-gray-900">{summary.score}<span className="text-xl text-gray-400">/10</span></p>
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 text-center">
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Score</p>
+            <p className="mt-2 text-4xl font-semibold text-white">{summary.score}<span className="text-xl text-slate-500">/10</span></p>
           </div>
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-xs font-black uppercase tracking-widest text-gray-500">Issues</p>
-            <p className="mt-2 text-4xl font-black text-gray-900">{totalIssues}</p>
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 text-center">
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Issues</p>
+            <p className="mt-2 text-4xl font-semibold text-white">{totalIssues}</p>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-            <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-bold text-white transition hover:bg-teal-700 shadow-md">
+            <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700">
               Book a Pro PPI
             </a>
-            <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-gray-300 bg-white px-4 text-lg font-bold text-gray-900 transition hover:bg-gray-50 shadow-sm">
+            <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10">
               Get PPSR Report
             </a>
         </div>
         
         <button
-          className="w-full min-h-[4rem] rounded-2xl border border-gray-300 bg-gray-100 px-4 text-lg font-bold text-gray-700 transition hover:bg-gray-200"
+          className="w-full min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10"
           onClick={handleShare}
         >
           Share Results
         </button>
 
-        <div className="mt-4 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="text-2xl font-black text-gray-900">Detailed Findings</h3>
+        <div className="mt-4 rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-panel">
+            <h3 className="text-2xl font-semibold text-white">Detailed Findings</h3>
             {summary.flaggedItems.length === 0 ? (
-              <div className="mt-4 rounded-2xl bg-teal-50 p-5 text-base font-bold text-teal-800">
+              <div className="mt-4 rounded-[1.5rem] border border-teal-400/18 bg-teal-500/10 p-5 text-base text-teal-50">
                 Every checkpoint was marked OK.
               </div>
             ) : (
               <div className="mt-4 grid gap-4">
                 {summary.flaggedItems.map((item) => (
-                  <div className={`rounded-2xl border p-5 ${item.severity === 'red' ? 'border-rose-200 bg-rose-50' : 'border-amber-200 bg-amber-50'}`} key={item.checkpoint.id}>
-                    <p className={`font-black ${item.severity === 'red' ? 'text-rose-900' : 'text-amber-900'}`}>{item.checkpoint.title}</p>
-                    <p className={`mt-2 font-medium ${item.severity === 'red' ? 'text-rose-800' : 'text-amber-800'}`}>{item.note || 'No notes provided.'}</p>
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5" key={item.checkpoint.id}>
+                    <p className={`font-semibold ${item.severity === 'red' ? 'text-rose-400' : 'text-amber-400'}`}>{item.checkpoint.title}</p>
+                    <p className="mt-2 text-slate-300">{item.note || 'No notes provided.'}</p>
                   </div>
                 ))}
               </div>
@@ -476,14 +476,14 @@ export function InspectionApp() {
   }
 
   return (
-    <div className="min-h-[100svh] bg-white text-gray-900 font-sans">
+    <div className="min-h-[100svh] text-bb-ink">
       {renderTopBar()}
       <main className="mx-auto max-w-3xl px-4 pt-6 pb-12" style={safeBottomStyle}>
         {!hydrated ? (
-          <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center font-bold text-gray-500">Loading...</div>
+          <div className="rounded-[2rem] border border-white/10 bg-slate-950/72 p-8 text-center text-slate-300">Loading...</div>
         ) : session.stage === "intro" ? renderIntro() : session.stage === "results" ? renderResults() : renderInspectionStep()}
         
-        {storageError && <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800 text-center">{storageError}</div>}
+        {storageError && <div className="mt-6 rounded-2xl border border-amber-400/18 bg-amber-500/10 p-4 text-sm text-amber-50 text-center">{storageError}</div>}
       </main>
     </div>
   );

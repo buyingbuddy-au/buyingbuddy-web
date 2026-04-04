@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const DESKTOP_NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -11,6 +14,9 @@ const DESKTOP_NAV_LINKS = [
 ] as const;
 
 export default function AppHeader() {
+  const pathname = usePathname();
+  if (pathname === "/inspect/full") return null;
+
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-16 lg:px-8">

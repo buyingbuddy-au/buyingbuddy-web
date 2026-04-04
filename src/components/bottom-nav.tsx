@@ -28,6 +28,7 @@ function isActiveRoute(pathname: string, href: string) {
 
 export default function BottomNav() {
   const pathname = usePathname();
+  if (pathname === "/inspect/full") return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden">
