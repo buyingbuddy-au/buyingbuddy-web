@@ -1,0 +1,16 @@
+{
+  "name": "buyingbuddy-ppsr-worker",
+  "version": "1.0.0",
+  "description": "Automated PPSR certificate retrieval script running on Jordan's Surface laptop.",
+  "main": "runner.ts",
+  "scripts": {
+    "start": "ts-node runner.ts",
+    "install-deps": "npm install && npx playwright install chromium"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright": "^1.49.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { get_public_deal_by_id, update_seller_deal_section } from "@/lib/deals";
 import type { DealSellerUpdateInput } from "@/lib/types";
+import { uploadBase64Image } from "@/lib/upload";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,18 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = (await request.json()) as DealSellerUpdateInput;
+
+    // Process massive base64 uploads into Vercel Blob URLs
+    if (body.seller_licence?.startsWith("data:")) {
+      body.seller_licence = await uploadBase64Image(body.seller_licence, `deal-${id}-seller-licence`) || body.seller_licence;
+    }
+    if (body.seller_rego_papers?.startsWith("data:")) {
+      body.seller_rego_papers = await uploadBase64Image(body.seller_rego_papers, `deal-${id}-seller-rego`) || body.seller_rego_papers;
+    }
+    if (body.seller_safety_cert?.startsWith("data:")) {
+      body.seller_safety_cert = await uploadBase64Image(body.seller_safety_cert, `deal-${id}-seller-safety`) || body.seller_safety_cert;
+    }
+
     update_seller_deal_section(id, body);
     const deal = get_public_deal_by_id(id);
 

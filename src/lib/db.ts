@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+﻿import { mkdirSync } from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { to_sqlite_datetime } from "@/lib/time";
@@ -70,6 +70,11 @@ CREATE TABLE IF NOT EXISTS email_captures (
   vehicle_summary TEXT,
   converted_to_order TEXT
 );
+
+CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_email_captures_email ON email_captures(email);
+CREATE INDEX IF NOT EXISTS idx_email_captures_created_at ON email_captures(created_at);
 
 CREATE TABLE IF NOT EXISTS deals (
   id TEXT PRIMARY KEY,
