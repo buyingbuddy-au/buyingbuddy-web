@@ -1,4 +1,4 @@
-import type { OrderRecord, OrderStatus, ProductType } from "@/lib/types";
+﻿import type { OrderRecord, OrderStatus, ProductType } from "@/lib/types";
 
 const PRODUCT_LABELS: Record<ProductType, string> = {
   free_check: "Free Check",

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+﻿import { NextResponse } from "next/server";
+import { get_database } from "@/lib/db";
 import { resend } from "@/lib/email";
 
 // Verify cron job token
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     
     // We fetch emails that have NO corresponding order
     // (using left join or a subquery)
-    const pendingCaptures = db.prepare(`
+    const pendingCaptures = get_database().prepare(`
       SELECT e.id, e.email, e.created_at, e.vehicle_summary, e.listing_url
       FROM email_captures e
       LEFT JOIN orders o ON e.email = o.customer_email
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
       
       // Update record to mark we've sent the first nurture email
       // We'll reuse the converted_to_order column but set a string flag so we don't re-send
-      db.prepare(`UPDATE email_captures SET converted_to_order = 'nurture_1_sent' WHERE id = ?`).run(capture.id);
+      get_database().prepare(`UPDATE email_captures SET converted_to_order = 'nurture_1_sent' WHERE id = ?`).run(capture.id);
     }
 
     return NextResponse.json({ 

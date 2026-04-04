@@ -210,7 +210,7 @@ type OrderRow = Omit<OrderRecord, "red_flags" | "ppsr_result"> & {
 
 let database_instance: Database.Database | null = null;
 
-function get_database() {
+export function get_database() {
   if (!database_instance) {
     database_instance = new Database(database_path);
     database_instance.pragma("journal_mode = WAL");

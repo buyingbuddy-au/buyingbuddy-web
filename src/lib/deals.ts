@@ -1,4 +1,4 @@
-import type Stripe from "stripe";
+﻿import type Stripe from "stripe";
 import { generate_deal_summary_pdf } from "@/lib/deal-pdf";
 import {
   get_deal_by_id,
