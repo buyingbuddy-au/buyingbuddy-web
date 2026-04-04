@@ -8,22 +8,12 @@ const CHECKLIST_SECTIONS = [
   {
     title: "Exterior",
     items: [
-      "Panel gaps even on both sides",
-      "No mismatched paint or overspray",
-      "No rust around wheel arches, doors, or boot",
-      "All lights and indicators working",
-      "Windscreen free of cracks",
-      "Tyre tread even and legal depth",
-    ],
-  },
-  {
-    title: "Under the Bonnet",
-    items: [
-      "Oil level and colour (no white residue on cap)",
-      "Coolant level and colour (no brown sludge)",
-      "No visible fluid leaks",
-      "Battery terminals clean, no corrosion",
-      "Belts and hoses not cracked or perished",
+      "Panel gaps even or mismatched (crash repair signs)",
+      "Paint matches between panels",
+      "All lights work (headlights, indicators, brakes)",
+      "Tyres have legal tread and even wear",
+      "No visible rust around doors or wheel arches",
+      "Windscreen is clean with no major cracks",
     ],
   },
   {
@@ -31,30 +21,33 @@ const CHECKLIST_SECTIONS = [
     items: [
       "All electrics work (windows, locks, mirrors)",
       "Air conditioning blows cold",
-      "Seats adjust and aren't ripped",
+      "No damp or mould smell",
       "Dashboard warning lights clear after start",
-      "No damp or mould smell (flood damage)",
-      "Steering wheel not excessively worn",
+      "Seats adjust properly and aren't damaged",
+      "Keys work in all locks / remotes work",
+    ],
+  },
+  {
+    title: "Engine Bay",
+    items: [
+      "Oil cap is clean (no white/milky residue)",
+      "No visible fluid leaks under car or engine",
+      "No visible damage or dodgy DIY wiring",
     ],
   },
   {
     title: "Test Drive",
     items: [
-      "Engine starts smoothly (cold start if possible)",
-      "No unusual noises (knocking, ticking, grinding)",
-      "Brakes feel firm, car stops straight",
-      "Steering doesn't pull to one side",
-      "Gearbox shifts smoothly (auto or manual)",
-      "No vibrations at highway speed",
+      "Engine starts smoothly and idles quietly",
+      "Brakes feel firm and stop straight",
+      "No weird noises or vibrations when driving",
     ],
   },
   {
     title: "Paperwork",
     items: [
-      "VIN matches rego papers",
+      "VIN matches rego papers exactly",
       "Service logbook present and up to date",
-      "Safety certificate / roadworthy current",
-      "Seller's name matches rego certificate",
     ],
   },
 ] as const;
@@ -96,12 +89,22 @@ export default function PrintChecklistPage() {
   }
 
   function handleShare() {
-    const summary = `BuyingBuddy Inspection${vehicleName ? ` — ${vehicleName}` : ""}: ${passes} pass, ${concerns} caution, ${fails} fail out of ${totalItems} checks.`;
+    const summaryData = {
+      type: "quick_print",
+      vehicle: vehicleName || "Unknown Vehicle",
+      passes,
+      concerns,
+      fails,
+      total: totalItems
+    };
+    const encoded = btoa(JSON.stringify(summaryData));
+    const shareUrl = `${window.location.origin}/shared/${encoded}`;
+
     if (navigator.share) {
-      void navigator.share({ title: "BuyingBuddy Inspection", text: summary, url: window.location.href });
+      void navigator.share({ title: "BuyingBuddy Inspection", url: shareUrl });
     } else {
-      void navigator.clipboard.writeText(summary);
-      alert("Copied to clipboard!");
+      void navigator.clipboard.writeText(shareUrl);
+      alert("Link copied to clipboard!");
     }
   }
 
@@ -145,7 +148,7 @@ export default function PrintChecklistPage() {
           <div className="flex gap-3 text-xs font-bold">
             <span className="text-teal-600">✓ {passes}</span>
             <span className="text-amber-500">⚠ {concerns}</span>
-            <span className="text-red-500">✗ {fails}</span>
+            <span className="text-red-500">✕ {fails}</span>
           </div>
         </div>
         <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">

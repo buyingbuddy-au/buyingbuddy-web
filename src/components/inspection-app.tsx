@@ -38,22 +38,19 @@ const flagOptions: Array<{
     value: "ok",
     label: "OK",
     description: "Nothing obvious here.",
-    tone:
-      "border-teal-400/40 bg-teal-500/14 text-teal-50 shadow-[0_0_0_1px_rgba(13,148,136,0.18)]",
+    tone: "border-teal-200 bg-teal-50 text-teal-900 shadow-[0_0_0_2px_rgba(13,148,136,0.2)]",
   },
   {
     value: "amber",
     label: "Concern",
     description: "Something to dig into.",
-    tone:
-      "border-amber-400/40 bg-amber-500/12 text-amber-50 shadow-[0_0_0_1px_rgba(251,191,36,0.16)]",
+    tone: "border-amber-200 bg-amber-50 text-amber-900 shadow-[0_0_0_2px_rgba(245,158,11,0.2)]",
   },
   {
     value: "red",
     label: "Problem",
     description: "This can kill the deal.",
-    tone:
-      "border-rose-400/40 bg-rose-500/12 text-rose-50 shadow-[0_0_0_1px_rgba(248,113,113,0.16)]",
+    tone: "border-rose-200 bg-rose-50 text-rose-900 shadow-[0_0_0_2px_rgba(225,29,72,0.2)]",
   },
 ];
 
@@ -91,32 +88,9 @@ function formatPrice(rawPrice: string): string {
 }
 
 function getProgress(stage: InspectionSession["stage"], currentStep: number): number {
-  if (stage === "intro") {
-    return 0;
-  }
-
-  if (stage === "results") {
-    return 100;
-  }
-
+  if (stage === "intro") return 0;
+  if (stage === "results") return 100;
   return ((currentStep + 1) / TOTAL_CHECKPOINTS) * 100;
-}
-
-function getVerdictTone(verdict: "Buy" | "Caution" | "Walk Away"): string {
-  switch (verdict) {
-    case "Buy":
-      return "border-teal-400/28 bg-teal-500/14 text-teal-50";
-    case "Caution":
-      return "border-amber-400/30 bg-amber-500/14 text-amber-50";
-    default:
-      return "border-rose-400/30 bg-rose-500/14 text-rose-50";
-  }
-}
-
-function getFlagTone(flag: Exclude<Flag, null | "ok">): string {
-  return flag === "red"
-    ? "border-rose-400/28 bg-rose-500/10 text-rose-50"
-    : "border-amber-400/28 bg-amber-500/10 text-amber-50";
 }
 
 export function InspectionApp() {
@@ -127,32 +101,21 @@ export function InspectionApp() {
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-
     if (raw) {
       const restored = restoreSession(raw);
-
-      if (restored) {
-        setSession(restored);
-      } else {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
+      if (restored) setSession(restored);
+      else window.localStorage.removeItem(STORAGE_KEY);
     }
-
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-
+    if (!hydrated) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
       setStorageError(null);
     } catch {
-      setStorageError(
-        "Could not save progress to local storage on this phone. Finish the inspection before refreshing.",
-      );
+      setStorageError("Could not save progress to local storage. Finish the inspection before refreshing.");
     }
   }, [hydrated, session]);
 
@@ -162,48 +125,30 @@ export function InspectionApp() {
   const currentCheckpointState = session.checkpoints[session.currentStep];
   const canAdvance = currentCheckpointState.flag !== null;
   const progress = getProgress(session.stage, session.currentStep);
-  const inspectionComplete =
-    session.checkpoints.filter((checkpointState) => checkpointState.flag !== null).length ===
-    TOTAL_CHECKPOINTS;
 
   function updateVehicleField(field: keyof VehicleDetails, value: string) {
     setSession((current) => ({
       ...current,
-      vehicle: {
-        ...current.vehicle,
-        [field]: value,
-      },
+      vehicle: { ...current.vehicle, [field]: value },
     }));
   }
 
   function updateCheckpoint(
-    updater: (
-      checkpointState: InspectionSession["checkpoints"][number],
-    ) => InspectionSession["checkpoints"][number],
+    updater: (cp: InspectionSession["checkpoints"][number]) => InspectionSession["checkpoints"][number],
   ) {
     setSession((current) => {
       const nextCheckpoints = current.checkpoints.slice();
       nextCheckpoints[current.currentStep] = updater(nextCheckpoints[current.currentStep]);
-
-      return {
-        ...current,
-        checkpoints: nextCheckpoints,
-      };
+      return { ...current, checkpoints: nextCheckpoints };
     });
   }
 
   function setFlag(flag: Exclude<Flag, null>) {
-    updateCheckpoint((checkpointState) => ({
-      ...checkpointState,
-      flag,
-    }));
+    updateCheckpoint((cp) => ({ ...cp, flag }));
   }
 
   function setNote(note: string) {
-    updateCheckpoint((checkpointState) => ({
-      ...checkpointState,
-      note,
-    }));
+    updateCheckpoint((cp) => ({ ...cp, note }));
   }
 
   function startInspection() {
@@ -216,12 +161,10 @@ export function InspectionApp() {
       setEntryError("Enter a valid 4-digit year.");
       return;
     }
-
     if (!make || !model) {
       setEntryError("Enter the make and model before you start.");
       return;
     }
-
     if (!price) {
       setEntryError("Enter the price before you start.");
       return;
@@ -233,13 +176,7 @@ export function InspectionApp() {
       stage: "inspection",
       startedAt: current.startedAt ?? new Date().toISOString(),
       currentStep: Math.max(0, Math.min(TOTAL_CHECKPOINTS - 1, current.currentStep)),
-      vehicle: {
-        ...current.vehicle,
-        year,
-        make,
-        model,
-        price,
-      },
+      vehicle: { ...current.vehicle, year, make, model, price },
     }));
   }
 
@@ -252,127 +189,55 @@ export function InspectionApp() {
   }
 
   function goBack() {
-    if (session.currentStep === 0) {
-      return;
-    }
-
-    goToStep(session.currentStep - 1);
+    if (session.currentStep > 0) goToStep(session.currentStep - 1);
   }
 
   function goNext() {
-    if (!canAdvance) {
-      return;
-    }
-
+    if (!canAdvance) return;
     if (session.currentStep === TOTAL_CHECKPOINTS - 1) {
-      setSession((current) => ({
-        ...current,
-        stage: "results",
-      }));
+      setSession((current) => ({ ...current, stage: "results" }));
       return;
     }
-
     goToStep(session.currentStep + 1);
   }
 
-  function skipSection() {
-    const currentSection = checkpoints[session.currentStep].section;
-    const nextSectionIndex = checkpoints.findIndex(
-      (cp, index) => index > session.currentStep && cp.section !== currentSection,
-    );
-
-    setSession((current) => {
-      const nextCheckpoints = current.checkpoints.map((checkpointState, index) => {
-        if (checkpoints[index].section === currentSection) {
-          return { ...checkpointState, skipped: true, flag: null, note: "" };
-        }
-        return checkpointState;
-      });
-
-      return {
-        ...current,
-        checkpoints: nextCheckpoints,
-        skippedSections: [...current.skippedSections, currentSection],
-        currentStep: nextSectionIndex === -1 ? TOTAL_CHECKPOINTS - 1 : nextSectionIndex,
-      };
-    });
-
-    if (session.currentStep === TOTAL_CHECKPOINTS - 1) {
-      setSession((current) => ({ ...current, stage: "results" }));
-    }
-  }
-
   function startFresh() {
-    const confirmed = window.confirm(
-      "Clear the saved inspection on this phone and start again?",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+    if (!window.confirm("Clear the saved inspection on this phone and start again?")) return;
     window.localStorage.removeItem(STORAGE_KEY);
     setEntryError(null);
     setStorageError(null);
     setSession(createEmptySession());
   }
 
-  function editVehicleDetails() {
-    setEntryError(null);
-    setSession((current) => ({
-      ...current,
-      stage: "intro",
-    }));
-  }
-
   function renderTopBar() {
-    const subtitle =
-      session.stage === "intro"
-        ? "25 checkpoints, one screen at a time. Saved on this phone."
-        : session.stage === "results"
-          ? "Inspection complete"
-          : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
+    const subtitle = session.stage === "intro"
+      ? "20 checks, one by one. Saved locally."
+      : session.stage === "results"
+        ? "Inspection complete"
+        : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
 
     return (
-      <header
-        className="sticky top-14 z-20 px-4 pb-4 backdrop-blur-xl lg:top-16"
-        style={safeTopStyle}
-      >
-        <div className="mx-auto max-w-3xl rounded-[1.75rem] border border-white/10 bg-slate-950/72 px-4 py-4 shadow-panel">
+      <header className="sticky top-14 z-20 px-4 pb-4 bg-white/80 backdrop-blur-xl lg:top-16 border-b border-gray-100 shadow-sm" style={safeTopStyle}>
+        <div className="mx-auto max-w-3xl pt-2">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-teal-200/80">
-                BuyingBuddy
-              </p>
-              <h1 className="font-display text-lg font-semibold text-white">
-                Guided Pre-Purchase Inspection
-              </h1>
-              <p className="mt-1 truncate text-sm text-slate-300">
-                {formatVehicleLabel(session.vehicle)}
-              </p>
+              <p className="text-xs font-bold uppercase tracking-widest text-teal-600">BuyingBuddy</p>
+              <h1 className="font-display text-xl font-bold text-gray-900 mt-1">Guided Inspection</h1>
+              <p className="mt-1 truncate text-sm font-medium text-gray-500">{formatVehicleLabel(session.vehicle)}</p>
             </div>
-
-            {savedProgressExists ? (
-              <button
-                className="shrink-0 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
-                onClick={startFresh}
-                type="button"
-              >
-                Start fresh
+            {savedProgressExists && (
+              <button onClick={startFresh} className="shrink-0 rounded-full bg-gray-100 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-200">
+                Reset
               </button>
-            ) : null}
+            )}
           </div>
-
           <div className="mt-4 grid gap-2">
-            <div className="flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500">
               <span>{subtitle}</span>
               <span>{formatPrice(session.vehicle.price)}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/8">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-400 transition-[width] duration-300"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
+              <div className="h-full rounded-full bg-teal-500 transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
@@ -382,130 +247,70 @@ export function InspectionApp() {
 
   function renderIntro() {
     return (
-      <section className="grid gap-5">
-        <div className="rounded-[2rem] border border-white/10 bg-slate-950/68 p-6 shadow-panel">
-          <div className="inline-flex rounded-full border border-teal-400/20 bg-teal-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-teal-200">
+      <section className="grid gap-6">
+        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-teal-700">
             Mobile-first flow
           </div>
-
-          <h2 className="mt-4 font-display text-4xl font-semibold leading-none text-white">
+          <h2 className="mt-4 font-display text-3xl font-black leading-tight text-gray-900">
             Walk the car, flag what you see, and get a straight verdict.
           </h2>
-
-          <p className="mt-4 text-base leading-7 text-slate-300">
-            Enter the car details, move through 25 checkpoints one at a time, and finish with a
-            score out of 10 plus a buy, caution, or walk away call.
+          <p className="mt-4 text-base leading-7 text-gray-600">
+            Enter the car details, move through 20 practical checkpoints one at a time, and finish with a score out of 10 plus a buy, caution, or walk away call.
           </p>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {[
-              "25 inspection checkpoints",
-              "Simple OK / Concern / Problem flags",
-              "Auto-saved locally on this phone",
-            ].map((item) => (
-              <div
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-slate-100"
-                key={item}
-              >
-                {item}
-              </div>
-            ))}
-          </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[#10192f]/84 p-6 shadow-panel">
+        <div className="rounded-3xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
           <div className="grid gap-4">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-200">Year</span>
+              <span className="text-sm font-bold text-gray-700">Year</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
                 inputMode="numeric"
                 maxLength={4}
-                onChange={(event) =>
-                  updateVehicleField("year", event.target.value.replace(/[^\d]/g, "").slice(0, 4))
-                }
+                onChange={(e) => updateVehicleField("year", e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
                 placeholder="2019"
-                type="text"
                 value={session.vehicle.year}
               />
             </label>
-
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-200">Make</span>
+              <span className="text-sm font-bold text-gray-700">Make</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
-                onChange={(event) => updateVehicleField("make", event.target.value)}
+                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                onChange={(e) => updateVehicleField("make", e.target.value)}
                 placeholder="Toyota"
-                type="text"
                 value={session.vehicle.make}
               />
             </label>
-
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-200">Model</span>
+              <span className="text-sm font-bold text-gray-700">Model</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
-                onChange={(event) => updateVehicleField("model", event.target.value)}
+                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                onChange={(e) => updateVehicleField("model", e.target.value)}
                 placeholder="Yaris"
-                type="text"
                 value={session.vehicle.model}
               />
             </label>
-
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-200">Price</span>
+              <span className="text-sm font-bold text-gray-700">Price</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-gray-300 bg-white px-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
                 inputMode="numeric"
-                onChange={(event) =>
-                  updateVehicleField("price", event.target.value.replace(/[^\d]/g, ""))
-                }
+                onChange={(e) => updateVehicleField("price", e.target.value.replace(/[^\d]/g, ""))}
                 placeholder="18950"
-                type="text"
                 value={session.vehicle.price}
               />
             </label>
           </div>
 
-          {entryError ? (
-            <div className="mt-4 rounded-2xl border border-rose-400/24 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-              {entryError}
-            </div>
-          ) : null}
-
-          {savedProgressExists ? (
-            <div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3 text-sm leading-6 text-cyan-100">
-              Progress is saved locally on this device. If you refresh, the inspection will still
-              be here.
-            </div>
-          ) : null}
-
+          {entryError && <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm font-medium text-rose-700">{entryError}</div>}
+          
           <button
-            className="mt-5 min-h-[3.75rem] w-full rounded-2xl bg-teal-600 px-5 text-base font-semibold text-white transition hover:bg-teal-700"
+            className="mt-6 min-h-[4rem] w-full rounded-2xl bg-teal-600 px-5 text-lg font-bold text-white transition hover:bg-teal-700 shadow-md"
             onClick={startInspection}
-            type="button"
           >
-            Start the 25-point inspection
+            Start Inspection →
           </button>
-        </div>
-
-        <div className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/5 p-5 text-sm leading-6 text-slate-300 shadow-panel sm:grid-cols-2">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-              Scoring
-            </p>
-            <p className="mt-2">
-              Start at 10. Each red flag costs 2 points. Each amber flag costs 1 point.
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-              Verdicts
-            </p>
-            <p className="mt-2">
-              8 to 10 = Buy. 5 to 7 = Caution / Get PPI. 0 to 4 = Walk Away.
-            </p>
-          </div>
         </div>
       </section>
     );
@@ -514,109 +319,71 @@ export function InspectionApp() {
   function renderInspectionStep() {
     const selectedFlag = currentCheckpointState.flag;
     const helperText =
-      selectedFlag === "ok"
-        ? "Marked OK. Keep moving."
-        : selectedFlag === "amber"
-          ? "Marked as a concern. Add a note if it needs context."
-          : selectedFlag === "red"
-            ? "Marked as a problem. Add a note so the result screen explains why."
-            : "Pick OK, Concern, or Problem to unlock the next checkpoint.";
+      selectedFlag === "ok" ? "Marked OK. Keep moving." :
+      selectedFlag === "amber" ? "Marked as a concern. Add a note to remember why." :
+      selectedFlag === "red" ? "Marked as a problem. Add a note so the result screen explains why." :
+      "Pick OK, Concern, or Problem to unlock the next checkpoint.";
 
     return (
-      <section className="step-shell flex min-h-[calc(100svh-12rem)] flex-col rounded-[2rem] border border-white/10 bg-[#0b1326]/84 p-5 shadow-panel">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[0.72rem] font-bold uppercase tracking-[0.26em] text-slate-400">
-              Checkpoint {currentCheckpoint.id} - {currentCheckpoint.section}
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold leading-tight text-white">
-              {currentCheckpoint.title}
-            </h2>
-          </div>
-
-          <div className="flex flex-col items-end gap-2">
-            <div className="rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100">
-              {currentCheckpoint.id}/{TOTAL_CHECKPOINTS}
-            </div>
-            <button
-              className="text-xs text-slate-400 hover:text-teal-300"
-              onClick={skipSection}
-              type="button"
-            >
-              Skip Section →
-            </button>
-          </div>
+      <section className="flex flex-col gap-6 rounded-3xl bg-white pb-8">
+        <div>
+          <p className="text-sm font-black uppercase tracking-widest text-teal-600">{currentCheckpoint.section}</p>
+          <h2 className="mt-2 font-display text-4xl font-black leading-tight text-gray-900">{currentCheckpoint.title}</h2>
         </div>
 
-        <div className="mt-5 rounded-[1.75rem] border border-white/10 bg-slate-950/68 p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-            What to check
-          </p>
-          <p className="mt-3 text-base leading-7 text-slate-200">
-            {currentCheckpoint.instructions}
-          </p>
+        <div className="rounded-3xl border border-gray-100 bg-gray-50 p-6">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-500">What to check</p>
+          <p className="mt-3 text-lg leading-relaxed text-gray-800 font-medium">{currentCheckpoint.instructions}</p>
         </div>
 
-        <div className="mt-5 grid gap-3">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-            Your call
-          </p>
+        <div className="grid gap-3">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-500">Your call</p>
           <div className="grid gap-3 sm:grid-cols-3">
-            {flagOptions.map((option) => {
-              const selected = selectedFlag === option.value;
-
-              return (
-                <button
-                  className={`min-h-[5.5rem] rounded-[1.5rem] border px-4 py-4 text-left transition ${
-                    selected
-                      ? option.tone
-                      : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10"
-                  }`}
-                  key={option.value}
-                  onClick={() => setFlag(option.value)}
-                  type="button"
-                >
-                  <span className="block text-base font-semibold">{option.label}</span>
-                  <span className="mt-1 block text-sm text-slate-300">{option.description}</span>
-                </button>
-              );
-            })}
+            {flagOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setFlag(option.value)}
+                className={`min-h-[6rem] rounded-2xl border px-5 py-4 text-left transition ${
+                  selectedFlag === option.value
+                    ? option.tone
+                    : "border-gray-200 bg-white text-gray-900 hover:border-gray-300 hover:bg-gray-50 shadow-sm"
+                }`}
+              >
+                <span className="block text-xl font-black">{option.label}</span>
+                <span className={`mt-1 block text-sm font-medium ${selectedFlag === option.value ? "" : "text-gray-500"}`}>
+                  {option.description}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="mt-5 rounded-[1.5rem] border border-cyan-400/18 bg-cyan-500/10 px-4 py-3 text-sm leading-6 text-cyan-100">
-          {helperText}
-        </div>
+        <div className="rounded-2xl bg-blue-50 px-5 py-4 text-sm font-medium text-blue-800">{helperText}</div>
 
-        <label className="mt-5 grid gap-3">
-          <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-            Note
-          </span>
+        <label className="grid gap-3">
+          <span className="text-xs font-black uppercase tracking-widest text-gray-500">Add a Note (Optional)</span>
           <textarea
-            className="min-h-[10rem] rounded-[1.5rem] border border-white/10 bg-slate-950/72 px-4 py-4 text-base leading-7 text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
-            onChange={(event) => setNote(event.target.value)}
+            className="min-h-[8rem] rounded-2xl border border-gray-300 bg-white px-5 py-4 text-base text-gray-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 shadow-sm"
+            onChange={(e) => setNote(e.target.value)}
             placeholder={currentCheckpoint.notePlaceholder}
             value={currentCheckpointState.note}
           />
         </label>
 
-        <div className="mt-auto grid gap-3 pt-6 sm:grid-cols-2" style={safeBottomStyle}>
+        <div className="grid gap-3 pt-4 sm:grid-cols-2">
           <button
-            className="min-h-[3.5rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-h-[4rem] rounded-2xl border border-gray-200 bg-white px-4 text-lg font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 shadow-sm"
             disabled={session.currentStep === 0}
             onClick={goBack}
-            type="button"
           >
-            Back
+            ← Back
           </button>
-
           <button
-            className="min-h-[3.5rem] rounded-2xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-bold text-white transition hover:bg-teal-700 disabled:opacity-50 shadow-md"
             disabled={!canAdvance}
             onClick={goNext}
-            type="button"
           >
-            {session.currentStep === TOTAL_CHECKPOINTS - 1 ? "Finish inspection" : "Next checkpoint"}
+            {session.currentStep === TOTAL_CHECKPOINTS - 1 ? "Finish Inspection" : "Next Checkpoint →"}
           </button>
         </div>
       </section>
@@ -627,125 +394,96 @@ export function InspectionApp() {
     const totalIssues = summary.redCount + summary.amberCount;
     const estimatedSavings = totalIssues * 500;
     const riskColor =
-      summary.verdict === "Buy" ? "text-teal-300" : summary.verdict === "Caution" ? "text-amber-400" : "text-rose-400";
+      summary.verdict === "Buy" ? "text-teal-600 bg-teal-50 border-teal-200" :
+      summary.verdict === "Caution" ? "text-amber-600 bg-amber-50 border-amber-200" :
+      "text-rose-600 bg-rose-50 border-rose-200";
 
-    function copyResults() {
-      const text = `Inspection Summary for ${formatVehicleLabel(session.vehicle)}\nVerdict: ${summary.verdict}\nIssues found: ${totalIssues}\nEstimated savings: $${estimatedSavings}\nScore: ${summary.score}/10`;
-      navigator.clipboard.writeText(text);
-      alert("Results copied to clipboard!");
+    function handleShare() {
+      const shareData = {
+        type: "inspection_result",
+        vehicle: formatVehicleLabel(session.vehicle),
+        verdict: summary.verdict,
+        score: summary.score,
+        issues: totalIssues,
+        savings: estimatedSavings,
+        flags: summary.flaggedItems.map(f => ({ title: f.checkpoint.title, note: f.note, severity: f.severity }))
+      };
+      const encoded = btoa(JSON.stringify(shareData));
+      const url = `${window.location.origin}/shared/${encoded}`;
+      
+      if (navigator.share) {
+        void navigator.share({ title: "BuyingBuddy Inspection", url });
+      } else {
+        navigator.clipboard.writeText(url);
+        alert("Link copied!");
+      }
     }
 
     return (
-      <section className="grid gap-5">
-        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950 via-[#0f172a] to-[#07111f] p-6 shadow-panel">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[0.72rem] font-bold uppercase tracking-[0.26em] text-slate-400">
-                Final result
-              </p>
-              <h2 className="mt-2 font-display text-3xl font-semibold text-white">
-                {formatVehicleLabel(session.vehicle)}
-              </h2>
-            </div>
-
-            <div className={`text-3xl font-bold ${riskColor}`}>{summary.verdict}</div>
-          </div>
-
-          <p className="mt-5 text-base leading-7 text-slate-200">{summary.verdictDetail}</p>
+      <section className="grid gap-6">
+        <div className={`rounded-3xl border p-8 text-center shadow-sm ${riskColor}`}>
+          <p className="text-xs font-black uppercase tracking-widest opacity-80">Final result</p>
+          <h2 className="mt-3 font-display text-5xl font-black">{summary.verdict}</h2>
+          <p className="mt-4 text-lg font-bold opacity-90">{summary.verdictDetail}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 text-center">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Issues Found</p>
-            <p className="mt-2 text-2xl font-semibold text-white">{totalIssues}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+            <p className="text-xs font-black uppercase tracking-widest text-gray-500">Score</p>
+            <p className="mt-2 text-4xl font-black text-gray-900">{summary.score}<span className="text-xl text-gray-400">/10</span></p>
           </div>
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 text-center">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Skipped</p>
-            <p className="mt-2 text-2xl font-semibold text-white">{summary.skippedCount}</p>
-          </div>
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 text-center">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Est. Savings</p>
-            <p className="mt-2 text-2xl font-semibold text-white">${estimatedSavings}</p>
-          </div>
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 text-center">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-slate-400">Risk</p>
-            <p className={`mt-2 text-2xl font-semibold ${riskColor}`}>{summary.verdict}</p>
+          <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+            <p className="text-xs font-black uppercase tracking-widest text-gray-500">Issues</p>
+            <p className="mt-2 text-4xl font-black text-gray-900">{totalIssues}</p>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-            <a href="/ppi" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700">
-              Book a PPI
+            <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-bold text-white transition hover:bg-teal-700 shadow-md">
+              Book a Pro PPI
             </a>
-            <a href="/ppsr" className="flex items-center justify-center min-h-[3.5rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10">
+            <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-gray-300 bg-white px-4 text-lg font-bold text-gray-900 transition hover:bg-gray-50 shadow-sm">
               Get PPSR Report
             </a>
         </div>
         
         <button
-          className="w-full min-h-[3.5rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10"
-          onClick={copyResults}
-          type="button"
+          className="w-full min-h-[4rem] rounded-2xl border border-gray-300 bg-gray-100 px-4 text-lg font-bold text-gray-700 transition hover:bg-gray-200"
+          onClick={handleShare}
         >
-          Share results
+          Share Results
         </button>
 
-        <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-panel">
-            <h3 className="text-xl font-semibold text-white">Detailed Findings</h3>
+        <div className="mt-4 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="text-2xl font-black text-gray-900">Detailed Findings</h3>
             {summary.flaggedItems.length === 0 ? (
-            <div className="mt-4 rounded-[1.5rem] border border-teal-400/18 bg-teal-500/10 px-4 py-4 text-sm leading-6 text-teal-50">
-              Every checkpoint was marked OK.
-            </div>
+              <div className="mt-4 rounded-2xl bg-teal-50 p-5 text-base font-bold text-teal-800">
+                Every checkpoint was marked OK.
+              </div>
             ) : (
-            <div className="mt-4 grid gap-3">
-              {summary.flaggedItems.map((item) => (
-                <div
-                  className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4"
-                  key={item.checkpoint.id}
-                >
-                  <p className="text-sm font-semibold text-white">{item.checkpoint.title}</p>
-                  <p className="mt-1 text-sm text-slate-300">{item.note}</p>
-                </div>
-              ))}
-            </div>
+              <div className="mt-4 grid gap-4">
+                {summary.flaggedItems.map((item) => (
+                  <div className={`rounded-2xl border p-5 ${item.severity === 'red' ? 'border-rose-200 bg-rose-50' : 'border-amber-200 bg-amber-50'}`} key={item.checkpoint.id}>
+                    <p className={`font-black ${item.severity === 'red' ? 'text-rose-900' : 'text-amber-900'}`}>{item.checkpoint.title}</p>
+                    <p className={`mt-2 font-medium ${item.severity === 'red' ? 'text-rose-800' : 'text-amber-800'}`}>{item.note || 'No notes provided.'}</p>
+                  </div>
+                ))}
+              </div>
             )}
         </div>
       </section>
     );
   }
 
-  function renderBody() {
-    if (!hydrated) {
-      return (
-        <div className="rounded-[2rem] border border-white/10 bg-slate-950/72 px-6 py-8 text-center text-sm text-slate-300 shadow-panel">
-          Loading saved inspection...
-        </div>
-      );
-    }
-
-    if (session.stage === "intro") {
-      return renderIntro();
-    }
-
-    if (session.stage === "results") {
-      return renderResults();
-    }
-
-    return renderInspectionStep();
-  }
-
   return (
-    <div className="min-h-[100svh] text-bb-ink">
+    <div className="min-h-[100svh] bg-white text-gray-900 font-sans">
       {renderTopBar()}
-
-      <main className="inspection-grid px-4 pb-8" style={safeBottomStyle}>
-        <div className="mx-auto flex max-w-3xl flex-col gap-5">{renderBody()}</div>
-
-        {storageError ? (
-          <div className="mx-auto mt-5 max-w-3xl rounded-[1.5rem] border border-amber-400/18 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-50">
-            {storageError}
-          </div>
-        ) : null}
+      <main className="mx-auto max-w-3xl px-4 pt-6 pb-12" style={safeBottomStyle}>
+        {!hydrated ? (
+          <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center font-bold text-gray-500">Loading...</div>
+        ) : session.stage === "intro" ? renderIntro() : session.stage === "results" ? renderResults() : renderInspectionStep()}
+        
+        {storageError && <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800 text-center">{storageError}</div>}
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-export const STORAGE_KEY = "buyingbuddy-guided-inspection-v2";
+export const STORAGE_KEY = "buyingbuddy-guided-inspection-v3";
 
 export type Stage = "intro" | "inspection" | "results";
 export type Flag = "ok" | "amber" | "red" | null;
@@ -52,205 +52,154 @@ export interface InspectionSummary {
 }
 
 export const checkpoints: Checkpoint[] = [
+  // EXTERIOR
   {
     id: 1,
     section: "Exterior",
-    title: "Exterior Overview",
-    instructions:
-      "Stand back and scan the whole car. Look for uneven stance, mismatched panels, obvious dents, and signs it has had a hard life. Check for inconsistent panel gaps which often hide poor repair work.",
-    notePlaceholder: "Anything obvious before you move closer?",
+    title: "Panel Gaps",
+    instructions: "Walk around the car. Check if the gaps between doors, bonnet, and boot are even. Uneven gaps often mean crash repairs.",
+    notePlaceholder: "Are any panels misaligned?",
   },
   {
     id: 2,
     section: "Exterior",
-    title: "Paint Front",
-    instructions:
-      "Check the bonnet, front bar, and guards for colour mismatch, stone rash, clear coat peel, or repairs that do not line up. Try a small magnet test on panels to check for hidden bog/filler. Check for 'orange peel' paint texture which suggests a respray.",
-    notePlaceholder: "Front-end paint issues or repair signs?",
+    title: "Paint Match",
+    instructions: "Stand back and look at the car in natural light. Does the paint on the doors match the bumpers and guards?",
+    notePlaceholder: "Any panels looking slightly different?",
   },
   {
     id: 3,
     section: "Exterior",
-    title: "Paint Left",
-    instructions:
-      "Walk the left side slowly. Look down the panels for ripples, inconsistent gaps, scratches, and overspray. If possible, consider a paint depth meter rental to verify factory thickness.",
-    notePlaceholder: "Left side damage, waviness, or bad paint?",
+    title: "All Lights",
+    instructions: "Turn on the headlights, hazards, and ask someone to check the brake lights and reverse lights.",
+    notePlaceholder: "Any blown bulbs or cracked lenses?",
   },
   {
     id: 4,
     section: "Exterior",
-    title: "Paint Right",
-    instructions:
-      "Repeat the same check on the right side. Watch for poor panel fit, door dings, and colour differences. Check panel gap alignment carefully between all doors and guards.",
-    notePlaceholder: "Right side damage or paint mismatch?",
+    title: "Tyres",
+    instructions: "Look at all four tyres. Do they have legal tread depth? Are they wearing evenly across the surface?",
+    notePlaceholder: "Bald edges or mismatched brands?",
   },
   {
     id: 5,
     section: "Exterior",
-    title: "Paint Rear",
-    instructions:
-      "Check the boot lid, rear guards, and bumper. Rear impact repairs often show up in bad alignment or cheap repaint work. Use a magnet to check for thick filler underneath the paint.",
-    notePlaceholder: "Rear-end damage or repair signs?",
+    title: "Rust Check",
+    instructions: "Look closely around the bottom of the doors, the wheel arches, and the boot for bubbling paint or visible rust.",
+    notePlaceholder: "Any rust spots found?",
   },
   {
     id: 6,
-    section: "Running Gear",
+    section: "Exterior",
     title: "Windscreen",
-    instructions:
-      "Look for chips, cracks, hazing, wiper scratches, and signs the screen has been replaced badly.",
-    notePlaceholder: "Any chips, cracks, or glass issues?",
+    instructions: "Check the windscreen for any large cracks, star chips, or heavy scratching.",
+    notePlaceholder: "Chips in the driver's line of sight?",
   },
+
+  // INTERIOR
   {
     id: 7,
-    section: "Running Gear",
-    title: "Tyres Front",
-    instructions:
-      "Check both front tyres for tread depth and even wear. Aim for minimum 3mm for QLD safety. Uneven wear can point to suspension, steering, or alignment issues. Check for mismatched tyre brands across the axle.",
-    notePlaceholder: "Front tyre wear, brand mismatch, or bald edges?",
+    section: "Interior",
+    title: "Electrics",
+    instructions: "Test every window, the door locks, the mirrors, and the sunroof if it has one. Make sure it all goes up and down.",
+    notePlaceholder: "Any sticky windows or broken switches?",
   },
   {
     id: 8,
-    section: "Running Gear",
-    title: "Tyres Rear",
-    instructions:
-      "Check the rear tyres the same way. Rear tyres should still have decent tread and should not be chopped out or badly worn. Confirm brand matches front set.",
-    notePlaceholder: "Rear tyre wear or mismatched rubber?",
+    section: "Interior",
+    title: "Air Conditioning",
+    instructions: "Start the engine and blast the AC on cold. It should be freezing within a minute.",
+    notePlaceholder: "Is the air blowing hot?",
   },
   {
     id: 9,
-    section: "Running Gear",
-    title: "Wheels",
-    instructions:
-      "Inspect the rims for major kerb rash, cracks, buckles, or missing wheel nuts and centre caps.",
-    notePlaceholder: "Wheel damage or signs of impact?",
+    section: "Interior",
+    title: "Smell",
+    instructions: "Sit inside with the doors closed. Does it smell like damp carpet, mould, or heavy smoke?",
+    notePlaceholder: "Any weird smells?",
   },
   {
     id: 10,
-    section: "Running Gear",
-    title: "Under Car",
-    instructions:
-      "Crouch down and look underneath. Watch for fresh scrapes, bent metal, rust, hanging trims, and fluid leaks.",
-    notePlaceholder: "Any leaks, rust, or underside damage?",
+    section: "Interior",
+    title: "Dashboard Lights",
+    instructions: "When the engine starts, all warning lights should turn off. Are any lights (like engine, airbag) staying on?",
+    notePlaceholder: "Which lights are staying on?",
   },
   {
     id: 11,
-    section: "Engine",
-    title: "Engine Bay",
-    instructions:
-      "Open the bonnet and take in the whole engine bay. Look for missing covers, loose wiring, crash repair signs, or heavy grime. Check A/C on max cold now to ensure it engages.",
-    notePlaceholder: "Anything missing, tampered with, or suspicious?",
+    section: "Interior",
+    title: "Seats",
+    instructions: "Check if the seats adjust properly (forward, back, recline) and look for heavy tears or damage.",
+    notePlaceholder: "Broken seat mechanisms or big rips?",
   },
   {
     id: 12,
-    section: "Engine",
-    title: "Oil Level",
-    instructions:
-      "Check the dipstick. Make sure the oil is on the mark and does not look burnt, sludgy, or contaminated. If you can do a cold start, watch for blue (burning oil) or white (coolant) smoke in exhaust.",
-    notePlaceholder: "Oil level or oil condition concerns?",
+    section: "Interior",
+    title: "Keys",
+    instructions: "Check if the central locking works on the remote. Does the key turn easily in the ignition or doors?",
+    notePlaceholder: "Missing spare key or sticky locks?",
   },
+
+  // ENGINE
   {
     id: 13,
     section: "Engine",
-    title: "Coolant",
-    instructions:
-      "Check the coolant bottle when safe to do so. It should sit in range and look clean, not rusty, oily, or empty.",
-    notePlaceholder: "Coolant low, dirty, or crusty around the cap?",
+    title: "Oil Cap",
+    instructions: "With the engine OFF, unscrew the oil cap. It should be oily, not covered in a thick milky/white paste (head gasket warning).",
+    notePlaceholder: "Milky residue under the cap?",
   },
   {
     id: 14,
     section: "Engine",
-    title: "Battery",
-    instructions:
-      "Check the battery terminals and case. Look for corrosion, swelling, loose clamps, or a battery that looks ancient.",
-    notePlaceholder: "Battery corrosion or age concerns?",
+    title: "Visible Leaks",
+    instructions: "Look down into the engine bay and under the car. Are there any fresh, wet puddles or heavy oil caked onto the engine?",
+    notePlaceholder: "Wet oil or coolant spots?",
   },
   {
     id: 15,
     section: "Engine",
-    title: "Engine Leaks",
-    instructions:
-      "Look around the engine and below it for oil, coolant, and wet spots. Fresh leaks matter more than old dust.",
-    notePlaceholder: "Where are the leaks or wet spots?",
+    title: "Damage & Wires",
+    instructions: "Look around for broken plastic, dodgy electrical tape, or exposed wires.",
+    notePlaceholder: "Anything look DIY or broken?",
   },
+
+  // TEST DRIVE
   {
     id: 16,
-    section: "Interior",
-    title: "Interior",
-    instructions:
-      "Check the overall cabin condition. Smells, wear, broken trims, and cheap repairs usually tell the real story. Watch for collapsed seat foam on high-km cars. Check that all window motors work smoothly.",
-    notePlaceholder: "How does the interior present overall?",
+    section: "Test Drive",
+    title: "Start & Idle",
+    instructions: "Does the engine start instantly? Does it idle smoothly without shuddering or hunting for revs?",
+    notePlaceholder: "Rough start or unstable idle?",
   },
   {
     id: 17,
-    section: "Interior",
-    title: "Dashboard Lights",
-    instructions:
-      "Start the car and watch the cluster. Turn key to ON without starting; all warning lights should illuminate. They should clear after starting. Anything staying on is a problem.",
-    notePlaceholder: "Which warning lights stayed on, if any?",
+    section: "Test Drive",
+    title: "Braking",
+    instructions: "When safe, brake firmly. The car should stop straight. You shouldn't feel shaking in the steering wheel.",
+    notePlaceholder: "Shuddering or pulling to one side?",
   },
   {
     id: 18,
-    section: "Interior",
-    title: "Odometer",
-    instructions:
-      "Check the kilometres and compare them to the car's condition, service history, and seller story.",
-    notePlaceholder: "Do the kms make sense for this car?",
+    section: "Test Drive",
+    title: "Noises",
+    instructions: "Listen closely with the radio off and windows down. Hear any clunks, whining, or grinding sounds?",
+    notePlaceholder: "Weird noises when turning or accelerating?",
   },
+
+  // PAPERWORK
   {
     id: 19,
-    section: "Interior",
-    title: "Seats",
-    instructions:
-      "Check front and rear seats for tears, broken trim, sagging bolsters, stains, and cigarette burns.",
-    notePlaceholder: "Seat wear, smells, or broken mechanisms?",
+    section: "Paperwork",
+    title: "VIN Check",
+    instructions: "Check the VIN plate on the car. Does it exactly match the rego papers or the seller's ad?",
+    notePlaceholder: "VIN doesn't match?",
   },
   {
     id: 20,
-    section: "Interior",
-    title: "Boot",
-    instructions:
-      "Open the boot and look under the floor. Watch for water marks, mould, accident repairs, or missing trim pieces.",
-    notePlaceholder: "Boot condition, water damage, or missing trims?",
-  },
-  {
-    id: 21,
-    section: "Documentation",
-    title: "Spare Tyre",
-    instructions:
-      "Check that the spare tyre, jack, and tools are actually there and usable.",
-    notePlaceholder: "Spare missing, flat, or tools missing?",
-  },
-  {
-    id: 22,
-    section: "Documentation",
-    title: "Service Book",
-    instructions:
-      "Ask for the service book and look for regular entries. Gaps, missing books, and sketchy history reduce confidence fast.",
-    notePlaceholder: "Service history gaps or missing stamps?",
-  },
-  {
-    id: 23,
-    section: "Documentation",
-    title: "Rego Papers",
-    instructions:
-      "Check the registration paperwork lines up with the seller, the plate, and the car in front of you.",
-    notePlaceholder: "Any paperwork mismatch or issue?",
-  },
-  {
-    id: 24,
-    section: "Documentation",
-    title: "VIN",
-    instructions:
-      "Find the VIN plate or stamped VIN and make sure it is readable, untampered, and matches the paperwork. Check the chassis number on the compliance plate for signs of re-stamping.",
-    notePlaceholder: "VIN issue, mismatch, or tamper signs?",
-  },
-  {
-    id: 25,
-    section: "Documentation",
-    title: "Test Drive",
-    instructions:
-      "Drive it properly if the seller allows it. Listen for rattles, watch how it shifts, brakes, tracks straight, and handles bumps. Feel for steering play, brake fade on long stops, and smooth transmission shift quality.",
-    notePlaceholder: "What did the car do on the test drive?",
+    section: "Paperwork",
+    title: "Service Books",
+    instructions: "Look at the logbook. Are the services regular? Are there big missing gaps in the history?",
+    notePlaceholder: "Missing books or big service gaps?",
   },
 ];
 
