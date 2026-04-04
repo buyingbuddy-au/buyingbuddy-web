@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { save_review_action, send_report_action } from "@/app/admin/actions";
 import { get_order_by_id } from "@/lib/db";
+import { PPSRProcessForm } from "./ppsr-process-form";
 import {
   build_vehicle_summary,
   format_currency,
@@ -176,6 +177,15 @@ export default async function AdminOrderDetailPage({
           </ul>
         </article>
       </div>
+
+      <article className="admin-card">
+        <h3 className="admin-panel-title">PPSR Report Generator</h3>
+        <p className="admin-copy-block">
+          Paste the raw PPSR certificate text below. Clicking Generate Report will extract the data with AI,
+          create a branded PDF, email it to the customer, and notify Jordan on Telegram.
+        </p>
+        <PPSRProcessForm customer_email={order.customer_email} order_id={order.id} />
+      </article>
 
       <div className="admin-grid admin-detail-grid">
         <article className="admin-card">

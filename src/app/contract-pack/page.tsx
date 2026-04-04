@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FileText, Shield, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { HandoverPackButton } from "@/components/handover-pack-button";
 
 const CONTRACT_PACK_ITEMS = [
@@ -28,11 +29,6 @@ const SCAM_POINTS = [
   "Confusion over payment, identity, or handover timing",
 ] as const;
 
-const contractPackCheckoutUrl =
-  process.env.CONTRACT_PACK_CHECKOUT_URL?.trim() ||
-  process.env.NEXT_PUBLIC_CONTRACT_PACK_CHECKOUT_URL?.trim() ||
-  "";
-
 export const metadata: Metadata = {
   title: "Private Sale Contract Pack",
   description:
@@ -40,125 +36,132 @@ export const metadata: Metadata = {
 };
 
 export default function ContractPackPage() {
-  const checkoutReady = Boolean(contractPackCheckoutUrl);
-
   return (
-    <>
-      <section className="section contract-hero-section">
-        <div className="container contract-hero-layout">
-          <div className="contract-hero-copy">
-            <p className="eyebrow">QLD Private Sale Contract Pack</p>
-            <h1 className="hero-title contract-hero-title">
-              Private sale paperwork built by a licensed dealer who has seen every scam.
-            </h1>
-            <p className="hero-description contract-hero-description">
-              If a private seller gets vague when it is time to take payment, record defects, or hand over
-              rego paperwork, that is your problem unless the deal is documented properly. This pack gives
-              Queensland buyers the core documents to tighten the handover.
-            </p>
-
-            <div className="contract-hero-points">
-              <span className="hero-chip">QLD-specific paperwork</span>
-              <span className="hero-chip">Built for private vehicle sales</span>
-              <span className="hero-chip">Fast, printable templates</span>
-            </div>
-          </div>
-
-          <aside className="contract-buy-card">
-            <p className="contract-buy-kicker">Private Sale Contract Pack</p>
-            <p className="contract-buy-price">$9.95</p>
-            <p className="contract-buy-copy">
-              Four practical documents for the day the deal becomes real.
-            </p>
-
-            <ul className="contract-buy-list">
-              <li>QLD vehicle sale contract</li>
-              <li>Receipt of payment</li>
-              <li>Vehicle condition report</li>
-              <li>Transfer of registration guide</li>
-            </ul>
-
-            <HandoverPackButton />
-
-            <p className="contract-buy-note">
-              Free download — enter your email and get all 4 PDFs instantly.
-            </p>
-
-            {checkoutReady && (
-              <>
-                <p className="contract-buy-note" style={{ marginTop: "8px" }}>Or purchase the full pack with Stripe:</p>
-                <a
-                  className="button button-secondary contract-buy-button"
-                  href={contractPackCheckoutUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                  style={{ marginTop: "8px" }}
-                >
-                  Buy Contract Pack - $9.95
-                </a>
-              </>
-            )}
-          </aside>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <p className="eyebrow">What's Included</p>
-          <h2 className="section-title">Everything you need to document the handover properly.</h2>
-          <div className="contract-grid">
-            {CONTRACT_PACK_ITEMS.map((item) => (
-              <article className="contract-item-card" key={item.title}>
-                <h3 className="contract-item-title">{item.title}</h3>
-                <p className="contract-item-copy">{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-alt">
-        <div className="container contract-story-layout">
-          <div>
-            <p className="eyebrow">Why This Exists</p>
-            <h2 className="section-title">A handshake is not a process.</h2>
-            <p className="section-intro">
-              Private sales in Queensland are where the seller's memory suddenly gets fuzzy. A proper
-              contract, payment receipt, and condition report force the important details onto paper while
-              both sides are still standing next to the car.
-            </p>
-            <p className="section-intro">
-              That matters because once the transfer is done, arguments about defects, damage, accessories,
-              or payment promises get hard to unwind very quickly.
-            </p>
-          </div>
-
-          <div className="contract-risk-card">
-            <p className="contract-risk-kicker">Built by a licensed dealer who has seen every scam</p>
-            <ul className="contract-risk-list">
-              {SCAM_POINTS.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-dark final-cta contract-final-cta">
-        <div className="container">
-          <h2 className="final-cta-title">Show up with paperwork, not hope.</h2>
-          <p className="final-cta-copy">
-            Use the contract pack on handover day, and pair it with the free listing check or PPSR earlier
-            in the buying process.
+    <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
+      {/* Hero + Buy Card */}
+      <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+        <div className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
+            QLD Private Sale Contract Pack
           </p>
-          <div className="final-cta-actions">
-            <HandoverPackButton />
-            <Link className="button button-secondary" href="/">
-              Back to free check
-            </Link>
+          <h1 className="mt-4 max-w-xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
+            Private sale paperwork built by a licensed dealer who has seen every scam.
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
+            If a private seller gets vague when it&apos;s time to take payment, record defects, or hand
+            over rego paperwork, that&apos;s your problem unless the deal is documented properly.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">QLD-specific paperwork</span>
+            <span className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">Built for private vehicle sales</span>
+            <span className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">Fast, printable templates</span>
           </div>
         </div>
+
+        <div className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
+            Private Sale Contract Pack
+          </p>
+          <p className="mt-3 text-4xl font-black tracking-[-0.05em] text-gray-900">$9.95</p>
+          <p className="mt-3 text-sm leading-6 text-gray-500">
+            Four practical documents for the day the deal becomes real.
+          </p>
+
+          <ul className="mt-6 grid gap-3">
+            {["QLD vehicle sale contract", "Receipt of payment", "Vehicle condition report", "Transfer of registration guide"].map((item) => (
+              <li key={item} className="flex items-center gap-3 text-sm font-medium text-gray-900">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-600" />
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6">
+            <HandoverPackButton />
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            Free download — enter your email and get all 4 PDFs instantly.
+          </p>
+        </div>
       </section>
-    </>
+
+      {/* What's Included */}
+      <section className="mt-10">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">What&apos;s included</p>
+        <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">
+          Everything you need to document the handover properly.
+        </h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {CONTRACT_PACK_ITEMS.map((item) => (
+            <article
+              key={item.title}
+              className="rounded-[1.75rem] border border-gray-200 bg-gray-50 p-5 shadow-sm"
+            >
+              <div className="inline-flex rounded-2xl bg-teal-50 p-3 text-teal-600">
+                <FileText className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 text-lg font-black tracking-[-0.04em] text-gray-900">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-gray-500">{item.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Why This Exists */}
+      <section className="mt-10 grid gap-6 lg:grid-cols-2 lg:items-start">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Why this exists</p>
+          <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">
+            A handshake is not a process.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-gray-500">
+            Private sales in Queensland are where the seller&apos;s memory suddenly gets fuzzy. A proper
+            contract, payment receipt, and condition report force the important details onto paper while
+            both sides are still standing next to the car.
+          </p>
+          <p className="mt-4 text-sm leading-7 text-gray-500">
+            That matters because once the transfer is done, arguments about defects, damage, accessories,
+            or payment promises get hard to unwind very quickly.
+          </p>
+        </div>
+
+        <div className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm">
+          <div className="inline-flex rounded-2xl bg-red-50 p-3 text-red-600">
+            <Shield className="h-5 w-5" />
+          </div>
+          <p className="mt-4 text-sm font-black text-gray-900">
+            Built by a licensed dealer who has seen every scam
+          </p>
+          <ul className="mt-4 grid gap-3">
+            {SCAM_POINTS.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm leading-6 text-gray-600">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="mt-10 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
+        <h2 className="text-2xl font-black tracking-[-0.05em] text-white sm:text-4xl">
+          Show up with paperwork, not hope.
+        </h2>
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-400">
+          Use the contract pack on handover day, and pair it with the free listing check or PPSR earlier
+          in the buying process.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div><HandoverPackButton /></div>
+          <Link
+            href="/check"
+            className="inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-white/20 px-6 text-sm font-bold text-white transition hover:bg-white/10"
+          >
+            Back to free check
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

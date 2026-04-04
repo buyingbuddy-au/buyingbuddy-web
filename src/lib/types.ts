@@ -150,3 +150,27 @@ export interface ProductDefinition {
   description: string;
   price_cents: number;
 }
+
+export type PPSRVerdict = "CLEAR" | "CAUTION" | "ALERT";
+
+export interface PPSRExtractedData {
+  vin: string | null;
+  rego: string | null;
+  make: string | null;
+  model: string | null;
+  year: number | null;
+  finance_owing: boolean;
+  finance_details: string | null;
+  stolen: boolean;
+  stolen_details: string | null;
+  writeoff: boolean;
+  writeoff_details: string | null;
+  registration_status: string | null;
+  registration_expiry: string | null;
+  verdict: PPSRVerdict;
+  summary: string;
+  what_this_means: string;
+  what_to_do_next: string;
+  extracted_at: string;
+  source: "openai" | "gemini" | "fallback";
+}

@@ -1,252 +1,196 @@
-import CTASection from '@/components/cta-section'
-import PricingCard from '@/components/pricing-card'
-import SiteStickyCTA from '@/components/site-sticky-cta'
-import { Check, X, Shield, Crown, Star, FileText, Phone } from 'lucide-react'
+import Link from "next/link";
+import { Check, X, CheckCircle2 } from "lucide-react";
 
 export const metadata = {
-  title: 'Pricing - Car Buying Protection Plans | Buying Buddy',
-  description: 'Choose your level of car buying protection. From free checklist to complete buyer bundles. Queensland car buying support.',
-}
+  title: "Pricing — Buying Buddy",
+  description: "Choose your level of car buying protection. From free tools to complete buyer bundles.",
+};
+
+const PRODUCTS = [
+  {
+    name: "Free Kit",
+    price: "Free",
+    description: "Essential checklists and guides to get you started.",
+    href: "/free-kit",
+    buttonText: "Download Free",
+    highlight: false,
+    features: [
+      "20-point inspection checklist",
+      "Red flags and scam detection",
+      "Basic negotiation tips",
+      "QLD rego transfer basics",
+    ],
+  },
+  {
+    name: "PPSR Report",
+    price: "$4.95",
+    description: "Finance, stolen, and write-off checks on one vehicle.",
+    href: "/ppsr",
+    buttonText: "Run PPSR Check",
+    highlight: false,
+    features: [
+      "Official PPSR data",
+      "Finance owing check",
+      "Stolen vehicle check",
+      "Write-off history",
+      "Plain English report",
+    ],
+  },
+  {
+    name: "Contract Pack",
+    price: "$9.95",
+    description: "QLD private sale paperwork for handover day.",
+    href: "/contract-pack",
+    buttonText: "Get Contract Pack",
+    highlight: true,
+    features: [
+      "QLD vehicle sale contract",
+      "Receipt of payment",
+      "Vehicle condition report",
+      "Transfer of rego guide",
+    ],
+  },
+  {
+    name: "Dealer Review",
+    price: "$14.95",
+    description: "A sharper read on price, faults, and whether the car is worth chasing.",
+    href: "/check",
+    buttonText: "Start Review",
+    highlight: false,
+    features: [
+      "Everything in PPSR",
+      "Known make/model failure points",
+      "Inspection angles",
+      "Negotiation strategy",
+    ],
+  },
+  {
+    name: "Full Pack",
+    price: "$34.95",
+    description: "Everything bundled. Best when you're ready to move on one car.",
+    href: "/check",
+    buttonText: "Get Full Pack",
+    highlight: false,
+    features: [
+      "Dealer review included",
+      "QLD contract pack included",
+      "Negotiation guidance",
+      "Multiple vehicle checks",
+    ],
+  },
+] as const;
+
+const COMPARISON = [
+  { feature: "20-point inspection checklist", free: true, ppsr: false, contract: false, dealer: true, full: true },
+  { feature: "Verified PPSR report", free: false, ppsr: true, contract: false, dealer: true, full: true },
+  { feature: "QLD legal contracts", free: false, ppsr: false, contract: true, dealer: false, full: true },
+  { feature: "Known fault analysis", free: false, ppsr: false, contract: false, dealer: true, full: true },
+  { feature: "Negotiation scripts", free: false, ppsr: false, contract: false, dealer: true, full: true },
+  { feature: "Multiple vehicle checks", free: false, ppsr: false, contract: false, dealer: false, full: true },
+] as const;
 
 export default function PricingPage() {
-  const comparisonFeatures = [
-    { feature: "20-point inspection checklist", free: true, confidence: true, bundle: true },
-    { feature: "Red flags and scam detection", free: true, confidence: true, bundle: true },
-    { feature: "Basic negotiation tips", free: true, confidence: true, bundle: true },
-    { feature: "QLD rego transfer basics", free: true, confidence: true, bundle: true },
-    { feature: "Verified PPSR report (1 vehicle)", free: false, confidence: true, bundle: true },
-    { feature: "QLD-specific legal contracts", free: false, confidence: true, bundle: true },
-    { feature: "Detailed inspection guide", free: false, confidence: true, bundle: true },
-    { feature: "Advanced scam protection", free: false, confidence: false, bundle: true },
-    { feature: "Multiple PPSR reports (up to 5)", free: false, confidence: false, bundle: true },
-    { feature: "Editable contract templates", free: false, confidence: false, bundle: true },
-    { feature: "Professional negotiation scripts", free: false, confidence: false, bundle: true },
-    { feature: "SMS support included", free: false, confidence: false, bundle: true },
-    { feature: "WhatsApp support", free: false, confidence: false, bundle: true },
-  ]
-
   return (
-    <>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-navy-700 to-blue-800 text-white py-16">
-        <div className="section-container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Course Not All Car Reports Are the Same
-          </h1>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto mb-8">
-            Most mob charge you $50+ for basic rego checks. We give you everything that actually matters for under $40.
-            Don&apos;t be the mug paying dealer prices for Facebook Marketplace cars.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-gray-300">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-lime-500" />
-              <span>PPSR Verified</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <FileText className="h-5 w-5 text-lime-500" />
-              <span>QLD Legal Contracts</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Phone className="h-5 w-5 text-lime-500" />
-              <span>SMS Support</span>
-            </div>
-          </div>
-        </div>
+    <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
+      <section className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Pricing</p>
+        <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
+          Pick the protection that matches the risk.
+        </h1>
+        <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
+          Start free. Only pay when the car looks worth chasing.
+        </p>
       </section>
 
-      {/* Pricing Cards */}
-      <section className="py-16 bg-gray-50">
-        <div className="section-container">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <PricingCard
-              name="Free Checklist"
-              price="Free"
-              description="Don't rock up completely blind - at least get the basics"
-              features={[
-                "47-point inspection checklist",
-                "Red flags every Aussie should know",
-                "Basic negotiation scripts that work",
-                "QLD rego transfer basics",
-                "Printable PDF format",
-                "Instant download - no spam"
-              ]}
-              buttonText="Download Free Checklist"
-              buttonHref="/free-checklist"
-            />
+      {/* Product Cards */}
+      <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {PRODUCTS.map((product) => (
+          <article
+            key={product.name}
+            className={`flex flex-col rounded-[1.75rem] border bg-white p-6 shadow-sm ${
+              product.highlight ? "border-teal-300 ring-2 ring-teal-600/20" : "border-gray-200"
+            }`}
+          >
+            {product.highlight && (
+              <span className="mb-4 inline-flex self-start rounded-full bg-teal-600 px-3 py-1 text-xs font-bold text-white">
+                Most Popular
+              </span>
+            )}
+            <h2 className="text-lg font-black text-gray-900">{product.name}</h2>
+            <p className="mt-2 text-3xl font-black tracking-[-0.05em] text-gray-900">{product.price}</p>
+            <p className="mt-2 text-sm leading-6 text-gray-500">{product.description}</p>
 
-            <PricingCard
-              name="Confidence Report"
-              price="$9.95"
-              priceNote="$9.95 vs $15,000 mistake"
-              description="Know before you go - don't be the mug who buys blind"
-              features={[
-                "Complete inspection checklist",
-                "Official PPSR report (shows finance owing)",
-                "QLD-specific transfer paperwork",
-                "Legal contract templates",
-                "Scam detection that actually works",
-                "Red flags from 30+ years experience",
-                "PDF hits your inbox in 30 seconds"
-              ]}
-              buttonText="Run Free Check"
-              buttonHref="/check"
-              isPopular={true}
-            />
+            <ul className="mt-6 flex-1 grid gap-2">
+              {product.features.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                  {f}
+                </li>
+              ))}
+            </ul>
 
-            <PricingCard
-              name="Full Buyer's Bundle"
-              price="$39"
-              priceNote="Same data dealers charge $50+ for"
-              description="Everything plus ongoing support - fair dinkum protection"
-              features={[
-                "Everything in Confidence Report",
-                "Multiple PPSR reports (check 5 cars)",
-                "Editable contract templates (TMR approved)",
-                "Negotiation scripts that actually work",
-                "SMS support when you need it",
-                "WhatsApp backup for urgent stuff",
-                "Advanced scam protection from 30+ years",
-                "Instant delivery - no waiting around"
-              ]}
-              buttonText="View Contract Pack"
-              buttonHref="/contract-pack"
-              isPremium={true}
-            />
-          </div>
-
-          {/* Money back guarantee */}
-          <div className="text-center mt-8 p-6 bg-white rounded-xl shadow-lg max-w-2xl mx-auto">
-            <Shield className="h-12 w-12 text-lime-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-navy-700 mb-2">100% Satisfaction Guarantee</h3>
-            <p className="text-gray-600">
-              Not happy? Full refund, no questions asked. We&apos;re not here to rip you off -
-              we&apos;re here to help you avoid getting ripped off.
-            </p>
-          </div>
-        </div>
+            <Link
+              href={product.href}
+              className={`mt-6 inline-flex min-h-[3rem] w-full items-center justify-center rounded-2xl text-sm font-bold transition ${
+                product.highlight
+                  ? "bg-teal-600 text-white hover:bg-teal-700"
+                  : "border border-gray-300 text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              {product.buttonText}
+            </Link>
+          </article>
+        ))}
       </section>
 
-      {/* Detailed Comparison Table */}
-      <section className="py-16 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-navy-700 mb-4">
-              What&apos;s Included in Each Package?
-            </h2>
-            <p className="text-xl text-gray-600">
-              Detailed breakdown so you know exactly what you&apos;re getting
-            </p>
-          </div>
+      {/* Comparison Table */}
+      <section className="mt-10">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Compare</p>
+        <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">What&apos;s in each plan</h2>
 
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
-              <thead className="bg-navy-700 text-white">
-                <tr>
-                  <th className="text-left p-4 font-semibold">Features</th>
-                  <th className="text-center p-4 font-semibold">
-                    Free Checklist
-                  </th>
-                  <th className="text-center p-4 font-semibold bg-lime-500 text-white">
-                    <Star className="h-5 w-5 inline mr-2" />
-                    Confidence Report
-                    <div className="text-sm font-normal">$9.95</div>
-                  </th>
-                  <th className="text-center p-4 font-semibold">
-                    <Crown className="h-5 w-5 inline mr-2" />
-                    Full Bundle
-                    <div className="text-sm font-normal">$39</div>
-                  </th>
+        <div className="mt-6 overflow-x-auto rounded-[1.75rem] border border-gray-200 bg-white shadow-sm">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="p-4 text-left font-bold text-gray-900">Feature</th>
+                <th className="p-4 text-center font-bold text-gray-500">Free</th>
+                <th className="p-4 text-center font-bold text-gray-500">PPSR</th>
+                <th className="p-4 text-center font-bold text-gray-500">Contract</th>
+                <th className="p-4 text-center font-bold text-gray-500">Dealer</th>
+                <th className="p-4 text-center font-bold text-teal-700">Full</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.map((row) => (
+                <tr key={row.feature} className="border-b border-gray-50 last:border-none">
+                  <td className="p-4 text-gray-700">{row.feature}</td>
+                  {[row.free, row.ppsr, row.contract, row.dealer, row.full].map((v, i) => (
+                    <td key={i} className="p-4 text-center">
+                      {v ? <Check className="mx-auto h-4 w-4 text-teal-600" /> : <X className="mx-auto h-4 w-4 text-gray-300" />}
+                    </td>
+                  ))}
                 </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((item, index) => (
-                  <tr key={index} className={`border-b ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                    <td className="p-4 font-medium">{item.feature}</td>
-                    <td className="p-4 text-center">
-                      {item.free ? (
-                        <Check className="h-5 w-5 text-lime-500 mx-auto" />
-                      ) : (
-                        <X className="h-5 w-5 text-gray-400 mx-auto" />
-                      )}
-                    </td>
-                    <td className="p-4 text-center bg-lime-500/10">
-                      {item.confidence ? (
-                        <Check className="h-5 w-5 text-lime-500 mx-auto" />
-                      ) : (
-                        <X className="h-5 w-5 text-gray-400 mx-auto" />
-                      )}
-                    </td>
-                    <td className="p-4 text-center">
-                      {item.bundle ? (
-                        <Check className="h-5 w-5 text-lime-500 mx-auto" />
-                      ) : (
-                        <X className="h-5 w-5 text-gray-400 mx-auto" />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="section-container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-navy-700 mb-4">
-              Fair Dinkum Questions
-            </h2>
-          </div>
-
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="card p-6">
-              <h3 className="font-bold text-navy-700 mb-3">How quick do I get my report?</h3>
-              <p className="text-gray-700">
-                Instant mate. Soon as your payment goes through, you&apos;ll get a PDF in your inbox. Usually takes about 30 seconds.
-                No waiting around while some dodgy seller changes their mind.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="font-bold text-navy-700 mb-3">Is this legit or some dodgy overseas mob?</h3>
-              <p className="text-gray-700">
-                100% Aussie owned and operated mate. We use official government databases - same ones the dealers use,
-                just without the dealer markup. No dodgy third-party rubbish.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="font-bold text-navy-700 mb-3">What&apos;s this PPSR thing anyway?</h3>
-              <p className="text-gray-700">
-                Personal Property Securities Register. Shows if there&apos;s finance owing, if it&apos;s stolen, written off,
-                or used as security for a loan. Basically tells you if you&apos;ll actually own the car after you buy it.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="font-bold text-navy-700 mb-3">What if I&apos;m buying from a dealer?</h3>
-              <p className="text-gray-700">
-                Even more reason to check! Some dealers are dodgier than private sellers. At least with Facebook Marketplace,
-                you know what you&apos;re getting into. Dealers just hide it better.
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Bottom CTA */}
+      <section className="mt-10 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
+        <h2 className="text-2xl font-black tracking-[-0.05em] text-white sm:text-4xl">
+          Not sure where to start?
+        </h2>
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-400">
+          Run the free listing check first. It&apos;ll tell you which paid tools are worth it for that specific car.
+        </p>
+        <Link
+          href="/check"
+          className="mt-8 inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl bg-teal-600 px-8 text-base font-black text-white transition hover:bg-teal-700"
+        >
+          Run Free Check
+        </Link>
       </section>
-
-      <CTASection
-        title="Don't Be the Mug Who Buys Blind"
-        subtitle="Join 10,000+ smart Aussies who didn't get scammed on Facebook Marketplace"
-        primaryText="Get My Report - $9.95"
-        primaryHref="/check"
-        secondaryText="View Contract Pack"
-        secondaryHref="/contract-pack"
-      />
-
-      <SiteStickyCTA />
-    </>
-  )
+    </div>
+  );
 }
