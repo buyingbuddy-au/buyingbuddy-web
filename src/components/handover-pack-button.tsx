@@ -58,7 +58,7 @@ export function HandoverPackButton() {
   return (
     <>
       <button
-        className="button button-primary contract-buy-button"
+        className="inline-flex min-h-[3rem] items-center justify-center rounded-2xl bg-teal-600 px-6 text-sm font-bold text-white transition hover:bg-teal-700"
         type="button"
         onClick={openModal}
       >
