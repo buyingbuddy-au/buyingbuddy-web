@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -495,11 +495,11 @@ export default function FreeCheckForm() {
               <button
                 type="button"
                 onClick={() => {
-                  const text = `BuyingBuddy check on ${vehicleHeading}: ${checkResult.verdict}`;
+                  const shareData = { type: "free_check", vehicle_heading: vehicleHeading, verdict: checkResult.verdict, risk_level: (riskTone?.label === "Lower risk" ? "low" : riskTone?.label === "Proceed carefully" ? "medium" : "high"), summary_points: checkResult.red_flags.length > 0 ? checkResult.red_flags.slice(0, 5) : ["No obvious red flags found."] }; const encoded = btoa(JSON.stringify(shareData)); const shareUrl = `${window.location.origin}/shared/${encoded}`;
                   if (navigator.share) {
-                    void navigator.share({ title: "BuyingBuddy Check", text, url: window.location.href });
+                    void navigator.share({ title: "BuyingBuddy Check", url: shareUrl });
                   } else {
-                    void navigator.clipboard.writeText(text);
+                    void navigator.clipboard.writeText(shareUrl);
                     alert("Copied to clipboard!");
                   }
                 }}
