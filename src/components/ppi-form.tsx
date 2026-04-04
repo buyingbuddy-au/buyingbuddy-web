@@ -57,16 +57,16 @@ export function PpiForm() {
     return (
       <div className="mt-6 rounded-xl bg-green-50 border border-green-200 p-6 text-center">
         <p className="text-2xl">✅</p>
-        <p className="mt-3 font-black text-brand-navy">Enquiry received!</p>
-        <p className="mt-2 text-sm text-brand-ink/70">
+        <p className="mt-3 font-black text-gray-900">Enquiry received!</p>
+        <p className="mt-2 text-sm text-gray-500">
           We&apos;ll be in touch within a few hours to confirm your inspection. Check your email.
         </p>
       </div>
     );
   }
 
-  const inputClass = "w-full rounded-xl border border-brand-navy/20 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-lime/60";
-  const labelClass = "block text-sm font-bold text-brand-navy mb-1.5";
+  const inputClass = "w-full rounded-xl border border-gray-900/20 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600/60";
+  const labelClass = "block text-sm font-bold text-gray-900 mb-1.5";
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -116,11 +116,11 @@ export function PpiForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full min-h-12 rounded-full bg-brand-navy px-6 py-3 text-sm font-black uppercase tracking-[0.08em] text-white transition hover:-translate-y-0.5 hover:text-brand-lime disabled:opacity-60"
+        className="w-full min-h-12 rounded-full bg-gray-900 px-6 py-3 text-sm font-black uppercase tracking-[0.08em] text-white transition hover:-translate-y-0.5 hover:text-teal-600 disabled:opacity-60"
       >
         {status === "loading" ? "Sending…" : "Request inspection quote"}
       </button>
-      <p className="text-xs text-brand-ink/50 text-center">No obligation. We&apos;ll confirm cost before booking.</p>
+      <p className="text-xs text-gray-400 text-center">No obligation. We&apos;ll confirm cost before booking.</p>
     </form>
   );
 }
