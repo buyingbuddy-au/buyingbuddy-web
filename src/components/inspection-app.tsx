@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -217,7 +217,7 @@ export function InspectionApp() {
         : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
 
     return (
-      <header className="sticky top-14 z-20 px-4 pb-4 bg-white/80 backdrop-blur-xl lg:top-16 border-b border-gray-100 shadow-sm" style={safeTopStyle}>
+      <header className={`${session.stage === "inspection" ? "sticky top-14 z-20 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm" : "relative bg-transparent"} px-4 pb-4 lg:top-16 transition-all duration-300`} style={safeTopStyle}>
         <div className="mx-auto max-w-3xl pt-2">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
