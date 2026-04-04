@@ -484,13 +484,30 @@ export default function FreeCheckForm() {
               </h2>
             </div>
 
-            {riskTone ? (
-              <span
-                className={`inline-flex self-start rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.16em] ${riskTone.className}`}
+            <div className="flex items-center gap-3 self-start">
+              {riskTone ? (
+                <span
+                  className={`inline-flex rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.16em] ${riskTone.className}`}
+                >
+                  {riskTone.label}
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  const text = `BuyingBuddy check on ${vehicleHeading}: ${checkResult.verdict}`;
+                  if (navigator.share) {
+                    void navigator.share({ title: "BuyingBuddy Check", text, url: window.location.href });
+                  } else {
+                    void navigator.clipboard.writeText(text);
+                    alert("Copied to clipboard!");
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-bold text-gray-600 transition hover:bg-teal-50 hover:text-teal-700"
               >
-                {riskTone.label}
-              </span>
-            ) : null}
+                📤 Share
+              </button>
+            </div>
           </div>
 
           {formError ? (
