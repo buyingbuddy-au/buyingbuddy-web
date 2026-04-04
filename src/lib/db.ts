@@ -5,6 +5,8 @@ import { to_sqlite_datetime } from "@/lib/time";
 import type {
   DashboardPayload,
   DashboardStats,
+  DealPublicRecord,
+  DealRecord,
   EmailCaptureRecord,
   JsonValue,
   OrderFilters,
@@ -68,6 +70,43 @@ CREATE TABLE IF NOT EXISTS email_captures (
   vehicle_summary TEXT,
   converted_to_order TEXT
 );
+
+CREATE TABLE IF NOT EXISTS deals (
+  id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  status TEXT NOT NULL DEFAULT 'draft',
+  stripe_session_id TEXT,
+  vehicle_make TEXT,
+  vehicle_model TEXT,
+  vehicle_year TEXT,
+  vehicle_vin TEXT,
+  vehicle_rego TEXT,
+  agreed_price TEXT,
+  payment_method TEXT,
+  conditions TEXT,
+  handover_date TEXT,
+  handover_location TEXT,
+  buyer_name TEXT,
+  buyer_email TEXT,
+  buyer_phone TEXT,
+  buyer_licence_url TEXT,
+  buyer_completed_at TEXT,
+  seller_name TEXT,
+  seller_email TEXT,
+  seller_phone TEXT,
+  seller_licence_url TEXT,
+  seller_rego_papers_url TEXT,
+  seller_safety_cert_url TEXT,
+  seller_bank_bsb TEXT,
+  seller_bank_account TEXT,
+  seller_payid TEXT,
+  seller_completed_at TEXT,
+  seller_confirmed_price INTEGER DEFAULT 0,
+  seller_confirmed_conditions INTEGER DEFAULT 0,
+  summary_pdf_url TEXT,
+  finalised_at TEXT
+);
 `;
 
 const ORDER_COLUMNS = [
@@ -118,6 +157,45 @@ const EMAIL_CAPTURE_COLUMNS = [
 
 type EmailCaptureColumn = (typeof EMAIL_CAPTURE_COLUMNS)[number];
 
+const DEAL_COLUMNS = [
+  "id",
+  "created_at",
+  "updated_at",
+  "status",
+  "stripe_session_id",
+  "vehicle_make",
+  "vehicle_model",
+  "vehicle_year",
+  "vehicle_vin",
+  "vehicle_rego",
+  "agreed_price",
+  "payment_method",
+  "conditions",
+  "handover_date",
+  "handover_location",
+  "buyer_name",
+  "buyer_email",
+  "buyer_phone",
+  "buyer_licence_url",
+  "buyer_completed_at",
+  "seller_name",
+  "seller_email",
+  "seller_phone",
+  "seller_licence_url",
+  "seller_rego_papers_url",
+  "seller_safety_cert_url",
+  "seller_bank_bsb",
+  "seller_bank_account",
+  "seller_payid",
+  "seller_completed_at",
+  "seller_confirmed_price",
+  "seller_confirmed_conditions",
+  "summary_pdf_url",
+  "finalised_at",
+] as const;
+
+type DealColumn = (typeof DEAL_COLUMNS)[number];
+
 const JSON_COLUMNS = new Set<OrderColumn>(["red_flags", "ppsr_result"]);
 
 type OrderRow = Omit<OrderRecord, "red_flags" | "ppsr_result"> & {
@@ -158,7 +236,10 @@ function parse_json_value<T>(value: string | null, fallback: T): T {
   }
 }
 
-function serialize_value(column: OrderColumn | EmailCaptureColumn, value: unknown) {
+function serialize_value(
+  column: OrderColumn | EmailCaptureColumn | DealColumn,
+  value: unknown,
+) {
   if (value === undefined) {
     return undefined;
   }
@@ -185,6 +266,10 @@ function deserialize_order(row: OrderRow | undefined): OrderRecord | null {
 function deserialize_email_capture(
   row: EmailCaptureRecord | undefined,
 ): EmailCaptureRecord | null {
+  return row ?? null;
+}
+
+function deserialize_deal(row: DealRecord | undefined): DealRecord | null {
   return row ?? null;
 }
 
@@ -347,6 +432,115 @@ export function get_email_capture_by_email(email: string) {
     .get(email) as EmailCaptureRecord | undefined;
 
   return deserialize_email_capture(row);
+}
+
+export function insert_deal(
+  input: Partial<DealRecord> &
+    Pick<DealRecord, "id" | "status">,
+) {
+  const database = get_database();
+  const entries = DEAL_COLUMNS.flatMap((column) => {
+    const value = serialize_value(column, input[column]);
+    return value === undefined ? [] : [[column, value] as const];
+  });
+
+  const columns = entries.map(([column]) => column).join(", ");
+  const placeholders = entries.map(([column]) => `@${column}`).join(", ");
+  const values = Object.fromEntries(entries);
+
+  database
+    .prepare(`INSERT INTO deals (${columns}) VALUES (${placeholders})`)
+    .run(values);
+
+  return get_deal_by_id(input.id);
+}
+
+export function update_deal(id: string, updates: Partial<DealRecord>) {
+  const database = get_database();
+  const entries = DEAL_COLUMNS.flatMap((column) => {
+    if (column === "id" || column === "created_at") {
+      return [];
+    }
+
+    const value = serialize_value(column, updates[column]);
+    return value === undefined ? [] : [[column, value] as const];
+  });
+
+  if (entries.length === 0) {
+    return get_deal_by_id(id);
+  }
+
+  const set_clause = entries.map(([column]) => `${column} = @${column}`).join(", ");
+  const values = Object.fromEntries(entries);
+
+  database
+    .prepare(
+      `UPDATE deals
+       SET ${set_clause}, updated_at = datetime('now')
+       WHERE id = @id`,
+    )
+    .run({ ...values, id });
+
+  return get_deal_by_id(id);
+}
+
+export function get_deal_by_id(id: string) {
+  const database = get_database();
+  const row = database
+    .prepare("SELECT * FROM deals WHERE id = ?")
+    .get(id) as DealRecord | undefined;
+
+  return deserialize_deal(row);
+}
+
+export function get_deal_by_stripe_session_id(stripe_session_id: string) {
+  const database = get_database();
+  const row = database
+    .prepare("SELECT * FROM deals WHERE stripe_session_id = ?")
+    .get(stripe_session_id) as DealRecord | undefined;
+
+  return deserialize_deal(row);
+}
+
+export function to_public_deal_record(deal: DealRecord): DealPublicRecord {
+  return {
+    id: deal.id,
+    created_at: deal.created_at,
+    updated_at: deal.updated_at,
+    status: deal.status,
+    stripe_session_id: deal.stripe_session_id,
+    vehicle_make: deal.vehicle_make,
+    vehicle_model: deal.vehicle_model,
+    vehicle_year: deal.vehicle_year,
+    vehicle_vin: deal.vehicle_vin,
+    vehicle_rego: deal.vehicle_rego,
+    agreed_price: deal.agreed_price,
+    payment_method: deal.payment_method,
+    conditions: deal.conditions,
+    handover_date: deal.handover_date,
+    handover_location: deal.handover_location,
+    buyer_name: deal.buyer_name,
+    buyer_email: deal.buyer_email,
+    buyer_phone: deal.buyer_phone,
+    buyer_completed_at: deal.buyer_completed_at,
+    seller_name: deal.seller_name,
+    seller_email: deal.seller_email,
+    seller_phone: deal.seller_phone,
+    seller_bank_bsb: deal.seller_bank_bsb,
+    seller_payid: deal.seller_payid,
+    seller_completed_at: deal.seller_completed_at,
+    seller_confirmed_price: deal.seller_confirmed_price,
+    seller_confirmed_conditions: deal.seller_confirmed_conditions,
+    summary_pdf_url: deal.summary_pdf_url,
+    finalised_at: deal.finalised_at,
+    buyer_licence_uploaded: Boolean(deal.buyer_licence_url),
+    seller_licence_uploaded: Boolean(deal.seller_licence_url),
+    seller_rego_papers_uploaded: Boolean(deal.seller_rego_papers_url),
+    seller_safety_cert_uploaded: Boolean(deal.seller_safety_cert_url),
+    seller_bank_account_last4: deal.seller_bank_account
+      ? deal.seller_bank_account.slice(-4)
+      : null,
+  };
 }
 
 export function link_email_capture_to_order(email: string, order_id: string) {

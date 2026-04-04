@@ -9,7 +9,8 @@ export type ProductType =
   | "free_check"
   | "ppsr"
   | "dealer_review"
-  | "full_pack";
+  | "full_pack"
+  | "deal_room";
 
 export type PaidProductType = Exclude<ProductType, "free_check">;
 
@@ -58,6 +59,100 @@ export interface EmailCaptureRecord {
   listing_url: string | null;
   vehicle_summary: string | null;
   converted_to_order: string | null;
+}
+
+export type DealStatus =
+  | "draft"
+  | "buyer_paid"
+  | "buyer_complete"
+  | "seller_invited"
+  | "both_complete"
+  | "finalised";
+
+export type DealPaymentMethod = "cash" | "bank_transfer" | "payid" | "";
+
+export interface DealRecord {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  status: DealStatus;
+  stripe_session_id: string | null;
+  vehicle_make: string | null;
+  vehicle_model: string | null;
+  vehicle_year: string | null;
+  vehicle_vin: string | null;
+  vehicle_rego: string | null;
+  agreed_price: string | null;
+  payment_method: string | null;
+  conditions: string | null;
+  handover_date: string | null;
+  handover_location: string | null;
+  buyer_name: string | null;
+  buyer_email: string | null;
+  buyer_phone: string | null;
+  buyer_licence_url: string | null;
+  buyer_completed_at: string | null;
+  seller_name: string | null;
+  seller_email: string | null;
+  seller_phone: string | null;
+  seller_licence_url: string | null;
+  seller_rego_papers_url: string | null;
+  seller_safety_cert_url: string | null;
+  seller_bank_bsb: string | null;
+  seller_bank_account: string | null;
+  seller_payid: string | null;
+  seller_completed_at: string | null;
+  seller_confirmed_price: number;
+  seller_confirmed_conditions: number;
+  summary_pdf_url: string | null;
+  finalised_at: string | null;
+}
+
+export interface DealBuyerUpdateInput {
+  buyer_name?: string | null;
+  buyer_email?: string | null;
+  buyer_phone?: string | null;
+  buyer_licence?: string | null;
+  vehicle_make?: string | null;
+  vehicle_model?: string | null;
+  vehicle_year?: string | null;
+  vehicle_vin?: string | null;
+  vehicle_rego?: string | null;
+  agreed_price?: string | null;
+  payment_method?: string | null;
+  conditions?: string | null;
+  handover_date?: string | null;
+  handover_location?: string | null;
+}
+
+export interface DealSellerUpdateInput {
+  seller_name?: string | null;
+  seller_email?: string | null;
+  seller_phone?: string | null;
+  seller_licence?: string | null;
+  seller_rego_papers?: string | null;
+  seller_safety_cert?: string | null;
+  seller_bank_bsb?: string | null;
+  seller_bank_account?: string | null;
+  seller_payid?: string | null;
+  seller_confirmed_price?: boolean | number | null;
+  seller_confirmed_conditions?: boolean | number | null;
+}
+
+export interface DealPublicRecord
+  extends Omit<
+    DealRecord,
+    | "buyer_licence_url"
+    | "seller_licence_url"
+    | "seller_rego_papers_url"
+    | "seller_safety_cert_url"
+    | "seller_bank_account"
+  > {
+  buyer_licence_uploaded: boolean;
+  seller_licence_uploaded: boolean;
+  seller_rego_papers_uploaded: boolean;
+  seller_safety_cert_uploaded: boolean;
+  seller_bank_account_last4: string | null;
 }
 
 export interface OrderFilters {

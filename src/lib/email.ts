@@ -39,6 +39,7 @@ function email_html(content: string) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Buying Buddy</title>
+  <style>${base_styles()}</style>
 </head>
 <body>
   <div class="wrapper">
@@ -172,6 +173,7 @@ export async function send_order_report_email({
     ppsr: "PPSR Report",
     dealer_review: "Dealer Review",
     full_pack: "Full Confidence Pack",
+    deal_room: "Deal Room",
   };
 
   const product_descriptions: Record<ProductType, string> = {
@@ -179,6 +181,7 @@ export async function send_order_report_email({
     ppsr: "Official PPSR (Personal Properties Securities Register) check — confirms whether there's any finance owing, if the car has been reported stolen, or if it's a write-off.",
     dealer_review: "A detailed dealer review of the vehicle, drawing on 15 years of automotive industry experience.",
     full_pack: "The complete package — PPSR check plus expert dealer review, giving you maximum confidence before you buy.",
+    deal_room: "A shared handover workspace for recording private vehicle sale details.",
   };
 
   const label = product_labels[product] ?? "Vehicle Report";
@@ -210,6 +213,90 @@ export async function send_order_report_email({
     from: FROM,
     to: email,
     subject: `Your ${label} — Buying Buddy`,
+    html: email_html(content),
+    attachments: [
+      {
+        path: report_path,
+      },
+    ],
+  });
+}
+
+export async function send_deal_room_buyer_email({
+  buyer_email,
+  deal_id,
+  deal_url,
+}: {
+  buyer_email: string;
+  deal_id: string;
+  deal_url: string;
+}) {
+  const content = `
+  <div class="header">
+    <h1>Buying Buddy</h1>
+    <p>Your Deal Room is ready</p>
+  </div>
+  <div class="body">
+    <p style="font-size:15px; color:#374151;">Your shared Deal Room is live.</p>
+
+    <div class="vehicle-card">
+      <p><strong>Deal ID:</strong> ${deal_id}</p>
+      <p><strong>Seller share link:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
+    </div>
+
+    <div class="verdict-box">
+      This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
+    </div>
+
+    <a href="${deal_url}" class="cta">Open Deal Room</a>
+  </div>`;
+
+  await get_resend().emails.send({
+    from: FROM,
+    to: buyer_email,
+    subject: `Your Deal Room is Ready - ${deal_id}`,
+    html: email_html(content),
+  });
+}
+
+export async function send_deal_summary_email({
+  buyer_email,
+  deal_id,
+  deal_url,
+  report_path,
+  seller_email,
+}: {
+  buyer_email: string;
+  deal_id: string;
+  deal_url: string;
+  report_path: string;
+  seller_email: string;
+}) {
+  const content = `
+  <div class="header">
+    <h1>Buying Buddy</h1>
+    <p>Your Deal Record summary is attached</p>
+  </div>
+  <div class="body">
+    <p style="font-size:15px; color:#374151;">The Deal Room has been finalised.</p>
+
+    <div class="vehicle-card">
+      <p><strong>Deal ID:</strong> ${deal_id}</p>
+      <p><strong>Deal Room:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
+      <p><strong>Attached:</strong> Deal Record PDF summary</p>
+    </div>
+
+    <div class="verdict-box">
+      This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
+    </div>
+
+    <a href="${deal_url}" class="cta">Open Deal Room</a>
+  </div>`;
+
+  await get_resend().emails.send({
+    from: FROM,
+    to: [buyer_email, seller_email],
+    subject: `Deal Record Finalised - ${deal_id}`,
     html: email_html(content),
     attachments: [
       {

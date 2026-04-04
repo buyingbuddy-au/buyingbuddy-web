@@ -6,6 +6,7 @@ import {
   Clock3,
   FileText,
   Flag,
+  Handshake,
   MessageCircle,
   Search,
   Shield,
@@ -37,6 +38,12 @@ const TOOLKIT_CARDS = [
     title: "Contract Pack",
     description: "QLD private sale paperwork. From $9.95.",
     icon: FileText,
+  },
+  {
+    href: "/deal",
+    title: "Deal Room",
+    description: "Shared digital handover workspace. Buyer + seller. $39.95.",
+    icon: Handshake,
   },
   {
     href: "/buddy",

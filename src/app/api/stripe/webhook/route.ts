@@ -1,8 +1,12 @@
 import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { get_stripe } from "@/lib/stripe";
+import { create_deal_from_checkout_session } from "@/lib/deals";
 import { create_order_from_checkout_session } from "@/lib/engine";
-import { send_ppsr_confirmation_email } from "@/lib/email";
+import {
+  send_deal_room_buyer_email,
+  send_ppsr_confirmation_email,
+} from "@/lib/email";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
@@ -39,6 +43,52 @@ async function send_telegram_ppsr_notification({
   }
 }
 
+async function send_telegram_deal_room_notification({
+  buyer_email,
+  deal_id,
+  deal_url,
+}: {
+  buyer_email: string;
+  deal_id: string;
+  deal_url: string;
+}) {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+
+  if (!token) {
+    console.warn("[BuyingBuddy] TELEGRAM_BOT_TOKEN missing. Deal Room notification skipped.");
+    return;
+  }
+
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: "1296786949",
+      text:
+        `NEW DEAL ROOM\nDeal ID: ${deal_id}\nBuyer: ${buyer_email}\nRoom: ${deal_url}`,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Telegram notification failed: ${response.status} ${body}`);
+  }
+}
+
+function resolve_public_base_url() {
+  const configured_url =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.SITE_URL?.trim() ||
+    process.env.VERCEL_URL?.trim() ||
+    "https://buyingbuddy.com.au";
+
+  if (configured_url.startsWith("http://") || configured_url.startsWith("https://")) {
+    return configured_url;
+  }
+
+  return `https://${configured_url}`;
+}
+
 export async function POST(request: Request) {
   const stripe = get_stripe();
   const raw_body = await request.text();
@@ -64,9 +114,49 @@ export async function POST(request: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       try {
+        const session_product = session.metadata?.product?.trim() ?? "";
+
+        if (session_product === "deal_room") {
+          const deal = await create_deal_from_checkout_session(session);
+          const buyer_email = deal.buyer_email?.trim() ?? "";
+          const deal_url = `${resolve_public_base_url()}/deal/${deal.id}`;
+
+          if (!buyer_email) {
+            throw new Error("Stripe Deal Room session is missing buyer email.");
+          }
+
+          await send_deal_room_buyer_email({
+            buyer_email,
+            deal_id: deal.id,
+            deal_url,
+          });
+
+          await send_telegram_deal_room_notification({
+            buyer_email,
+            deal_id: deal.id,
+            deal_url,
+          });
+
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: "Buying Buddy <info@buyingbuddy.com.au>",
+            to: "info@buyingbuddy.com.au",
+            subject: "NEW DEAL ROOM PAID",
+            html: `<h2>New Deal Room Created</h2>
+                   <p><strong>Deal ID:</strong> ${deal.id}</p>
+                   <p><strong>Buyer Email:</strong> ${buyer_email}</p>
+                   <p><strong>Room Link:</strong> <a href="${deal_url}">${deal_url}</a></p>`,
+          });
+
+          console.info(
+            `[BuyingBuddy] NEW DEAL ROOM SAVED: Deal ID: ${deal.id}, Buyer: ${buyer_email}`,
+          );
+          return NextResponse.json({ ok: true, received: true });
+        }
+
         const order = await create_order_from_checkout_session(session);
-        
         const product = order.product;
+        
         const email = order.customer_email;
         const listing_url = order.listing_url ?? "none";
         

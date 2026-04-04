@@ -20,6 +20,12 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
     description: "Dealer review, negotiation guidance, and confidence pack.",
     price_cents: 3495,
   },
+  deal_room: {
+    product: "deal_room",
+    name: "Deal Room",
+    description: "Digital handover workspace for QLD private car sales.",
+    price_cents: 3995,
+  },
 };
 
 let stripe_client: Stripe | null = null;
@@ -50,6 +56,7 @@ export async function create_checkout_session({
   base_url,
   customer_email,
   customer_name,
+  deal_id,
   listing_url,
   product,
   vehicle_identifier,
@@ -57,6 +64,7 @@ export async function create_checkout_session({
   base_url: string;
   customer_email: string;
   customer_name?: string | null;
+  deal_id?: string | null;
   listing_url?: string | null;
   product: PaidProductType;
   vehicle_identifier?: string | null;
@@ -67,8 +75,14 @@ export async function create_checkout_session({
   return stripe.checkout.sessions.create({
     mode: "payment",
     customer_email,
-    success_url: `${base_url}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${base_url}/?checkout=cancelled`,
+    success_url:
+      product === "deal_room" && deal_id
+        ? `${base_url}/deal/${deal_id}`
+        : `${base_url}/order/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url:
+      product === "deal_room"
+        ? `${base_url}/deal?checkout=cancelled`
+        : `${base_url}/?checkout=cancelled`,
     line_items: [
       {
         quantity: 1,
@@ -83,16 +97,20 @@ export async function create_checkout_session({
       },
     ],
     metadata: {
+      buyer_email: product === "deal_room" ? customer_email : "",
       customer_email,
       customer_name: customer_name ?? "",
+      deal_id: deal_id ?? "",
       listing_url: listing_url ?? "",
       product,
       vehicle_identifier: vehicle_identifier?.trim() ?? "",
     },
     payment_intent_data: {
       metadata: {
+        buyer_email: product === "deal_room" ? customer_email : "",
         customer_email,
         customer_name: customer_name ?? "",
+        deal_id: deal_id ?? "",
         listing_url: listing_url ?? "",
         product,
         vehicle_identifier: vehicle_identifier?.trim() ?? "",
