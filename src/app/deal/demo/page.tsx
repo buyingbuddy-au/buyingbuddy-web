@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Clock, FileText, Share2, Upload } from "lucide-react";
@@ -55,7 +55,7 @@ function FileUploadField({
   );
 }
 
-export default function DealDemoPage() {
+function DealDemoInner() {
   const searchParams = useSearchParams();
   const starterEmail = searchParams.get("email") ?? "";
 
@@ -283,5 +283,13 @@ export default function DealDemoPage() {
 
       <p className="mt-6 text-center text-xs text-gray-400">{DISCLAIMER}</p>
     </div>
+  );
+}
+
+export default function DealDemoPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-4xl px-4 py-12 text-center text-gray-500">Loading demo room...</div>}>
+      <DealDemoInner />
+    </Suspense>
   );
 }
