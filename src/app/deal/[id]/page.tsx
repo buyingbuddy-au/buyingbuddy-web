@@ -244,13 +244,13 @@ export default function DealRoomPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Room</p>
-          <p className="mt-1 text-sm text-gray-500">ID: {deal.id}</p>
+          <p className="mt-1 truncate text-sm text-gray-500" title={deal.id}>ID: {deal.id.slice(0, 8)}…</p>
         </div>
-        <button onClick={handleShare} className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-teal-50 hover:text-teal-700">
-          <Share2 className="h-3.5 w-3.5" /> Share with seller
+        <button onClick={handleShare} className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-teal-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-teal-700 active:scale-[0.97] transition">
+          <Share2 className="h-4 w-4" /> Share with seller
         </button>
       </div>
 
@@ -267,8 +267,8 @@ export default function DealRoomPage() {
         </div>
       </section>
 
-      {error && <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
-      {success && <div className="mt-4 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-700">{success}</div>}
+      {error && <div className="sticky top-2 z-20 mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 shadow-sm">{error}</div>}
+      {success && <div className="sticky top-2 z-20 mt-4 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 shadow-sm">{success}</div>}
 
       {isFinalised && (
         <div className="mt-4 rounded-[2rem] bg-teal-600 p-6 text-center text-white">
@@ -292,12 +292,12 @@ export default function DealRoomPage() {
             <FileUploadField id="buyer-licence" label="Driver's licence photo" uploaded={deal.buyer_licence_uploaded || Boolean(buyerLicence)} onChange={setBuyerLicence} />
 
             <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-gray-500">Vehicle</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <input value={vehicleYear} onChange={e => setVehicleYear(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Year" />
               <input value={vehicleMake} onChange={e => setVehicleMake(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Make" />
               <input value={vehicleModel} onChange={e => setVehicleModel(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Model" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <input value={vehicleVin} onChange={e => setVehicleVin(e.target.value.toUpperCase())} disabled={isFinalised} className={inputClass} placeholder="VIN" />
               <input value={vehicleRego} onChange={e => setVehicleRego(e.target.value.toUpperCase())} disabled={isFinalised} className={inputClass} placeholder="Rego" />
             </div>
@@ -311,7 +311,7 @@ export default function DealRoomPage() {
               <option value="payid">PayID</option>
             </select>
             <textarea value={conditions} onChange={e => setConditions(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Conditions (e.g. 'seller to fix left tail light')" rows={3} />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <input type="date" value={handoverDate} onChange={e => setHandoverDate(e.target.value)} disabled={isFinalised} className={inputClass} />
               <input value={handoverLocation} onChange={e => setHandoverLocation(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Handover location" />
             </div>
@@ -340,7 +340,7 @@ export default function DealRoomPage() {
             <FileUploadField id="seller-safety" label="Safety certificate" uploaded={deal.seller_safety_cert_uploaded || Boolean(sellerSafetyCert)} onChange={setSellerSafetyCert} />
 
             <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-gray-500">Payment details</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
               <input value={sellerBsb} onChange={e => setSellerBsb(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="BSB" />
               <input value={sellerAccount} onChange={e => setSellerAccount(e.target.value)} disabled={isFinalised} className={inputClass} placeholder="Account number" />
             </div>

@@ -76,7 +76,7 @@ export default function DealLandingPage() {
             <span className="pb-1 text-sm font-bold text-gray-500">one-time</span>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {FEATURES.map((f) => {
               const Icon = f.icon;
               return (
