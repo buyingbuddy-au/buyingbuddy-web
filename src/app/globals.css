@@ -898,11 +898,17 @@ img {
 }
 
 .admin-card {
-  padding: 20px;
+  padding: 16px;
   background: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
+}
+
+@media (min-width: 480px) {
+  .admin-card {
+    padding: 20px;
+  }
 }
 
 .admin-auth-card {
@@ -912,9 +918,10 @@ img {
 
 .admin-topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .admin-nav {
@@ -925,9 +932,9 @@ img {
 
 .admin-nav a {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 44px;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-background);
@@ -946,9 +953,12 @@ img {
   gap: 16px;
 }
 
-.admin-stats-grid,
+.admin-stats-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .admin-detail-grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .admin-stat-card {
@@ -1099,7 +1109,9 @@ img {
 .admin-code-block {
   margin: 0;
   padding: 14px;
-  overflow: auto;
+  overflow-x: auto;
+  max-width: 100%;
+  word-break: break-word;
   border-radius: 12px;
   background: #0f172a;
   color: #dbeafe;
@@ -1127,6 +1139,8 @@ img {
 .admin-detail-list dd {
   margin: 0;
   color: var(--color-text);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .admin-timeline {
@@ -1179,7 +1193,9 @@ img {
 
 .admin-back-link {
   display: inline-flex;
-  margin-bottom: 8px;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 4px;
   color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 600;
@@ -1193,10 +1209,20 @@ img {
   background: var(--color-section-alt);
 }
 
+.admin-filter-btn {
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   .admin-filters {
     grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
     align-items: end;
+  }
+  .admin-filter-btn {
+    width: auto;
+  }
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

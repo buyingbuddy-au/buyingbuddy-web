@@ -21,6 +21,7 @@ const PRODUCT_OPTIONS = [
   { label: "PPSR Report", value: "ppsr" },
   { label: "Dealer Review", value: "dealer_review" },
   { label: "Full Confidence Pack", value: "full_pack" },
+  { label: "Deal Room", value: "deal_room" },
 ] as const;
 
 export default async function AdminOrdersPage({
@@ -43,7 +44,9 @@ export default async function AdminOrdersPage({
       <div className="admin-panel-header">
         <div>
           <h2 className="admin-panel-title">Orders</h2>
-          <p className="admin-panel-copy">Filter by status, product, or customer details.</p>
+          <p className="admin-panel-copy">
+            {orders.length} order{orders.length !== 1 ? "s" : ""} matching current filters.
+          </p>
         </div>
       </div>
 
@@ -77,7 +80,7 @@ export default async function AdminOrdersPage({
             placeholder="Email, make, model, listing URL"
           />
         </label>
-        <button className="button button-primary" type="submit">
+        <button className="button button-primary admin-filter-btn" type="submit">
           Apply filters
         </button>
       </form>
@@ -85,28 +88,53 @@ export default async function AdminOrdersPage({
       <div className="admin-list">
         {orders.length === 0 ? (
           <article className="admin-card">
-            <p className="admin-empty-state">No orders match the current filters.</p>
+            <p className="admin-empty-state">
+              {search || selected_status !== "all" || selected_product !== "all"
+                ? "No orders match the current filters."
+                : "No orders yet."}
+            </p>
           </article>
         ) : (
-          orders.map((order) => (
-            <Link className="admin-card admin-order-card" href={`/admin/orders/${order.id}`} key={order.id}>
-              <div className="admin-order-row">
-                <div>
-                  <h3 className="admin-order-title">{order.customer_email}</h3>
-                  <p className="admin-order-copy">
-                    {format_product(order.product)} | {build_vehicle_summary(order)}
-                  </p>
+          orders.map((order) => {
+            const vehicle = build_vehicle_summary(order);
+            const hasVehicle = vehicle && vehicle !== "Unknown vehicle";
+            return (
+              <Link
+                className="admin-card admin-order-card"
+                href={`/admin/orders/${order.id}`}
+                key={order.id}
+              >
+                {/* Vehicle first — most useful identifier on mobile */}
+                <div className="admin-order-row">
+                  <div className="min-w-0 flex-1">
+                    {hasVehicle && (
+                      <h3 className="admin-order-title truncate">{vehicle}</h3>
+                    )}
+                    <p className={`admin-order-email truncate ${hasVehicle ? "admin-order-copy" : "admin-order-title"}`}>
+                      {order.customer_email}
+                    </p>
+                  </div>
+                  <span className={`admin-badge admin-badge-${order.status} shrink-0`}>
+                    {format_status(order.status)}
+                  </span>
                 </div>
-                <span className={`admin-badge admin-badge-${order.status}`}>
-                  {format_status(order.status)}
-                </span>
-              </div>
-              <div className="admin-order-meta-row">
-                <span>Created {format_timestamp(order.created_at)}</span>
-                <span>{order.listing_url ? "Listing attached" : "No listing URL"}</span>
-              </div>
-            </Link>
-          ))
+                <div className="admin-order-meta-row">
+                  <span className="truncate">{format_product(order.product)}</span>
+                  <span>{format_timestamp(order.created_at)}</span>
+                </div>
+                <div className="admin-order-meta-row">
+                  <span className="text-xs text-gray-400">
+                    {order.listing_url ? (
+                      <span className="text-teal-600 font-medium">Listing ↗</span>
+                    ) : (
+                      "No listing"
+                    )}
+                  </span>
+                  <span className="text-xs text-gray-400 font-mono">{order.id.slice(0, 8)}</span>
+                </div>
+              </Link>
+            );
+          })
         )}
       </div>
     </div>

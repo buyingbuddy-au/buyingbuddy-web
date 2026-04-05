@@ -5,6 +5,7 @@ const PRODUCT_LABELS: Record<ProductType, string> = {
   ppsr: "PPSR Report",
   dealer_review: "Dealer Review",
   full_pack: "Full Confidence Pack",
+  deal_room: "Deal Room",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
