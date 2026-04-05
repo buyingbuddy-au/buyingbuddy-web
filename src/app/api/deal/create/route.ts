@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { insert_deal } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -33,20 +32,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const id = "deal_" + crypto.randomUUID().slice(0, 12);
-
-    insert_deal({
-      id,
-      status: BYPASS_DEAL_ROOM_PAYMENT ? "buyer_paid" : "draft",
-      buyer_email: customer_email,
-    });
-
     if (BYPASS_DEAL_ROOM_PAYMENT) {
       return NextResponse.json({
         ok: true,
         bypassed_payment: true,
-        deal_id: id,
-        room_url: `${resolve_base_url(request)}/deal/${id}`,
+        room_url: `${resolve_base_url(request)}/deal/demo?email=${encodeURIComponent(customer_email)}`,
       });
     }
 
