@@ -474,20 +474,20 @@ export default function FreeCheckForm() {
 
       {checkResult ? (
         <section ref={resultsRef} className="mt-8 grid gap-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
                 Your snapshot
               </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.05em] text-gray-900">
+              <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-gray-900 sm:text-3xl">
                 Dealer-style read on {vehicleHeading}.
               </h2>
             </div>
 
-            <div className="flex items-center gap-3 self-start">
+            <div className="flex flex-wrap items-center gap-3">
               {riskTone ? (
                 <span
-                  className={`inline-flex rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.16em] ${riskTone.className}`}
+                  className={`inline-flex rounded-full border px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] ${riskTone.className}`}
                 >
                   {riskTone.label}
                 </span>
@@ -495,15 +495,32 @@ export default function FreeCheckForm() {
               <button
                 type="button"
                 onClick={() => {
-                  const shareData = { type: "free_check", vehicle_heading: vehicleHeading, verdict: checkResult.verdict, risk_level: (riskTone?.label === "Lower risk" ? "low" : riskTone?.label === "Proceed carefully" ? "medium" : "high"), summary_points: checkResult.red_flags.length > 0 ? checkResult.red_flags.slice(0, 5) : ["No obvious red flags found."] }; const encoded = btoa(JSON.stringify(shareData)); const shareUrl = `${window.location.origin}/shared/${encoded}`;
+                  const riskLevel = checkResult.red_flags.length >= 3 ? "high" : checkResult.red_flags.length >= 1 ? "medium" : "low";
+                  const shareData = {
+                    type: "free_check" as const,
+                    created_at: new Date().toISOString(),
+                    vehicle_heading: vehicleHeading,
+                    verdict: checkResult.verdict,
+                    risk_level: riskLevel,
+                    summary_points: checkResult.red_flags.length > 0
+                      ? checkResult.red_flags.slice(0, 5)
+                      : ["No obvious red flags found."],
+                    upsell_message: "Want the full picture before you hand over money?",
+                    upsell_href: "/pricing",
+                    upsell_cta: "See paid check options",
+                  };
+                  const jsonStr = JSON.stringify(shareData);
+                  // Use base64url encoding to match /shared/[id] decoder
+                  const encoded = btoa(jsonStr).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+                  const shareUrl = `${window.location.origin}/shared/${encoded}`;
                   if (navigator.share) {
-                    void navigator.share({ title: "BuyingBuddy Check", url: shareUrl });
+                    void navigator.share({ title: `BuyingBuddy — ${vehicleHeading}`, text: checkResult.verdict, url: shareUrl });
                   } else {
                     void navigator.clipboard.writeText(shareUrl);
-                    alert("Copied to clipboard!");
+                    alert("Link copied!");
                   }
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-bold text-gray-600 transition hover:bg-teal-50 hover:text-teal-700"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2.5 text-xs font-bold text-gray-600 transition hover:bg-teal-50 hover:text-teal-700"
               >
                 📤 Share
               </button>
@@ -521,11 +538,12 @@ export default function FreeCheckForm() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-100/80">
                 {vehicleHeading}
               </p>
-              <p className="mt-4 text-3xl font-black tracking-[-0.05em]">
+              <p className="mt-4 text-2xl font-black leading-snug tracking-[-0.04em] sm:text-3xl">
                 {checkResult.verdict}
               </p>
+              <div className="mt-3 h-1 w-16 rounded-full bg-white/30" />
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
                 {[
                   ["Seller asking", formatCurrency(askingPrice)],
                   ["Market estimate", checkResult.market_value_estimate],
@@ -539,12 +557,12 @@ export default function FreeCheckForm() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="rounded-[1.5rem] border border-white/10 bg-white/10 p-5"
+                    className="rounded-xl border border-white/10 bg-white/10 p-4 sm:rounded-[1.5rem] sm:p-5"
                   >
-                    <span className="text-xs font-black uppercase tracking-[0.16em] text-white/70">
+                    <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/70 sm:text-xs">
                       {label}
                     </span>
-                    <strong className="mt-3 block text-xl font-black text-white">
+                    <strong className="mt-2 block text-lg font-black text-white sm:mt-3 sm:text-xl">
                       {value}
                     </strong>
                   </div>
@@ -556,12 +574,20 @@ export default function FreeCheckForm() {
               <article className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
                 <h3 className="text-xl font-black tracking-[-0.04em] text-gray-900">
                   Red flags
+                  {checkResult.red_flags.length > 0 && (
+                    <span className="ml-2 inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-black text-red-700">
+                      {checkResult.red_flags.length}
+                    </span>
+                  )}
                 </h3>
 
                 {checkResult.red_flags.length > 0 ? (
-                  <ul className="mt-5 grid gap-3 text-sm leading-6 text-gray-700">
+                  <ul className="mt-5 grid gap-3">
                     {checkResult.red_flags.map((flag) => (
-                      <li key={flag} className="flex gap-3">
+                      <li
+                        key={flag}
+                        className="flex gap-3 rounded-xl border border-red-100 bg-red-50/60 px-4 py-3 text-sm leading-6 text-gray-800"
+                      >
                         <AlertTriangle
                           className="mt-0.5 h-5 w-5 shrink-0 text-red-600"
                           aria-hidden="true"
@@ -571,10 +597,13 @@ export default function FreeCheckForm() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-4 text-sm leading-6 text-gray-500">
-                    No obvious ad-level red flags surfaced. That still does not
-                    replace PPSR or a proper inspection.
-                  </p>
+                  <div className="mt-4 flex gap-3 rounded-xl border border-green-100 bg-green-50/60 px-4 py-3">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" aria-hidden="true" />
+                    <p className="text-sm leading-6 text-gray-600">
+                      No obvious ad-level red flags surfaced. That still doesn&apos;t
+                      replace a PPSR check or proper inspection.
+                    </p>
+                  </div>
                 )}
               </article>
 
@@ -646,17 +675,27 @@ export default function FreeCheckForm() {
               </Link>
             </div>
 
-            <div className="mt-6 grid gap-4 lg:grid-cols-3">
-              {UPGRADE_PRODUCTS.map((item) => {
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {UPGRADE_PRODUCTS.map((item, index) => {
                 const checkoutPending =
                   busyAction?.type === "checkout" &&
                   busyAction.product === item.product;
+                const isRecommended = index === 1;
 
                 return (
                   <article
                     key={item.product}
-                    className="rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm"
+                    className={`rounded-[1.75rem] border bg-white p-5 shadow-sm ${
+                      isRecommended
+                        ? "border-teal-300 ring-2 ring-teal-100"
+                        : "border-gray-200"
+                    }`}
                   >
+                    {isRecommended && (
+                      <span className="mb-3 inline-flex rounded-full bg-teal-600 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                        Most popular
+                      </span>
+                    )}
                     <div className="inline-flex rounded-2xl bg-teal-50 p-3 text-teal-600">
                       <item.icon className="h-5 w-5" aria-hidden="true" />
                     </div>
@@ -699,7 +738,11 @@ export default function FreeCheckForm() {
                       type="button"
                       disabled={busyAction !== null}
                       onClick={() => void handleUpgrade(item.product)}
-                      className="mt-5 inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 px-5 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      className={`mt-5 inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                        isRecommended
+                          ? "bg-teal-600 hover:bg-teal-700 shadow-md"
+                          : "bg-gray-800 hover:bg-gray-900"
+                      }`}
                     >
                       {checkoutPending ? (
                         <>
