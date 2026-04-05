@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ClipboardCheck, Camera, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -12,10 +12,10 @@ const MODES = [
     href: "/inspect/full",
     icon: Camera,
     title: "Full Inspection Report",
-    subtitle: "Interactive 25-point flow",
+    subtitle: "14 practical checks",
     description: "Step through each checkpoint on your phone. Add notes, rate each item, get a risk score at the end. Best when you're standing next to the car.",
     badge: "Recommended",
-    features: ["25 guided checkpoints", "Notes per item", "Risk rating at the end", "Sharable results", "Takes 10-15 minutes"],
+    features: ["14 guided checkpoints", "Notes per item", "Risk rating at the end", "Sharable results", "Takes 10-15 minutes"],
   },
   {
     href: "/inspect/print",
@@ -24,7 +24,7 @@ const MODES = [
     subtitle: "Print it, tick it, done",
     description: "A clean one-page checklist you can print at home or pull up on your phone. Old school but effective. Tick off each item as you go.",
     badge: null,
-    features: ["One-page printable PDF", "25 key checks", "Works offline once printed", "Takes 5 minutes", "Share or save as PDF"],
+    features: ["One-page printable PDF", "14 practical checks", "Works offline once printed", "Takes 5 minutes", "Share or save as PDF"],
   },
 ] as const;
 

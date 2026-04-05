@@ -1,4 +1,4 @@
-export const STORAGE_KEY = "buyingbuddy-guided-inspection-v3";
+export const STORAGE_KEY = "buyingbuddy-guided-inspection-v4";
 
 export type Stage = "intro" | "inspection" | "results";
 export type Flag = "ok" | "amber" | "red" | null;
@@ -52,154 +52,117 @@ export interface InspectionSummary {
 }
 
 export const checkpoints: Checkpoint[] = [
-  // EXTERIOR
   {
     id: 1,
     section: "Exterior",
-    title: "Panel Gaps",
-    instructions: "Walk around the car. Check if the gaps between doors, bonnet, and boot are even. Uneven gaps often mean crash repairs.",
-    notePlaceholder: "Are any panels misaligned?",
+    title: "Panels & Paint",
+    instructions:
+      "Walk around the car and look from a distance. Do the doors, guards and bumpers line up properly, and does the paint look like the same colour all the way around?",
+    notePlaceholder: "Uneven gaps, overspray or mismatched paint?",
   },
   {
     id: 2,
     section: "Exterior",
-    title: "Paint Match",
-    instructions: "Stand back and look at the car in natural light. Does the paint on the doors match the bumpers and guards?",
-    notePlaceholder: "Any panels looking slightly different?",
+    title: "Lights & Lenses",
+    instructions:
+      "Check the headlights, indicators, brake lights and reverse lights. Also look for cracked lenses or moisture inside them.",
+    notePlaceholder: "Any lights not working or damaged?",
   },
   {
     id: 3,
     section: "Exterior",
-    title: "All Lights",
-    instructions: "Turn on the headlights, hazards, and ask someone to check the brake lights and reverse lights.",
-    notePlaceholder: "Any blown bulbs or cracked lenses?",
+    title: "Tyres",
+    instructions:
+      "Look at all four tyres. They should have decent tread and wear evenly. If one side is bald or one tyre is a totally different brand, that's a warning sign.",
+    notePlaceholder: "Uneven wear or dodgy tyres?",
   },
   {
     id: 4,
     section: "Exterior",
-    title: "Tyres",
-    instructions: "Look at all four tyres. Do they have legal tread depth? Are they wearing evenly across the surface?",
-    notePlaceholder: "Bald edges or mismatched brands?",
+    title: "Glass & Mirrors",
+    instructions:
+      "Check the windscreen and mirrors for big cracks, nasty chips or broken housings. Focus on damage that would annoy you or cost money straight away.",
+    notePlaceholder: "Cracks, chips or broken mirrors?",
   },
   {
     id: 5,
-    section: "Exterior",
-    title: "Rust Check",
-    instructions: "Look closely around the bottom of the doors, the wheel arches, and the boot for bubbling paint or visible rust.",
-    notePlaceholder: "Any rust spots found?",
+    section: "Interior",
+    title: "Windows & Locks",
+    instructions:
+      "Test every window and the central locking. If it has powered mirrors, test them too. You want everything opening and closing normally.",
+    notePlaceholder: "Any window, lock or mirror not working?",
   },
   {
     id: 6,
-    section: "Exterior",
-    title: "Windscreen",
-    instructions: "Check the windscreen for any large cracks, star chips, or heavy scratching.",
-    notePlaceholder: "Chips in the driver's line of sight?",
+    section: "Interior",
+    title: "Air Con & Fan",
+    instructions:
+      "Start the car and run the AC on cold. Make sure the fan works properly and the air actually gets cold, not just noisy.",
+    notePlaceholder: "Weak fan or no cold air?",
   },
-
-  // INTERIOR
   {
     id: 7,
     section: "Interior",
-    title: "Electrics",
-    instructions: "Test every window, the door locks, the mirrors, and the sunroof if it has one. Make sure it all goes up and down.",
-    notePlaceholder: "Any sticky windows or broken switches?",
+    title: "Dash Warning Lights",
+    instructions:
+      "When the engine starts, the normal dash lights should come on briefly, then turn off. If engine, ABS or airbag lights stay on, that's a problem.",
+    notePlaceholder: "Which warning lights stayed on?",
   },
   {
     id: 8,
     section: "Interior",
-    title: "Air Conditioning",
-    instructions: "Start the engine and blast the AC on cold. It should be freezing within a minute.",
-    notePlaceholder: "Is the air blowing hot?",
+    title: "Smell & Wear",
+    instructions:
+      "Sit in the car with the doors shut. Look for cigarette smell, mould, damp carpet or interior wear that feels worse than the kilometres suggest.",
+    notePlaceholder: "Bad smell or excessive wear?",
   },
   {
     id: 9,
-    section: "Interior",
-    title: "Smell",
-    instructions: "Sit inside with the doors closed. Does it smell like damp carpet, mould, or heavy smoke?",
-    notePlaceholder: "Any weird smells?",
+    section: "Drive",
+    title: "Start & Idle",
+    instructions:
+      "Start the engine and listen. It should fire up cleanly and settle into a smooth idle, not shake, race or sound rough.",
+    notePlaceholder: "Hard start or rough idle?",
   },
   {
     id: 10,
-    section: "Interior",
-    title: "Dashboard Lights",
-    instructions: "When the engine starts, all warning lights should turn off. Are any lights (like engine, airbag) staying on?",
-    notePlaceholder: "Which lights are staying on?",
+    section: "Drive",
+    title: "Steering & Brakes",
+    instructions:
+      "Drive it somewhere safe. The steering should feel straight and the brakes should pull the car up cleanly without shaking or dragging to one side.",
+    notePlaceholder: "Pulling, shuddering or weak brakes?",
   },
   {
     id: 11,
-    section: "Interior",
-    title: "Seats",
-    instructions: "Check if the seats adjust properly (forward, back, recline) and look for heavy tears or damage.",
-    notePlaceholder: "Broken seat mechanisms or big rips?",
+    section: "Drive",
+    title: "Noises & Vibration",
+    instructions:
+      "Turn the radio off and listen during the drive. Watch for clunks, whining, grinding or annoying vibrations through the wheel or seat.",
+    notePlaceholder: "What noise or vibration did you notice?",
   },
   {
     id: 12,
-    section: "Interior",
-    title: "Keys",
-    instructions: "Check if the central locking works on the remote. Does the key turn easily in the ignition or doors?",
-    notePlaceholder: "Missing spare key or sticky locks?",
+    section: "Paperwork",
+    title: "VIN Matches Papers",
+    instructions:
+      "Check the VIN on the car and make sure it matches the rego papers or ad exactly. One wrong character is a massive issue.",
+    notePlaceholder: "VIN mismatch or missing plate?",
   },
-
-  // ENGINE
   {
     id: 13,
-    section: "Engine",
-    title: "Oil Cap",
-    instructions: "With the engine OFF, unscrew the oil cap. It should be oily, not covered in a thick milky/white paste (head gasket warning).",
-    notePlaceholder: "Milky residue under the cap?",
+    section: "Paperwork",
+    title: "Service History",
+    instructions:
+      "Ask for the service book or invoices. You're looking for reasonable evidence the car has actually been maintained, not perfection.",
+    notePlaceholder: "Missing history or huge service gaps?",
   },
   {
     id: 14,
-    section: "Engine",
-    title: "Visible Leaks",
-    instructions: "Look down into the engine bay and under the car. Are there any fresh, wet puddles or heavy oil caked onto the engine?",
-    notePlaceholder: "Wet oil or coolant spots?",
-  },
-  {
-    id: 15,
-    section: "Engine",
-    title: "Damage & Wires",
-    instructions: "Look around for broken plastic, dodgy electrical tape, or exposed wires.",
-    notePlaceholder: "Anything look DIY or broken?",
-  },
-
-  // TEST DRIVE
-  {
-    id: 16,
-    section: "Test Drive",
-    title: "Start & Idle",
-    instructions: "Does the engine start instantly? Does it idle smoothly without shuddering or hunting for revs?",
-    notePlaceholder: "Rough start or unstable idle?",
-  },
-  {
-    id: 17,
-    section: "Test Drive",
-    title: "Braking",
-    instructions: "When safe, brake firmly. The car should stop straight. You shouldn't feel shaking in the steering wheel.",
-    notePlaceholder: "Shuddering or pulling to one side?",
-  },
-  {
-    id: 18,
-    section: "Test Drive",
-    title: "Noises",
-    instructions: "Listen closely with the radio off and windows down. Hear any clunks, whining, or grinding sounds?",
-    notePlaceholder: "Weird noises when turning or accelerating?",
-  },
-
-  // PAPERWORK
-  {
-    id: 19,
     section: "Paperwork",
-    title: "VIN Check",
-    instructions: "Check the VIN plate on the car. Does it exactly match the rego papers or the seller's ad?",
-    notePlaceholder: "VIN doesn't match?",
-  },
-  {
-    id: 20,
-    section: "Paperwork",
-    title: "Service Books",
-    instructions: "Look at the logbook. Are the services regular? Are there big missing gaps in the history?",
-    notePlaceholder: "Missing books or big service gaps?",
+    title: "Seller Details",
+    instructions:
+      "Make sure the seller's name lines up with the rego papers or they can clearly explain why they're selling it for someone else.",
+    notePlaceholder: "Seller details not lining up?",
   },
 ];
 
@@ -334,7 +297,7 @@ export function getInspectionSummary(session: InspectionSession): InspectionSumm
       score,
       verdict: "Buy",
       verdictDetail:
-        "The quick inspection landed in the safe zone. Keep your head on, verify the paperwork, and negotiate hard.",
+        "The basic checks look clean. Still verify the paperwork and don't skip PPSR before you hand over money.",
       redCount,
       amberCount,
       okCount,
@@ -348,7 +311,7 @@ export function getInspectionSummary(session: InspectionSession): InspectionSumm
       score,
       verdict: "Caution",
       verdictDetail:
-        "There is enough risk here that you should slow down and get a proper pre-purchase inspection before you commit.",
+        "There are enough concerns here that you should slow down and get a proper pre-purchase inspection before committing.",
       redCount,
       amberCount,
       okCount,
@@ -361,7 +324,7 @@ export function getInspectionSummary(session: InspectionSession): InspectionSumm
     score,
     verdict: "Walk Away",
     verdictDetail:
-      "Too many red flags for a clean private-sale buy. Park it and go find a better one.",
+      "Too many red flags for a clean private-sale buy. Park it and move on to a better car.",
     redCount,
     amberCount,
     okCount,

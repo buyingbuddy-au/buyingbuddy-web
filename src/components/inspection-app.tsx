@@ -15,7 +15,7 @@ import {
 } from "@/lib/inspection-data";
 
 const safeTopStyle: CSSProperties = {
-  paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+  paddingTop: "calc(env(safe-area-inset-top) + 0.35rem)",
 };
 
 const safeBottomStyle: CSSProperties = {
@@ -37,19 +37,19 @@ const flagOptions: Array<{
   {
     value: "ok",
     label: "OK",
-    description: "Nothing obvious here.",
+    description: "Looks fine.",
     tone: "border-teal-400/40 bg-teal-500/14 text-teal-50 shadow-[0_0_0_1px_rgba(13,148,136,0.18)]",
   },
   {
     value: "amber",
     label: "Concern",
-    description: "Something to dig into.",
+    description: "Worth digging into.",
     tone: "border-amber-400/40 bg-amber-500/12 text-amber-50 shadow-[0_0_0_1px_rgba(251,191,36,0.16)]",
   },
   {
     value: "red",
     label: "Problem",
-    description: "This can kill the deal.",
+    description: "Could kill the deal.",
     tone: "border-rose-400/40 bg-rose-500/12 text-rose-50 shadow-[0_0_0_1px_rgba(248,113,113,0.16)]",
   },
 ];
@@ -62,8 +62,7 @@ function hasSavedProgress(session: InspectionSession): boolean {
     session.vehicle.model.length > 0 ||
     session.vehicle.price.length > 0 ||
     session.checkpoints.some(
-      (checkpointState) =>
-        checkpointState.flag !== null || checkpointState.note.trim().length > 0,
+      (checkpointState) => checkpointState.flag !== null || checkpointState.note.trim().length > 0,
     )
   );
 }
@@ -79,11 +78,7 @@ function formatVehicleLabel(vehicle: VehicleDetails): string {
 
 function formatPrice(rawPrice: string): string {
   const amount = Number(rawPrice.replace(/[^\d]/g, ""));
-
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return "No price entered";
-  }
-
+  if (!Number.isFinite(amount) || amount <= 0) return "";
   return priceFormatter.format(amount);
 }
 
@@ -125,6 +120,8 @@ export function InspectionApp() {
   const currentCheckpointState = session.checkpoints[session.currentStep];
   const canAdvance = currentCheckpointState.flag !== null;
   const progress = getProgress(session.stage, session.currentStep);
+  const vehicleLabel = formatVehicleLabel(session.vehicle);
+  const priceLabel = formatPrice(session.vehicle.price);
 
   function updateVehicleField(field: keyof VehicleDetails, value: string) {
     setSession((current) => ({
@@ -209,36 +206,44 @@ export function InspectionApp() {
     setSession(createEmptySession());
   }
 
-  function renderTopBar() {
-    const subtitle = session.stage === "intro"
-      ? "20 checks, one by one. Saved locally."
-      : session.stage === "results"
-        ? "Inspection complete"
-        : `Checkpoint ${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`;
+  function renderCompactHeader() {
+    if (session.stage === "intro") return null;
 
     return (
-      <header className={`${session.stage === "inspection" ? "sticky top-0 z-20 bg-slate-950/72 backdrop-blur-xl shadow-panel" : "relative"} px-4 pb-4 transition-all duration-300`} style={safeTopStyle}>
-        <div className="mx-auto max-w-3xl pt-2">
-          <div className="flex items-start justify-between gap-4">
+      <header
+        className="sticky top-0 z-20 border-b border-white/8 bg-slate-950/92 px-4 pb-3 backdrop-blur-xl"
+        style={safeTopStyle}
+      >
+        <div className="mx-auto max-w-3xl">
+          <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-teal-200/80">BuyingBuddy</p>
-              <h1 className="font-display text-xl font-semibold text-white mt-1">Guided Inspection</h1>
-              <p className="mt-1 truncate text-sm font-medium text-slate-300">{formatVehicleLabel(session.vehicle)}</p>
+              <p className="text-[0.62rem] font-bold uppercase tracking-[0.28em] text-teal-200/75">BuyingBuddy</p>
+              <p className="truncate text-sm font-semibold text-white">
+                {vehicleLabel}
+                {priceLabel ? <span className="text-slate-400"> · {priceLabel}</span> : null}
+              </p>
             </div>
             {savedProgressExists && (
-              <button onClick={startFresh} className="shrink-0 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
+              <button
+                onClick={startFresh}
+                className="shrink-0 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
+              >
                 Start fresh
               </button>
             )}
           </div>
-          <div className="mt-4 grid gap-2">
-            <div className="flex items-center justify-between text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-              <span>{subtitle}</span>
-              <span>{formatPrice(session.vehicle.price)}</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/8">
-              <div className="h-full rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-400 transition-[width] duration-300" style={{ width: `${progress}%` }} />
-            </div>
+
+          <div className="mt-3 flex items-center justify-between text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <span>
+              {session.stage === "results" ? "Inspection complete" : `${session.currentStep + 1} of ${TOTAL_CHECKPOINTS}`}
+            </span>
+            <span>{currentCheckpoint?.section ?? "Results"}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/8">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-teal-300 via-teal-500 to-teal-400 transition-[width] duration-300"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       </header>
@@ -250,13 +255,13 @@ export function InspectionApp() {
       <section className="grid gap-5">
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/68 p-6 shadow-panel">
           <div className="inline-flex rounded-full border border-teal-400/20 bg-teal-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-teal-200">
-            Mobile-first flow
+            Guided inspection
           </div>
-          <h2 className="mt-4 font-display text-4xl font-semibold leading-none text-white">
-            Walk the car, flag what you see, and get a straight verdict.
+          <h2 className="mt-4 font-display text-3xl font-semibold leading-tight text-white sm:text-4xl">
+            A dead-simple buyer checklist you can actually use at the car.
           </h2>
           <p className="mt-4 text-base leading-7 text-slate-300">
-            Enter the car details, move through 20 practical checkpoints one at a time, and finish with a score out of 10 plus a buy, caution, or walk away call.
+            Just 14 real-world checks. No mechanic theatre. No pro-level gear. Just enough to spot obvious problems before you waste money.
           </p>
         </div>
 
@@ -265,7 +270,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Year</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-white px-4 text-base text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 maxLength={4}
                 onChange={(e) => updateVehicleField("year", e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
@@ -276,7 +281,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Make</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-white px-4 text-base text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(e) => updateVehicleField("make", e.target.value)}
                 placeholder="Toyota"
                 value={session.vehicle.make}
@@ -285,7 +290,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Model</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-white px-4 text-base text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 onChange={(e) => updateVehicleField("model", e.target.value)}
                 placeholder="Yaris"
                 value={session.vehicle.model}
@@ -294,7 +299,7 @@ export function InspectionApp() {
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-slate-200">Price</span>
               <input
-                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-slate-950/72 px-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+                className="min-h-[3.5rem] rounded-2xl border border-white/10 bg-white px-4 text-base text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
                 inputMode="numeric"
                 onChange={(e) => updateVehicleField("price", e.target.value.replace(/[^\d]/g, ""))}
                 placeholder="18950"
@@ -303,8 +308,12 @@ export function InspectionApp() {
             </label>
           </div>
 
-          {entryError && <div className="mt-4 rounded-2xl border border-rose-400/24 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{entryError}</div>}
-          
+          {entryError && (
+            <div className="mt-4 rounded-2xl border border-rose-400/24 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+              {entryError}
+            </div>
+          )}
+
           <button
             className="mt-6 min-h-[4rem] w-full rounded-2xl bg-teal-600 px-5 text-lg font-bold text-white transition hover:bg-teal-700 shadow-md"
             onClick={startInspection}
@@ -319,13 +328,16 @@ export function InspectionApp() {
   function renderInspectionStep() {
     const selectedFlag = currentCheckpointState.flag;
     const helperText =
-      selectedFlag === "ok" ? "Marked OK. Keep moving." :
-      selectedFlag === "amber" ? "Marked as a concern. Add a note to remember why." :
-      selectedFlag === "red" ? "Marked as a problem. Add a note so the result screen explains why." :
-      "Pick OK, Concern, or Problem to unlock the next checkpoint.";
+      selectedFlag === "ok"
+        ? "Marked OK. Keep moving."
+        : selectedFlag === "amber"
+          ? "Marked as a concern. Add a quick note if needed."
+          : selectedFlag === "red"
+            ? "Marked as a problem. Add a quick note so you remember why."
+            : "Pick OK, Concern, or Problem to unlock the next step.";
 
     return (
-      <section className="flex flex-col gap-6 rounded-[2rem] border border-white/10 bg-[#0b1326]/84 p-5 shadow-panel min-h-[calc(100svh-12rem)]">
+      <section className="flex flex-col gap-5 rounded-[2rem] border border-white/10 bg-[#0b1326]/84 p-5 shadow-panel min-h-[calc(100svh-9rem)]">
         <div>
           <p className="text-[0.72rem] font-bold uppercase tracking-[0.26em] text-slate-400">{currentCheckpoint.section}</p>
           <h2 className="mt-2 font-display text-4xl font-semibold leading-tight text-white">{currentCheckpoint.title}</h2>
@@ -338,12 +350,12 @@ export function InspectionApp() {
 
         <div className="grid gap-3">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Your call</p>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3">
             {flagOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setFlag(option.value)}
-                className={`min-h-[6rem] rounded-[1.5rem] border px-5 py-4 text-left transition ${
+                className={`min-h-[5.6rem] rounded-[1.5rem] border px-5 py-4 text-left transition ${
                   selectedFlag === option.value
                     ? option.tone
                     : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10"
@@ -358,28 +370,30 @@ export function InspectionApp() {
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-cyan-400/18 bg-cyan-500/10 px-4 py-3 text-sm leading-6 text-cyan-100">{helperText}</div>
+        <div className="rounded-[1.5rem] border border-cyan-400/18 bg-cyan-500/10 px-4 py-3 text-sm leading-6 text-cyan-100">
+          {helperText}
+        </div>
 
         <label className="grid gap-3">
           <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Add a Note (Optional)</span>
           <textarea
-            className="min-h-[8rem] rounded-[1.5rem] border border-white/10 bg-slate-950/72 px-5 py-4 text-base text-white outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
+            className="min-h-[7rem] rounded-[1.5rem] border border-white/10 bg-white px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-teal-400/60 focus:ring-2 focus:ring-teal-400/20"
             onChange={(e) => setNote(e.target.value)}
             placeholder={currentCheckpoint.notePlaceholder}
             value={currentCheckpointState.note}
           />
         </label>
 
-        <div className="mt-auto grid gap-3 pt-4 sm:grid-cols-2">
+        <div className="mt-auto grid gap-3 pt-2 sm:grid-cols-2">
           <button
-            className="min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10 disabled:opacity-45"
+            className="min-h-[3.75rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-base font-semibold text-white transition hover:bg-white/10 disabled:opacity-45"
             disabled={session.currentStep === 0}
             onClick={goBack}
           >
             ← Back
           </button>
           <button
-            className="min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700 disabled:opacity-45"
+            className="min-h-[3.75rem] rounded-2xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-45"
             disabled={!canAdvance}
             onClick={goNext}
           >
@@ -394,23 +408,21 @@ export function InspectionApp() {
     const totalIssues = summary.redCount + summary.amberCount;
     const estimatedSavings = totalIssues * 500;
     const riskColor =
-      summary.verdict === "Buy" ? "text-teal-300" :
-      summary.verdict === "Caution" ? "text-amber-400" :
-      "text-rose-400";
+      summary.verdict === "Buy" ? "text-teal-300" : summary.verdict === "Caution" ? "text-amber-400" : "text-rose-400";
 
     function handleShare() {
       const shareData = {
         type: "inspection_result",
-        vehicle: formatVehicleLabel(session.vehicle),
+        vehicle: vehicleLabel,
         verdict: summary.verdict,
         score: summary.score,
         issues: totalIssues,
         savings: estimatedSavings,
-        flags: summary.flaggedItems.map(f => ({ title: f.checkpoint.title, note: f.note, severity: f.severity }))
+        flags: summary.flaggedItems.map((f) => ({ title: f.checkpoint.title, note: f.note, severity: f.severity })),
       };
       const encoded = btoa(JSON.stringify(shareData));
       const url = `${window.location.origin}/shared/${encoded}`;
-      
+
       if (navigator.share) {
         void navigator.share({ title: "BuyingBuddy Inspection", url });
       } else {
@@ -439,14 +451,14 @@ export function InspectionApp() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-            <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700">
-              Book a Pro PPI
-            </a>
-            <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10">
-              Get PPSR Report
-            </a>
+          <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700">
+            Book a Pro PPI
+          </a>
+          <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10">
+            Get PPSR Report
+          </a>
         </div>
-        
+
         <button
           className="w-full min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10"
           onClick={handleShare}
@@ -454,22 +466,22 @@ export function InspectionApp() {
           Share Results
         </button>
 
-        <div className="mt-4 rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-panel">
-            <h3 className="text-2xl font-semibold text-white">Detailed Findings</h3>
-            {summary.flaggedItems.length === 0 ? (
-              <div className="mt-4 rounded-[1.5rem] border border-teal-400/18 bg-teal-500/10 p-5 text-base text-teal-50">
-                Every checkpoint was marked OK.
-              </div>
-            ) : (
-              <div className="mt-4 grid gap-4">
-                {summary.flaggedItems.map((item) => (
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5" key={item.checkpoint.id}>
-                    <p className={`font-semibold ${item.severity === 'red' ? 'text-rose-400' : 'text-amber-400'}`}>{item.checkpoint.title}</p>
-                    <p className="mt-2 text-slate-300">{item.note || 'No notes provided.'}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+        <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-panel">
+          <h3 className="text-2xl font-semibold text-white">Detailed Findings</h3>
+          {summary.flaggedItems.length === 0 ? (
+            <div className="mt-4 rounded-[1.5rem] border border-teal-400/18 bg-teal-500/10 p-5 text-base text-teal-50">
+              Nothing major jumped out in the basic checklist.
+            </div>
+          ) : (
+            <div className="mt-4 grid gap-4">
+              {summary.flaggedItems.map((item) => (
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5" key={item.checkpoint.id}>
+                  <p className={`font-semibold ${item.severity === "red" ? "text-rose-400" : "text-amber-400"}`}>{item.checkpoint.title}</p>
+                  <p className="mt-2 text-slate-300">{item.note || "No notes provided."}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     );
@@ -477,13 +489,23 @@ export function InspectionApp() {
 
   return (
     <div className="min-h-[100svh] text-bb-ink">
-      {renderTopBar()}
-      <main className="mx-auto max-w-3xl px-4 pt-6 pb-12" style={safeBottomStyle}>
+      {renderCompactHeader()}
+      <main className="mx-auto max-w-3xl px-4 pt-4 pb-12" style={safeBottomStyle}>
         {!hydrated ? (
           <div className="rounded-[2rem] border border-white/10 bg-slate-950/72 p-8 text-center text-slate-300">Loading...</div>
-        ) : session.stage === "intro" ? renderIntro() : session.stage === "results" ? renderResults() : renderInspectionStep()}
-        
-        {storageError && <div className="mt-6 rounded-2xl border border-amber-400/18 bg-amber-500/10 p-4 text-sm text-amber-50 text-center">{storageError}</div>}
+        ) : session.stage === "intro" ? (
+          renderIntro()
+        ) : session.stage === "results" ? (
+          renderResults()
+        ) : (
+          renderInspectionStep()
+        )}
+
+        {storageError && (
+          <div className="mt-6 rounded-2xl border border-amber-400/18 bg-amber-500/10 p-4 text-center text-sm text-amber-50">
+            {storageError}
+          </div>
+        )}
       </main>
     </div>
   );

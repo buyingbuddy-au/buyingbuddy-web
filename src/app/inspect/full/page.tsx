@@ -2,7 +2,7 @@
 
 export const metadata = {
   title: "Full Inspection | Buying Buddy",
-  description: "Interactive 25-point vehicle inspection with notes, ratings, and a risk score.",
+  description: "Interactive 14-point guided inspection with notes, ratings, and a risk score.",
 };
 
 export default function InspectFullPage() {
