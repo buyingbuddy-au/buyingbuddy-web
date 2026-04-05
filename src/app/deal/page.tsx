@@ -41,14 +41,30 @@ export default function DealLandingPage() {
         body: JSON.stringify({ email: email.trim() }),
       });
 
-      const data = (await res.json()) as { ok?: boolean; checkout_url?: string; error?: string };
+      const data = (await res.json()) as {
+        ok?: boolean;
+        checkout_url?: string;
+        room_url?: string;
+        bypassed_payment?: boolean;
+        error?: string;
+      };
 
-      if (!res.ok || !data.ok || !data.checkout_url) {
+      if (!res.ok || !data.ok) {
         setError(data.error ?? "Could not create Deal Room. Try again.");
         return;
       }
 
-      window.location.href = data.checkout_url;
+      if (data.room_url) {
+        window.location.href = data.room_url;
+        return;
+      }
+
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+        return;
+      }
+
+      setError("Could not create Deal Room. Try again.");
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
@@ -72,8 +88,8 @@ export default function DealLandingPage() {
           </p>
 
           <div className="mt-8 inline-flex items-end gap-2 rounded-[1.75rem] bg-white px-5 py-4 shadow-sm">
-            <span className="text-4xl font-black tracking-[-0.05em] text-gray-900">$39.95</span>
-            <span className="pb-1 text-sm font-bold text-gray-500">one-time</span>
+            <span className="text-4xl font-black tracking-[-0.05em] text-gray-900">Test Mode</span>
+            <span className="pb-1 text-sm font-bold text-gray-500">temporary no-pay access</span>
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -97,8 +113,7 @@ export default function DealLandingPage() {
           </div>
           <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-gray-900">Create your Deal Room</h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Pay once. Share the link with the seller. Both sides fill in their details.
-            Get a Deal Record PDF when complete.
+            Temporary test mode is on. Create the room, share the link with the seller, and test the full flow without Stripe blocking you.
           </p>
 
           <form onSubmit={handleCreateDeal} className="mt-6 grid gap-4">
@@ -127,9 +142,9 @@ export default function DealLandingPage() {
               className="inline-flex min-h-[3.75rem] w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 px-6 text-base font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" /> Opening checkout...</>
+                <><Loader2 className="h-5 w-5 animate-spin" /> Creating test room...</>
               ) : (
-                "Create Deal Room — $39.95"
+                "Create Test Deal Room"
               )}
             </button>
           </form>

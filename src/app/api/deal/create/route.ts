@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { create_checkout_session } from "@/lib/stripe";
 import { insert_deal } from "@/lib/db";
 
 export const runtime = "nodejs";
+
+const BYPASS_DEAL_ROOM_PAYMENT = true;
 
 function is_valid_email(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -34,33 +35,25 @@ export async function POST(request: Request) {
 
     const id = "deal_" + crypto.randomUUID().slice(0, 12);
 
-    // Create the deal BEFORE Stripe checkout so the room exists
-    // even if the webhook is delayed after payment
     insert_deal({
       id,
-      status: "draft",
+      status: BYPASS_DEAL_ROOM_PAYMENT ? "buyer_paid" : "draft",
       buyer_email: customer_email,
     });
 
-    const session = await create_checkout_session({
-      base_url: resolve_base_url(request),
-      customer_email,
-      deal_id: id,
-      listing_url: "",
-      product: "deal_room",
-      vehicle_identifier: "",
-    });
-
-    if (!session.url) {
-      throw new Error("Stripe did not return a checkout URL.");
+    if (BYPASS_DEAL_ROOM_PAYMENT) {
+      return NextResponse.json({
+        ok: true,
+        bypassed_payment: true,
+        deal_id: id,
+        room_url: `${resolve_base_url(request)}/deal/${id}`,
+      });
     }
 
-    return NextResponse.json({
-      ok: true,
-      checkout_url: session.url,
-      deal_id: id,
-      session_id: session.id,
-    });
+    return NextResponse.json(
+      { ok: false, error: "Deal Room checkout is currently unavailable." },
+      { status: 503 },
+    );
   } catch (error) {
     return NextResponse.json(
       {
@@ -68,7 +61,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Unable to create Deal Room checkout.",
+            : "Unable to create Deal Room.",
       },
       { status: 500 },
     );
