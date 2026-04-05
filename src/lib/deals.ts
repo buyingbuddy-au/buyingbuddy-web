@@ -22,6 +22,10 @@ function normalise_text(value: string | null | undefined) {
     return undefined;
   }
 
+  if (value === null) {
+    return null;
+  }
+
   const trimmed = value.trim();
   return trimmed ? trimmed : null;
 }
@@ -29,6 +33,10 @@ function normalise_text(value: string | null | undefined) {
 function normalise_upload(value: string | null | undefined) {
   if (value === undefined) {
     return undefined;
+  }
+
+  if (value === null) {
+    return null;
   }
 
   const trimmed = value.trim();
