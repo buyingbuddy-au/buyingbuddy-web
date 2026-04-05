@@ -134,7 +134,8 @@ export default function PrintChecklistPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pb-24 pt-4 text-white sm:px-6 lg:px-8 lg:pt-8 print:bg-white print:text-black print:pb-8">
+    <div className="-mx-4 -mt-4 min-h-screen bg-slate-950 px-4 pt-4 pb-24 sm:-mx-6 lg:-mx-8 print:mx-0 print:mt-0 print:bg-white">
+    <div className="mx-auto w-full max-w-2xl text-white sm:px-2 lg:pt-4 print:text-black print:pb-8">
       {/* Top bar */}
       <nav className="flex items-center justify-between print:hidden">
         <Link
@@ -329,6 +330,7 @@ export default function PrintChecklistPage() {
           <span className="flex items-center gap-1"><XCircle className="h-3.5 w-3.5 text-rose-400" /> Fail</span>
         </div>
       )}
+    </div>
     </div>
   );
 }

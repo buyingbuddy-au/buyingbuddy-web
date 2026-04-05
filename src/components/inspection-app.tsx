@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   STORAGE_KEY,
   TOTAL_CHECKPOINTS,
@@ -93,6 +94,7 @@ export function InspectionApp() {
   const [hydrated, setHydrated] = useState(false);
   const [entryError, setEntryError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -199,10 +201,10 @@ export function InspectionApp() {
   }
 
   function startFresh() {
-    if (!window.confirm("Clear the saved inspection on this phone and start again?")) return;
     window.localStorage.removeItem(STORAGE_KEY);
     setEntryError(null);
     setStorageError(null);
+    setConfirmReset(false);
     setSession(createEmptySession());
   }
 
@@ -223,13 +225,29 @@ export function InspectionApp() {
                 {priceLabel ? <span className="text-slate-400"> · {priceLabel}</span> : null}
               </p>
             </div>
-            {savedProgressExists && (
+            {savedProgressExists && !confirmReset && (
               <button
-                onClick={startFresh}
+                onClick={() => setConfirmReset(true)}
                 className="shrink-0 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
               >
                 Start fresh
               </button>
+            )}
+            {confirmReset && (
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={startFresh}
+                  className="rounded-full bg-rose-500 px-3 py-1.5 text-xs font-bold text-white"
+                >
+                  Clear &amp; reset
+                </button>
+                <button
+                  onClick={() => setConfirmReset(false)}
+                  className="rounded-full border border-white/12 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100"
+                >
+                  Cancel
+                </button>
+              </div>
             )}
           </div>
 
@@ -253,6 +271,11 @@ export function InspectionApp() {
   function renderIntro() {
     return (
       <section className="grid gap-5">
+        <div className="print:hidden">
+          <Link href="/inspect" className="inline-flex items-center gap-1 text-sm font-bold text-teal-300">
+            ← All inspection tools
+          </Link>
+        </div>
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/68 p-6 shadow-panel">
           <div className="inline-flex rounded-full border border-teal-400/20 bg-teal-500/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-teal-200">
             Guided inspection
@@ -406,28 +429,25 @@ export function InspectionApp() {
 
   function renderResults() {
     const totalIssues = summary.redCount + summary.amberCount;
-    const estimatedSavings = totalIssues * 500;
     const riskColor =
       summary.verdict === "Buy" ? "text-teal-300" : summary.verdict === "Caution" ? "text-amber-400" : "text-rose-400";
 
     function handleShare() {
-      const shareData = {
-        type: "inspection_result",
-        vehicle: vehicleLabel,
-        verdict: summary.verdict,
-        score: summary.score,
-        issues: totalIssues,
-        savings: estimatedSavings,
-        flags: summary.flaggedItems.map((f) => ({ title: f.checkpoint.title, note: f.note, severity: f.severity })),
-      };
-      const encoded = btoa(JSON.stringify(shareData));
-      const url = `${window.location.origin}/shared/${encoded}`;
+      const summaryLines: string[] = [
+        `BuyingBuddy Inspection — ${vehicleLabel}`,
+        `Verdict: ${summary.verdict} (${summary.score}/10)`,
+      ];
+      if (summary.redCount) summaryLines.push(`${summary.redCount} problem${summary.redCount > 1 ? "s" : ""}`);
+      if (summary.amberCount) summaryLines.push(`${summary.amberCount} concern${summary.amberCount > 1 ? "s" : ""}`);
+      summaryLines.push(`\nDo your own check: ${window.location.origin}/inspect`);
+
+      const shareText = summaryLines.join("\n");
 
       if (navigator.share) {
-        void navigator.share({ title: "BuyingBuddy Inspection", url });
+        void navigator.share({ title: "BuyingBuddy Inspection", text: shareText });
       } else {
-        navigator.clipboard.writeText(url);
-        alert("Link copied!");
+        void navigator.clipboard.writeText(shareText);
+        alert("Copied to clipboard!");
       }
     }
 
@@ -451,12 +471,12 @@ export function InspectionApp() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <a href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700">
+          <Link href="/ppi" className="flex items-center justify-center min-h-[4rem] rounded-2xl bg-teal-600 px-4 text-lg font-semibold text-white transition hover:bg-teal-700">
             Book a Pro PPI
-          </a>
-          <a href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10">
+          </Link>
+          <Link href="/ppsr" className="flex items-center justify-center min-h-[4rem] rounded-2xl border border-white/12 bg-white/5 px-4 text-lg font-semibold text-white transition hover:bg-white/10">
             Get PPSR Report
-          </a>
+          </Link>
         </div>
 
         <button
