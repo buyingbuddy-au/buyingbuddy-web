@@ -38,10 +38,10 @@ const PRODUCTS = [
   },
   {
     name: "Contract Pack",
-    price: "$9.95",
-    description: "QLD private sale paperwork for handover day.",
+    price: "Free",
+    description: "QLD private sale paperwork for handover day. Enter your email and download instantly.",
     href: "/contract-pack",
-    buttonText: "Get Contract Pack",
+    buttonText: "Download Free",
     highlight: true,
     features: [
       "QLD vehicle sale contract",

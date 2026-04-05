@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   BookOpenText,
@@ -12,6 +13,7 @@ import {
   Shield,
   Sparkles,
 } from "lucide-react";
+import { CheckoutCancelledBanner } from "@/components/checkout-cancelled-banner";
 
 const TOOLKIT_CARDS = [
   {
@@ -68,6 +70,7 @@ const TRUST_BADGES = [
 export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-8 sm:px-6 lg:px-8 lg:pt-14">
+      <Suspense><CheckoutCancelledBanner /></Suspense>
       <section className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
         <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-teal-700">
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />

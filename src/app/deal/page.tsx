@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { CheckCircle2, FileText, Handshake, Loader2, Lock, Shield, Users } from "lucide-react";
+import { CheckoutCancelledBanner } from "@/components/checkout-cancelled-banner";
 
 const FEATURES = [
   { icon: Users, title: "Shared workspace", description: "Both buyer and seller fill in their details in one place." },
@@ -57,6 +58,7 @@ export default function DealLandingPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
+      <Suspense><CheckoutCancelledBanner /></Suspense>
       {/* Hero */}
       <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         <div className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
