@@ -14,14 +14,27 @@ const QUICK_REPLIES = [
   "How do I negotiate?",
   "What are the red flags?",
   "QLD transfer rules",
-  "Help with paperwork",
+  "Do I need a PPSR check?",
 ] as const;
+
+/** Follow-up suggestions shown after assistant replies to keep the conversation moving */
+const FOLLOW_UP_MAP: Record<string, string[]> = {
+  "Is this car overpriced?": ["What are the red flags?", "How do I negotiate?"],
+  "What should I look for?": ["What are the red flags?", "Do I need a PPSR check?"],
+  "How do I negotiate?": ["Is this car overpriced?", "QLD transfer rules"],
+  "What are the red flags?": ["What should I look for?", "Do I need a PPSR check?"],
+  "QLD transfer rules": ["Do I need a PPSR check?", "How do I negotiate?"],
+  "Do I need a PPSR check?": ["What are the red flags?", "QLD transfer rules"],
+};
+
+const DEFAULT_FOLLOW_UPS = ["What should I look for?", "Do I need a PPSR check?", "How do I negotiate?"];
 
 export default function BuddyChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [lastUserMessage, setLastUserMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,7 +57,10 @@ export default function BuddyChat() {
       const response = await fetch("/api/buddy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({
+          message: trimmed,
+          history: messages.slice(-8),
+        }),
       });
 
       const data = (await response.json()) as {
@@ -65,6 +81,7 @@ export default function BuddyChat() {
         ...current,
         { role: "assistant", content: data.reply as string },
       ]);
+      setLastUserMessage(trimmed);
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
@@ -159,6 +176,20 @@ export default function BuddyChat() {
                 onClick={() => void sendMessage(reply)}
                 disabled={loading}
                 className="rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-bold text-teal-700 transition hover:bg-teal-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {reply}
+              </button>
+            ))}
+          </div>
+        ) : !loading && messages.length > 0 && messages[messages.length - 1].role === "assistant" ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(FOLLOW_UP_MAP[lastUserMessage] ?? DEFAULT_FOLLOW_UPS).map((reply) => (
+              <button
+                key={reply}
+                type="button"
+                onClick={() => void sendMessage(reply)}
+                disabled={loading}
+                className="rounded-full border border-gray-200 bg-gray-50 px-3.5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-teal-50 hover:border-teal-200 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {reply}
               </button>
