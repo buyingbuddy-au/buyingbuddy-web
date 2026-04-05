@@ -275,6 +275,12 @@ export default function DealRoomPage() {
           <FileText className="mx-auto h-8 w-8" />
           <p className="mt-3 text-xl font-black">Deal Record Finalised</p>
           <p className="mt-2 text-sm text-teal-100">The Deal Summary PDF has been emailed to both parties.</p>
+          <Link
+            href="/"
+            className="mt-5 inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-6 text-sm font-bold text-white transition hover:bg-white/20"
+          >
+            Back to home
+          </Link>
         </div>
       )}
 

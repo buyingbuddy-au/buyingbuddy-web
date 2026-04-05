@@ -143,8 +143,30 @@ export default function ContractPackPage() {
         </div>
       </section>
 
+      {/* PPSR Cross-sell */}
+      <section className="mt-10 rounded-[2rem] border border-teal-200 bg-teal-50 p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-700">Before you sign</p>
+            <h2 className="mt-2 text-xl font-black tracking-[-0.04em] text-gray-900">
+              Have you checked the PPSR?
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Paperwork on a car with hidden finance or write-off history doesn&apos;t protect you.
+              Run the PPSR check first — $4.95.
+            </p>
+          </div>
+          <Link
+            href="/ppsr"
+            className="shrink-0 inline-flex min-h-[3rem] items-center justify-center rounded-2xl bg-teal-600 px-6 text-sm font-bold text-white transition hover:bg-teal-700"
+          >
+            Run PPSR Check
+          </Link>
+        </div>
+      </section>
+
       {/* Bottom CTA */}
-      <section className="mt-10 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
+      <section className="mt-6 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
         <h2 className="text-2xl font-black tracking-[-0.05em] text-white sm:text-4xl">
           Show up with paperwork, not hope.
         </h2>

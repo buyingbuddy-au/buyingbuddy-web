@@ -39,6 +39,12 @@ export function FreeKitForm() {
         <p className="mt-2 text-sm text-gray-500">
           Check your email for the download link. If it&apos;s not there in a couple of minutes, check spam.
         </p>
+        <a
+          href="/check"
+          className="mt-5 inline-flex min-h-[3rem] items-center justify-center rounded-2xl bg-teal-600 px-6 text-sm font-black text-white transition hover:bg-teal-700"
+        >
+          Run a free check on your car &rarr;
+        </a>
       </div>
     );
   }
