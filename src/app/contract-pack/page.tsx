@@ -62,7 +62,7 @@ export default function ContractPackPage() {
           <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
             Private Sale Contract Pack
           </p>
-          <p className="mt-3 text-4xl font-black tracking-[-0.05em] text-gray-900">$9.95</p>
+          <p className="mt-3 text-4xl font-black tracking-[-0.05em] text-gray-900">Free</p>
           <p className="mt-3 text-sm leading-6 text-gray-500">
             Four practical documents for the day the deal becomes real.
           </p>
