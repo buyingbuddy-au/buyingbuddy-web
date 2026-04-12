@@ -8,7 +8,7 @@ const DESKTOP_NAV_LINKS = [
   { href: "/check", label: "Free Check" },
   { href: "/ppsr", label: "PPSR" },
   { href: "/inspect", label: "Inspect" },
-  { href: "/buddy", label: "Buddy" },
+  { href: "/deal", label: "Deals" },
   { href: "/contract-pack", label: "Contracts" },
   { href: "/blog", label: "Guides" },
 ] as const;
@@ -39,8 +39,8 @@ export default function AppHeader() {
           ))}
         </nav>
 
-        <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-teal-700">
-          QLD ACTIVE
+        <span className="hidden rounded-full bg-teal-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-teal-700 sm:inline-flex">
+          Built for QLD private sales
         </span>
       </div>
     </header>

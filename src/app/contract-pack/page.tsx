@@ -166,11 +166,11 @@ export default function ContractPackPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="mt-6 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
-        <h2 className="text-2xl font-black tracking-[-0.05em] text-white sm:text-4xl">
+      <section className="mt-6 rounded-[2rem] border border-teal-200 bg-teal-50 p-6 text-center shadow-sm sm:p-10">
+        <h2 className="text-2xl font-black tracking-[-0.05em] text-gray-900 sm:text-4xl">
           Show up with paperwork, not hope.
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-400">
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-600">
           Use the contract pack on handover day, and pair it with the free listing check or PPSR earlier
           in the buying process.
         </p>
@@ -178,7 +178,7 @@ export default function ContractPackPage() {
           <div><HandoverPackButton /></div>
           <Link
             href="/check"
-            className="inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-white/20 px-6 text-sm font-bold text-white transition hover:bg-white/10"
+            className="inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-teal-600 px-6 text-sm font-bold text-teal-600 transition hover:bg-teal-600 hover:text-white"
           >
             Back to free check
           </Link>

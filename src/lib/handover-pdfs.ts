@@ -1,3 +1,4 @@
+import "@/lib/pdfkit-compat";
 import PDFDocument from "pdfkit";
 
 const TEAL = "#0D9488";

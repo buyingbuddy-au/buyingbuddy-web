@@ -21,6 +21,22 @@ function parseOptionalNumber(value: unknown) {
   return null;
 }
 
+function isPlaceholderManualCheck(input: {
+  make: string;
+  model: string;
+  year: number | null;
+  rego: string;
+  asking_price: number | null;
+}) {
+  return (
+    input.make.trim().toLowerCase() === "toyota" &&
+    input.model.trim().toLowerCase() === "yaris" &&
+    input.year === 2019 &&
+    input.rego.trim().toUpperCase() === "123ABC" &&
+    input.asking_price === 24500
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
@@ -32,6 +48,8 @@ export async function POST(request: Request) {
       year?: string | number;
       rego?: string;
       asking_price?: string | number;
+      kilometres?: string | number;
+      transmission?: string;
     };
 
     const email = normaliseString(body.email);
@@ -97,6 +115,13 @@ export async function POST(request: Request) {
     if (!make || !model || !year) {
       return NextResponse.json(
         { ok: false, error: "Enter at least make, model, and year for a useful snapshot." },
+        { status: 400 },
+      );
+    }
+
+    if (isPlaceholderManualCheck({ make, model, year, rego, asking_price })) {
+      return NextResponse.json(
+        { ok: false, error: "Replace the demo Toyota / Yaris / 2019 values with the actual car details first." },
         { status: 400 },
       );
     }

@@ -12,7 +12,7 @@ export type VehicleReport = {
   fair_price_range: string;
   red_flags: string[];
   verdict: string;
-  source: "openai" | "gemini" | "fallback";
+  source: "claude" | "openai" | "gemini" | "fallback";
 };
 
 const reportCache = new Map<string, VehicleReport>();
@@ -132,6 +132,22 @@ function parseJsonObject(raw: string) {
   return JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>;
 }
 
+const EXTERNAL_API_TIMEOUT_MS = 3000;
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = EXTERNAL_API_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function buildPrompt(input: VehicleBriefInput) {
   const askingPrice = input.asking_price ? ` Asking price: AUD ${input.asking_price}.` : "";
   const rego = input.rego ? ` Rego supplied: ${input.rego}.` : "";
@@ -144,11 +160,60 @@ function buildPrompt(input: VehicleBriefInput) {
   ].join(" ");
 }
 
+async function generateWithClaude(input: VehicleBriefInput): Promise<VehicleReport | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+
+  const response = await fetchWithTimeout("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: buildPrompt(input),
+        },
+      ],
+      system: "You output concise, valid JSON only. No markdown, no code fences, just the raw JSON object.",
+    }),
+  }, 8000);
+
+  if (!response.ok) throw new Error(`Claude request failed: ${response.status}`);
+
+  const data = (await response.json()) as {
+    content?: Array<{ type: string; text?: string }>;
+  };
+  const content = data.content?.find((b) => b.type === "text")?.text;
+  if (!content) throw new Error("Claude returned an empty response.");
+
+  const parsed = parseJsonObject(content);
+  return {
+    known_issues: sanitiseArray(parsed.known_issues, []),
+    what_to_check: sanitiseArray(parsed.what_to_check, []),
+    fair_price_range:
+      typeof parsed.fair_price_range === "string" && parsed.fair_price_range.trim()
+        ? parsed.fair_price_range.trim()
+        : "Price varies by condition; compare several recent QLD private sales before you jump.",
+    red_flags: sanitiseArray(parsed.red_flags, []),
+    verdict:
+      typeof parsed.verdict === "string" && parsed.verdict.trim()
+        ? parsed.verdict.trim()
+        : `Worth considering if the ${input.make} ${input.model} has clean history, drives properly, and the numbers make sense.`,
+    source: "claude",
+  };
+}
+
 async function generateWithOpenAI(input: VehicleBriefInput): Promise<VehicleReport | null> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -201,7 +266,7 @@ async function generateWithGemini(input: VehicleBriefInput): Promise<VehicleRepo
   const apiKey = process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) return null;
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
     {
       method: "POST",
@@ -290,7 +355,7 @@ async function generateWithOpenRouter(input: VehicleBriefInput): Promise<Vehicle
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -347,24 +412,12 @@ export async function generateVehicleReport(input: VehicleBriefInput): Promise<V
 
   let report: VehicleReport | null = null;
 
-  // Try OpenRouter first (cheapest), then OpenAI, then Gemini, then fallback
-  try {
-    report = await generateWithOpenRouter(input);
-  } catch {
-    report = null;
-  }
-
-  if (!report) {
+  // Try Claude Sonnet first, then OpenRouter, OpenAI, Gemini, then fallback
+  const providers = [generateWithClaude, generateWithOpenRouter, generateWithOpenAI, generateWithGemini];
+  for (const provider of providers) {
+    if (report) break;
     try {
-      report = await generateWithOpenAI(input);
-    } catch {
-      report = null;
-    }
-  }
-
-  if (!report) {
-    try {
-      report = await generateWithGemini(input);
+      report = await provider(input);
     } catch {
       report = null;
     }

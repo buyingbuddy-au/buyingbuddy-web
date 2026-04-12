@@ -70,11 +70,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </article>
 
         <aside className="grid gap-4 lg:sticky lg:top-20">
-          <div className="rounded-[1.75rem] border border-gray-200 bg-gray-900 p-6 text-white shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-400">
+          <div className="rounded-[1.75rem] border border-teal-200 bg-teal-50 p-6 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-700">
               Don&apos;t get scammed
             </p>
-            <p className="mt-3 text-2xl font-black tracking-[-0.04em]">
+            <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-gray-900">
               Check the car before you hand over cash.
             </p>
             <Link

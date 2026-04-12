@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardCheck,
+  Handshake,
   Home,
-  MessageCircle,
   Search,
   Shield,
 } from "lucide-react";
@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: "/check", label: "Check", icon: Search },
   { href: "/ppsr", label: "PPSR", icon: Shield },
   { href: "/inspect", label: "Inspect", icon: ClipboardCheck },
-  { href: "/buddy", label: "Buddy", icon: MessageCircle },
+  { href: "/deal", label: "Deals", icon: Handshake },
 ] as const;
 
 function isActiveRoute(pathname: string, href: string) {
@@ -42,7 +42,7 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-1 px-2 py-1 text-[11px] font-bold transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 px-2 py-2 text-[11px] font-bold transition-colors active:scale-95 ${
                 active ? "text-teal-600" : "text-gray-500"
               }`}
             >

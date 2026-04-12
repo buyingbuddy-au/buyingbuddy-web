@@ -116,7 +116,7 @@ export function PpiForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full min-h-12 rounded-full bg-gray-900 px-6 py-3 text-sm font-black uppercase tracking-[0.08em] text-white transition hover:-translate-y-0.5 hover:text-teal-600 disabled:opacity-60"
+        className="w-full min-h-12 rounded-full bg-teal-600 px-6 py-3 text-sm font-black uppercase tracking-[0.08em] text-white transition hover:bg-teal-700 active:scale-[0.98] disabled:opacity-60"
       >
         {status === "loading" ? "Sending…" : "Request inspection quote"}
       </button>

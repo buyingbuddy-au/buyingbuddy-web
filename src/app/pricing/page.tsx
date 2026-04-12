@@ -177,11 +177,11 @@ export default function PricingPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="mt-10 rounded-[2rem] bg-gray-900 p-6 text-center shadow-sm sm:p-10">
-        <h2 className="text-2xl font-black tracking-[-0.05em] text-white sm:text-4xl">
+      <section className="mt-10 rounded-[2rem] border border-teal-200 bg-teal-50 p-6 text-center shadow-sm sm:p-10">
+        <h2 className="text-2xl font-black tracking-[-0.05em] text-gray-900 sm:text-4xl">
           Not sure where to start?
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-400">
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-gray-600">
           Run the free listing check first. It&apos;ll tell you which paid tools are worth it for that specific car.
         </p>
         <Link
