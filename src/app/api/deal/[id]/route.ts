@@ -8,7 +8,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  const deal = get_public_deal_by_id(id);
+  const deal = await get_public_deal_by_id(id);
 
   if (!deal) {
     return NextResponse.json(

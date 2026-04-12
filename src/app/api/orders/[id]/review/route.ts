@@ -23,7 +23,7 @@ export async function POST(
         "dealer_verdict" in body ? (body.dealer_verdict ?? null) : undefined,
       ppsr_result: "ppsr_result" in body ? (body.ppsr_result ?? null) : undefined,
     };
-    const order = save_order_review(id, review_input);
+    const order = await save_order_review(id, review_input);
 
     return NextResponse.json({
       ok: true,

@@ -162,12 +162,14 @@ export async function send_ppsr_confirmation_email({
 export async function send_order_report_email({
   email,
   order_id,
-  report_path,
+  report_buffer,
+  report_filename,
   product,
 }: {
   email: string;
   order_id: string;
-  report_path: string;
+  report_buffer: Buffer;
+  report_filename: string;
   product: ProductType;
 }) {
   const product_labels: Record<ProductType, string> = {
@@ -218,7 +220,8 @@ export async function send_order_report_email({
     html: email_html(content),
     attachments: [
       {
-        path: report_path,
+        content: report_buffer,
+        filename: report_filename,
       },
     ],
   });
@@ -265,13 +268,15 @@ export async function send_deal_summary_email({
   buyer_email,
   deal_id,
   deal_url,
-  report_path,
+  report_buffer,
+  report_filename,
   seller_email,
 }: {
   buyer_email: string;
   deal_id: string;
   deal_url: string;
-  report_path: string;
+  report_buffer: Buffer;
+  report_filename: string;
   seller_email: string;
 }) {
   const content = `
@@ -302,7 +307,8 @@ export async function send_deal_summary_email({
     html: email_html(content),
     attachments: [
       {
-        path: report_path,
+        content: report_buffer,
+        filename: report_filename,
       },
     ],
   });

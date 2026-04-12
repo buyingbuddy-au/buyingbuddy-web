@@ -11,6 +11,6 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    ...get_dashboard_data(),
+    ...await get_dashboard_data(),
   });
 }

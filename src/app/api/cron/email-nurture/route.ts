@@ -1,42 +1,33 @@
-﻿import { NextResponse } from "next/server";
-import { get_database } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 import { resend } from "@/lib/email";
 
-// Verify cron job token
 export async function GET(request: Request) {
   const authHeader = request.headers.get("Authorization");
   if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("Running abandoned cart email nurture sequence...");
-
   try {
-    // We are looking for email captures that haven't converted to orders yet
-    // The query finds captures made more than 1 hour ago
-    // In a full production system you'd use a robust queue (Trigger.dev / Inngest)
-    // but this lightweight sqlite approach works perfectly for MVP
-    
-    // We fetch emails that have NO corresponding order
-    // (using left join or a subquery)
-    const pendingCaptures = get_database().prepare(`
-      SELECT e.id, e.email, e.created_at, e.vehicle_summary, e.listing_url
-      FROM email_captures e
-      LEFT JOIN orders o ON e.email = o.customer_email
-      WHERE o.id IS NULL
-        AND e.converted_to_order IS NULL
-        AND datetime(e.created_at) < datetime('now', '-1 hour')
-        AND datetime(e.created_at) > datetime('now', '-24 hours')
-    `).all() as { id: string; email: string; vehicle_summary: string | null; listing_url: string | null }[];
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: pendingCaptures } = await supabase
+      .from("email_captures")
+      .select("id, email, vehicle_summary, listing_url")
+      .is("converted_to_order", null)
+      .lt("created_at", oneHourAgo)
+      .gt("created_at", oneDayAgo);
+
+    if (!pendingCaptures?.length) {
+      return NextResponse.json({ ok: true, processed: 0, sent: 0 });
+    }
 
     let sentCount = 0;
 
     for (const capture of pendingCaptures) {
-      console.log(`Sending abandoned cart email to ${capture.email}`);
-      
       const vehicleDesc = capture.vehicle_summary || "that car you were checking";
 
-      // Nurture Email 1 (Abandoned Cart)
       await resend.emails.send({
         from: "Jordan @ BuyingBuddy <info@buyingbuddy.com.au>",
         to: [capture.email],
@@ -50,22 +41,22 @@ export async function GET(request: Request) {
             <p>If you've already moved on, no worries at all.</p>
             <p>Cheers,<br>Jordan<br>BuyingBuddy</p>
           </div>
-        `
+        `,
       });
 
       sentCount++;
-      
-      // Update record to mark we've sent the first nurture email
-      // We'll reuse the converted_to_order column but set a string flag so we don't re-send
-      get_database().prepare(`UPDATE email_captures SET converted_to_order = 'nurture_1_sent' WHERE id = ?`).run(capture.id);
+
+      await supabase
+        .from("email_captures")
+        .update({ converted_to_order: "nurture_1_sent" })
+        .eq("id", capture.id);
     }
 
-    return NextResponse.json({ 
-      ok: true, 
+    return NextResponse.json({
+      ok: true,
       processed: pendingCaptures.length,
-      sent: sentCount 
+      sent: sentCount,
     });
-
   } catch (error) {
     console.error("Abandoned cart cron failed:", error);
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });

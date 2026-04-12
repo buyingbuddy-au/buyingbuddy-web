@@ -13,7 +13,7 @@ export async function GET(
   }
 
   const { id } = await context.params;
-  const order = get_order_by_id(id);
+  const order = await get_order_by_id(id);
 
   if (!order) {
     return NextResponse.json({ ok: false, error: "Order not found." }, { status: 404 });

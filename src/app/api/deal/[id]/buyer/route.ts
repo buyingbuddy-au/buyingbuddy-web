@@ -18,8 +18,8 @@ export async function PATCH(
       body.buyer_licence = await uploadBase64Image(body.buyer_licence, `deal-${id}-buyer-licence`) || body.buyer_licence;
     }
 
-    update_buyer_deal_section(id, body);
-    const deal = get_public_deal_by_id(id);
+    await update_buyer_deal_section(id, body);
+    const deal = await get_public_deal_by_id(id);
 
     if (!deal) {
       return NextResponse.json(

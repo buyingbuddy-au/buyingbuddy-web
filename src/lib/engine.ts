@@ -48,29 +48,15 @@ function build_vehicle_summary(order: {
 }
 
 function normalise_ppsr_result(value: JsonValue | null | string | undefined) {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (value === null) {
-    return null;
-  }
-
-  if (typeof value !== "string") {
-    return value;
-  }
-
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string") return value;
   const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-
+  if (!trimmed) return null;
   try {
     return JSON.parse(trimmed) as JsonValue;
   } catch {
-    return {
-      notes: trimmed,
-    } satisfies JsonValue;
+    return { notes: trimmed } satisfies JsonValue;
   }
 }
 
@@ -90,22 +76,32 @@ export async function run_free_listing_check({
     vehicle_price_listed: listing.vehicle_price_listed,
     vehicle_mileage: listing.vehicle_mileage,
   });
-  const capture = upsert_email_capture({
-    id: randomUUID(),
-    email,
-    listing_url,
-    vehicle_summary,
-  });
 
-  await send_free_check_email({
-    email,
-    listing_url,
-    verdict: analysis.listing_verdict,
-    vehicle_summary,
-    market_value_low: analysis.market_value_low,
-    market_value_high: analysis.market_value_high,
-    red_flags: analysis.red_flags,
-  });
+  let capture: Awaited<ReturnType<typeof upsert_email_capture>> = null;
+  try {
+    capture = await upsert_email_capture({
+      id: randomUUID(),
+      email,
+      listing_url,
+      vehicle_summary,
+    });
+  } catch {
+    // DB write failed — continue without persisting
+  }
+
+  try {
+    await send_free_check_email({
+      email,
+      listing_url,
+      verdict: analysis.listing_verdict,
+      vehicle_summary,
+      market_value_low: analysis.market_value_low,
+      market_value_high: analysis.market_value_high,
+      red_flags: analysis.red_flags,
+    });
+  } catch {
+    // Email send failed — don't block the check result
+  }
 
   return {
     capture: capture!,
@@ -116,7 +112,7 @@ export async function run_free_listing_check({
 }
 
 export async function create_order_from_checkout_session(session: Stripe.Checkout.Session) {
-  const existing_order = get_order_by_stripe_session_id(session.id);
+  const existing_order = await get_order_by_stripe_session_id(session.id);
   if (existing_order) {
     return existing_order;
   }
@@ -148,7 +144,7 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
     ? /^[A-HJ-NPR-Z0-9]{11,17}$/i.test(vehicle_identifier.replace(/\s+/g, ""))
     : false;
   const definition = get_product_definition(product);
-  const order = insert_order({
+  const order = await insert_order({
     id: randomUUID(),
     status: "awaiting_review",
     product,
@@ -178,17 +174,17 @@ export async function create_order_from_checkout_session(session: Stripe.Checkou
     contract_included: product === "full_pack" ? 1 : 0,
   });
 
-  link_email_capture_to_order(customer_email, order!.id);
+  await link_email_capture_to_order(customer_email, order!.id);
 
   return order!;
 }
 
-export function get_dashboard_data() {
+export async function get_dashboard_data() {
   return get_dashboard_payload();
 }
 
-export function save_order_review(order_id: string, input: OrderReviewInput) {
-  const existing_order = get_order_by_id(order_id);
+export async function save_order_review(order_id: string, input: OrderReviewInput) {
+  const existing_order = await get_order_by_id(order_id);
 
   if (!existing_order) {
     throw new Error("Order not found.");
@@ -219,7 +215,7 @@ export function save_order_review(order_id: string, input: OrderReviewInput) {
 }
 
 export async function send_order_deliverables(order_id: string) {
-  const order = get_order_by_id(order_id);
+  const order = await get_order_by_id(order_id);
 
   if (!order) {
     throw new Error("Order not found.");
@@ -229,17 +225,18 @@ export async function send_order_deliverables(order_id: string) {
   await send_order_report_email({
     email: order.customer_email,
     order_id: order.id,
-    report_path: report.absolute_path,
+    report_buffer: report.buffer,
+    report_filename: report.filename,
     product: order.product,
   });
 
   return update_order(order.id, {
     status: "complete",
-    report_pdf_path: report.relative_path,
+    report_pdf_path: report.filename,
     report_sent_at: to_sqlite_datetime(),
   });
 }
 
-export function handle_refund(payment_intent: string) {
+export async function handle_refund(payment_intent: string) {
   return mark_order_refunded(payment_intent);
 }

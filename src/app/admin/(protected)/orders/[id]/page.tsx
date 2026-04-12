@@ -12,7 +12,7 @@ import {
   format_timestamp,
 } from "@/lib/display";
 
-function build_timeline(order: NonNullable<ReturnType<typeof get_order_by_id>>) {
+function build_timeline(order: NonNullable<Awaited<ReturnType<typeof get_order_by_id>>>) {
   return [
     { label: "Order created", value: order.created_at },
     { label: "PPSR entered", value: order.ppsr_checked_at },
@@ -30,7 +30,7 @@ export default async function AdminOrderDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const order = get_order_by_id(id);
+  const order = await get_order_by_id(id);
 
   if (!order) {
     notFound();

@@ -46,7 +46,7 @@ export async function save_review_action(form_data: FormData) {
     redirect("/admin/orders");
   }
 
-  save_order_review(order_id, {
+  await save_order_review(order_id, {
     dealer_verdict,
     ppsr_result,
   });

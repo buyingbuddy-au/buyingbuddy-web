@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
+import { find_or_create_deal } from "@/lib/deals";
 
 export const runtime = "nodejs";
-
-const BYPASS_DEAL_ROOM_PAYMENT = true;
 
 function is_valid_email(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -22,28 +21,33 @@ function resolve_base_url(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { email?: string };
-    const customer_email = body.email?.trim() ?? "";
+    const body = (await request.json()) as { email?: string; rego?: string };
+    const email = body.email?.trim() ?? "";
+    const rego = body.rego?.trim().toUpperCase() ?? "";
 
-    if (!customer_email || !is_valid_email(customer_email)) {
+    if (!email || !is_valid_email(email)) {
       return NextResponse.json(
         { ok: false, error: "Please enter a valid email address." },
         { status: 400 },
       );
     }
 
-    if (BYPASS_DEAL_ROOM_PAYMENT) {
-      return NextResponse.json({
-        ok: true,
-        bypassed_payment: true,
-        room_url: `${resolve_base_url(request)}/deal/demo?email=${encodeURIComponent(customer_email)}`,
-      });
+    if (!rego || rego.length < 2) {
+      return NextResponse.json(
+        { ok: false, error: "Please enter the vehicle rego number." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json(
-      { ok: false, error: "Deal Room checkout is currently unavailable." },
-      { status: 503 },
-    );
+    const deal = await find_or_create_deal(email, rego);
+    const base = resolve_base_url(request);
+
+    return NextResponse.json({
+      ok: true,
+      deal_id: deal.id,
+      room_url: `${base}/deal/${deal.id}`,
+      is_existing: Boolean(deal.buyer_name),
+    });
   } catch (error) {
     return NextResponse.json(
       {

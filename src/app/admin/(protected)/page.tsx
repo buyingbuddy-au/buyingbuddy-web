@@ -8,8 +8,8 @@ import {
   format_timestamp,
 } from "@/lib/display";
 
-export default function AdminDashboardPage() {
-  const { recent_orders, stats } = get_dashboard_data();
+export default async function AdminDashboardPage() {
+  const { recent_orders, stats } = await get_dashboard_data();
 
   return (
     <div className="admin-stack">

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { readFileSync } from "node:fs";
 import { OrderRecord } from "@/lib/types";
 import { generate_order_report } from "@/lib/pdf";
 
@@ -52,10 +51,9 @@ export async function POST(req: Request) {
       contract_included: 0,
     };
 
-    const { absolute_path } = await generate_order_report(order);
-    const pdfBuffer = readFileSync(absolute_path);
+    const { buffer } = await generate_order_report(order);
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

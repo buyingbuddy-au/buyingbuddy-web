@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { is_admin_request } from "@/lib/admin-auth";
@@ -133,11 +131,13 @@ async function parse_request_payload(req: NextRequest): Promise<{
 async function send_ppsr_report_email({
   email,
   data,
-  report_path,
+  report_buffer,
+  report_filename,
 }: {
   email: string;
   data: PPSRExtractedData;
-  report_path: string;
+  report_buffer: Buffer;
+  report_filename: string;
 }) {
   const resend = get_resend_client();
   const verdict_color =
@@ -210,18 +210,6 @@ async function send_ppsr_report_email({
 </body>
 </html>`;
 
-  let attachment_content: Buffer;
-  try {
-    attachment_content = readFileSync(report_path);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unknown file read error.";
-    throw new PPSRProcessRouteError(
-      `Failed to read generated PDF attachment: ${message}`,
-      500,
-    );
-  }
-
   let response: Awaited<ReturnType<typeof resend.emails.send>>;
   try {
     response = await resend.emails.send({
@@ -231,8 +219,8 @@ async function send_ppsr_report_email({
       html,
       attachments: [
         {
-          content: attachment_content,
-          filename: path.basename(report_path),
+          content: report_buffer,
+          filename: report_filename,
           contentType: "application/pdf",
         },
       ],
@@ -310,7 +298,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { raw_ppsr_text, customer_email, order_id } = await parse_request_payload(req);
-    const order = order_id ? get_order_by_id(order_id) : null;
+    const order = order_id ? await get_order_by_id(order_id) : null;
 
     if (order_id && !order) {
       throw new PPSRProcessRouteError("Order not found.", 404);
@@ -336,21 +324,22 @@ export async function POST(req: NextRequest) {
     const report = await generate_ppsr_pdf(data, filename);
 
     if (order) {
-      update_order(order.id, {
+      await update_order(order.id, {
         ppsr_result: serialise_ppsr_result(data),
         ppsr_checked_at: to_sqlite_datetime(),
-        report_pdf_path: report.relative_path,
+        report_pdf_path: report.filename,
       });
     }
 
     await send_ppsr_report_email({
       email: resolved_email,
       data,
-      report_path: report.absolute_path,
+      report_buffer: report.buffer,
+      report_filename: report.filename,
     });
 
     if (order) {
-      update_order(order.id, {
+      await update_order(order.id, {
         report_sent_at: to_sqlite_datetime(),
         status: resolve_next_status(order),
       });
@@ -370,7 +359,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       data,
-      reportPath: report.relative_path,
+      reportPath: report.filename,
       telegramSent: telegram_sent,
     });
   } catch (err) {

@@ -10,7 +10,7 @@ export default async function OrderSuccessPage({
 }) {
   const params = await searchParams;
   const session_id = params.session_id ?? "";
-  const order = session_id ? get_order_by_stripe_session_id(session_id) : null;
+  const order = session_id ? await get_order_by_stripe_session_id(session_id) : null;
   const is_ppsr = order?.product === "ppsr";
   const is_dealer_review = order?.product === "dealer_review";
   const is_full_pack = order?.product === "full_pack";

@@ -24,8 +24,8 @@ export async function PATCH(
       body.seller_safety_cert = await uploadBase64Image(body.seller_safety_cert, `deal-${id}-seller-safety`) || body.seller_safety_cert;
     }
 
-    update_seller_deal_section(id, body);
-    const deal = get_public_deal_by_id(id);
+    await update_seller_deal_section(id, body);
+    const deal = await get_public_deal_by_id(id);
 
     if (!deal) {
       return NextResponse.json(

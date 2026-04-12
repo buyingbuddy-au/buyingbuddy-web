@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const status_param = url.searchParams.get("status") ?? "all";
   const product_param = url.searchParams.get("product") ?? "all";
-  const orders = list_orders({
+  const orders = await list_orders({
     status: ORDER_STATUSES.includes(status_param as OrderStatus | "all")
       ? (status_param as OrderStatus | "all")
       : "all",

@@ -30,7 +30,7 @@ export async function POST(
       base_url: resolve_base_url(request),
       deal_id: id,
     });
-    const deal = get_public_deal_by_id(deal_record.id);
+    const deal = await get_public_deal_by_id(deal_record.id);
 
     return NextResponse.json({
       ok: true,

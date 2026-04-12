@@ -1,7 +1,5 @@
-import { writeFileSync } from "node:fs";
-import path from "node:path";
+import "@/lib/pdfkit-compat";
 import PDFDocument from "pdfkit";
-import { reports_directory } from "@/lib/db";
 import type { DealRecord } from "@/lib/types";
 
 const TEAL = "#0D9488";
@@ -113,10 +111,8 @@ function detail_row(doc: DealPdfDocument, y: number, label: string, value: strin
 
 export function generate_deal_summary_pdf(
   deal: DealRecord,
-): Promise<{ absolute_path: string; relative_path: string }> {
+): Promise<{ buffer: Buffer; filename: string }> {
   const filename = `${deal.id}-deal-summary.pdf`;
-  const absolute_path = path.join(reports_directory, filename);
-  const relative_path = path.posix.join("reports", filename);
 
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -128,8 +124,7 @@ export function generate_deal_summary_pdf(
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
     doc.on("end", () => {
-      writeFileSync(absolute_path, Buffer.concat(chunks));
-      resolve({ absolute_path, relative_path });
+      resolve({ buffer: Buffer.concat(chunks), filename });
     });
     doc.on("error", reject);
 

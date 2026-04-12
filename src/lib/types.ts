@@ -82,19 +82,28 @@ export interface DealRecord {
   vehicle_year: string | null;
   vehicle_vin: string | null;
   vehicle_rego: string | null;
+  vehicle_km: string | null;
+  vehicle_colour: string | null;
+  vehicle_transmission: string | null;
+  asking_price: string | null;
+  offered_price: string | null;
   agreed_price: string | null;
+  deposit_amount: string | null;
   payment_method: string | null;
   conditions: string | null;
   handover_date: string | null;
   handover_location: string | null;
+  notes: string | null;
   buyer_name: string | null;
   buyer_email: string | null;
   buyer_phone: string | null;
+  buyer_address: string | null;
   buyer_licence_url: string | null;
   buyer_completed_at: string | null;
   seller_name: string | null;
   seller_email: string | null;
   seller_phone: string | null;
+  seller_address: string | null;
   seller_licence_url: string | null;
   seller_rego_papers_url: string | null;
   seller_safety_cert_url: string | null;
@@ -112,23 +121,32 @@ export interface DealBuyerUpdateInput {
   buyer_name?: string | null;
   buyer_email?: string | null;
   buyer_phone?: string | null;
+  buyer_address?: string | null;
   buyer_licence?: string | null;
   vehicle_make?: string | null;
   vehicle_model?: string | null;
   vehicle_year?: string | null;
   vehicle_vin?: string | null;
   vehicle_rego?: string | null;
+  vehicle_km?: string | null;
+  vehicle_colour?: string | null;
+  vehicle_transmission?: string | null;
+  asking_price?: string | null;
+  offered_price?: string | null;
   agreed_price?: string | null;
+  deposit_amount?: string | null;
   payment_method?: string | null;
   conditions?: string | null;
   handover_date?: string | null;
   handover_location?: string | null;
+  notes?: string | null;
 }
 
 export interface DealSellerUpdateInput {
   seller_name?: string | null;
   seller_email?: string | null;
   seller_phone?: string | null;
+  seller_address?: string | null;
   seller_licence?: string | null;
   seller_rego_papers?: string | null;
   seller_safety_cert?: string | null;
@@ -153,6 +171,18 @@ export interface DealPublicRecord
   seller_rego_papers_uploaded: boolean;
   seller_safety_cert_uploaded: boolean;
   seller_bank_account_last4: string | null;
+}
+
+export interface DealListItem {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  status: DealStatus;
+  vehicle_make: string | null;
+  vehicle_model: string | null;
+  vehicle_year: string | null;
+  vehicle_rego: string | null;
+  agreed_price: string | null;
 }
 
 export interface OrderFilters {

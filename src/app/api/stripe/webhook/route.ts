@@ -1,4 +1,4 @@
-import type Stripe from "stripe";
+﻿import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { get_stripe } from "@/lib/stripe";
 import { create_deal_from_checkout_session } from "@/lib/deals";
@@ -201,8 +201,19 @@ export async function POST(request: Request) {
       }
     }
 
+        // Handle refunds from Stripe dashboard
+    if (event.type === "charge.refunded") {
+      const charge = event.data.object as Stripe.Charge;
+      const paymentIntent = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
+      if (paymentIntent) {
+        console.info(`[BuyingBuddy] Charge refunded for payment intent: ${paymentIntent}`);
+        // Could update order status to "refunded" here if needed
+      }
+    }
+
     return NextResponse.json({ ok: true, received: true });
   } catch (error) {
+    console.error("[BuyingBuddy] Webhook processing error:", error);
     return NextResponse.json({ ok: false, error: "Webhook error" }, { status: 500 });
   }
 }

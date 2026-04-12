@@ -33,7 +33,7 @@ export default async function AdminOrdersPage({
   const selected_status = params.status ?? "all";
   const selected_product = params.product ?? "all";
   const search = params.search?.trim() ?? "";
-  const orders = list_orders({
+  const orders = await list_orders({
     status: selected_status as "all",
     product: selected_product as "all",
     search: search || undefined,

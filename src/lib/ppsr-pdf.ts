@@ -1,7 +1,5 @@
-import { writeFileSync } from "node:fs";
-import path from "node:path";
+import "@/lib/pdfkit-compat";
 import PDFDocument from "pdfkit";
-import { reports_directory } from "@/lib/db";
 import type { PPSRExtractedData, PPSRVerdict } from "@/lib/types";
 
 type PPSRDoc = InstanceType<typeof PDFDocument>;
@@ -48,9 +46,8 @@ function clean_pdf_text(value: string): string {
 }
 
 function safe_report_filename(filename: string): string {
-  const base = path
-    .basename(filename || `ppsr-report-${Date.now()}.pdf`)
-    .replace(/[^a-zA-Z0-9._-]/g, "_");
+  const raw = filename || `ppsr-report-${Date.now()}.pdf`;
+  const base = raw.split(/[\\/]/).pop()!.replace(/[^a-zA-Z0-9._-]/g, "_");
 
   if (!base || base === "." || base === "..") {
     return `ppsr-report-${Date.now()}.pdf`;
@@ -331,10 +328,8 @@ function draw_text_section(doc: PPSRDoc, title: string, body: string, start_y: n
 export async function generate_ppsr_pdf(
   data: PPSRExtractedData,
   filename: string,
-): Promise<{ absolute_path: string; relative_path: string }> {
+): Promise<{ buffer: Buffer; filename: string }> {
   const safe_filename = safe_report_filename(filename);
-  const absolute_path = path.join(reports_directory, safe_filename);
-  const relative_path = path.posix.join("reports", safe_filename);
 
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -346,12 +341,7 @@ export async function generate_ppsr_pdf(
     const chunks: Buffer[] = [];
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
     doc.on("end", () => {
-      try {
-        writeFileSync(absolute_path, Buffer.concat(chunks));
-        resolve({ absolute_path, relative_path });
-      } catch (error) {
-        reject(error);
-      }
+      resolve({ buffer: Buffer.concat(chunks), filename: safe_filename });
     });
     doc.on("error", reject);
 

@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     // Capture lead
     try {
-      upsert_email_capture({
+      await upsert_email_capture({
         id: randomUUID(),
         email,
         listing_url: null,
