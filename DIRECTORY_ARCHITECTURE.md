@@ -1,3 +1,7 @@
+> ⚠️ **Pricing / positioning in this file may be outdated.**
+> For current product truth see `/docs/buyingbuddy-product-plan.md` (locked 2026-04-16).
+> This doc is kept for technical reference (design system, architecture, specs) only.
+
 # DIRECTORY_ARCHITECTURE.md — Buying Buddy
 
 **Last updated:** 2026-03-31

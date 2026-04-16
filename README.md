@@ -1,4 +1,4 @@
-# Buying Buddy — QLD Private Car Buyer Protection
+# Buying Buddy — QLD Private Car Buyer Toolkit
 
 **Live:** https://buyingbuddy.com.au
 **Repo:** https://github.com/buyingbuddy-au/buyingbuddy-web
@@ -8,24 +8,19 @@
 
 ## Start here
 
-1. Read `PRODUCT_TRUTH.md` — what this is
-2. Read `MVP_SCOPE.md` — what's V1
-3. Read `DECISIONS.md` — what's already been decided
-4. Read `OPEN_QUESTIONS.md` — what's waiting on Jordan
-5. Read `CONTEXT_SOURCES.md` — where everything lives
+**→ `/docs/buyingbuddy-product-plan.md`** — the locked product plan (16 April 2026). This is the single source of truth for positioning, pricing, scope, and anti-drift rules.
+
+Anything else in this repo is either (a) a technical spec that pre-dates the plan (banner at top points back here), or (b) archived in `/docs/archive/2026-04-pre-lock/`.
 
 ---
 
-## V1 blockers (fix before anything else)
+## Product at a glance
 
-| # | Blocker | Owner |
-|---|---|---|
-| 1 | Stripe webhook not configured | Jordan |
-| 2 | email.ts is a stub | Agent |
-| 3 | pdf.ts is a stub | Agent |
-| 4 | End-to-end test never run | Jordan |
+- **$4.95 PPSR Check** — instant, automated, self-serve.
+- **$9.99 Deal Pack** — PPSR + QLD contract + inspection checklist + Deal Room.
+- **Hidden $99 Quick Review** — post-purchase upsell only. Not advertised on public pages.
 
-See `FIX_TRACKER.md` for full list.
+Not a buyer's agent. Not a concierge. Low-cost, self-serve toolkit.
 
 ---
 
@@ -36,6 +31,8 @@ src/app/          — Next.js pages (homepage, admin, product pages)
 src/app/api/      — API routes (check, stripe, orders, pdf-report, free-kit, ppi)
 src/lib/          — Core modules (engine, db, stripe, email, pdf, scraper, analysis)
 ```
+
+Full technical reference: `BUILD_SPEC.md`, `ENGINE_SPEC.md`, `DEAL_ROOM_SPEC.md`, `DIRECTORY_ARCHITECTURE.md`. These may contain outdated pricing — the plan wins on conflict.
 
 ---
 
@@ -71,10 +68,4 @@ npm run dev
 
 ---
 
-## Jordan's role
-
-Jordan is the product on paid tiers. Every $14.95 Dealer Review requires Jordan to open the listing, write a verdict, and click "Send Report" in the admin panel. The business cannot scale beyond Jordan's time without rearchitecting.
-
----
-
-*Last updated: 2026-03-31*
+*Last updated: 2026-04-16*

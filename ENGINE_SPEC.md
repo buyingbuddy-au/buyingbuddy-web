@@ -1,3 +1,7 @@
+> ⚠️ **Pricing / positioning in this file may be outdated.**
+> For current product truth see `/docs/buyingbuddy-product-plan.md` (locked 2026-04-16).
+> This doc is kept for technical reference (design system, architecture, specs) only.
+
 # Buying Buddy Engine — Technical Specification
 # Lead Architect: Main Agent (Opus)
 # Build Team: Codex GPT 5.4 (primary), Gemini Pro (review), Sonnet 4.6 (fallback)
