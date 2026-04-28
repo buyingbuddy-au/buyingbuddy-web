@@ -62,7 +62,7 @@ export function HandoverPackButton() {
         type="button"
         onClick={openModal}
       >
-        Download Full Pack — Free
+        Download Contract Pack — Free
       </button>
 
       {showModal && (

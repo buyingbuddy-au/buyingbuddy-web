@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: FROM,
       to: email,
-      subject: "Your QLD Car Buyer's Protection Kit — Buying Buddy",
+      subject: "Your Used Car Buyer's Protection Kit — Buying Buddy",
       html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   <div style="max-width:600px;margin:40px auto;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
     <div style="background:#0D9488;padding:28px 40px;">
       <h1 style="color:#FFFFFF;margin:0;font-size:22px;font-weight:700;">Buying Buddy</h1>
-      <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:14px;">Your QLD Car Buyer's Protection Kit</p>
+      <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:14px;">Your Used Car Buyer's Protection Kit</p>
     </div>
     <div style="padding:32px 40px;">
       <p style="font-size:15px;color:#374151;">Hey ${firstName},</p>
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       </div>
       <p style="font-size:14px;color:#6B7280;">The full kit is available on our website — bookmark it for your next search:</p>
       <a href="https://buyingbuddy.com.au/free-kit" style="display:inline-block;background:#0D9488;color:#FFFFFF;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-top:16px;">Access Your Kit</a>
-      <p style="font-size:13px;color:#9CA3AF;margin-top:24px;">Want a PPSR check or a full dealer-level review of a specific car? <a href="https://buyingbuddy.com.au" style="color:#0D9488;">buyingbuddy.com.au</a> — starts at $4.95.</p>
+      <p style="font-size:13px;color:#9CA3AF;margin-top:24px;">Want buyer-side help on a specific car? Run the free listing check or get a $4.95 PPSR at <a href="https://buyingbuddy.com.au" style="color:#0D9488;">buyingbuddy.com.au</a>.</p>
     </div>
     <div style="background:#F3F4F6;padding:20px 40px;text-align:center;">
       <p style="color:#6B7280;font-size:12px;margin:0;">© 2026 Buying Buddy · <a href="https://buyingbuddy.com.au" style="color:#0D9488;">buyingbuddy.com.au</a></p>

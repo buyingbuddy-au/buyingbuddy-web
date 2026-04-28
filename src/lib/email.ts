@@ -1,11 +1,27 @@
 ﻿import { Resend } from "resend";
-
-export const resend = new Resend(process.env.RESEND_API_KEY);
 import type { ProductType } from "@/lib/types";
 
+let resend_client: Resend | null = null;
+
 function get_resend() {
-  return new Resend(process.env.RESEND_API_KEY ?? "");
+  const api_key = process.env.RESEND_API_KEY?.trim();
+
+  if (!api_key) {
+    throw new Error("RESEND_API_KEY is not configured.");
+  }
+
+  if (!resend_client) {
+    resend_client = new Resend(api_key);
+  }
+
+  return resend_client;
 }
+
+export const resend = {
+  emails: {
+    send: (...args: Parameters<Resend["emails"]["send"]>) => get_resend().emails.send(...args),
+  },
+};
 
 const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const BRAND_TEAL = "#0D9488";
@@ -175,17 +191,17 @@ export async function send_order_report_email({
   const product_labels: Record<ProductType, string> = {
     free_check: "Free Check",
     ppsr: "PPSR Report",
-    dealer_review: "Dealer Review",
-    full_pack: "Full Confidence Pack",
-    deal_room: "Deal Room",
+    dealer_review: "Hidden Quick Review",
+    full_pack: "Legacy Pack",
+    deal_room: "Deal Pack",
   };
 
   const product_descriptions: Record<ProductType, string> = {
     free_check: "Your free vehicle listing check.",
     ppsr: "Official PPSR (Personal Properties Securities Register) check — confirms whether there's any finance owing, if the car has been reported stolen, or if it's a write-off.",
-    dealer_review: "A detailed dealer review of the vehicle, drawing on 15 years of automotive industry experience.",
-    full_pack: "The complete package — PPSR check plus expert dealer review, giving you maximum confidence before you buy.",
-    deal_room: "A shared handover workspace for recording private vehicle sale details.",
+    dealer_review: "A post-purchase listing review retained as a hidden support product.",
+    full_pack: "A legacy package retained for existing order compatibility.",
+    deal_room: "PPSR next-step guidance, QLD paperwork, and guided handover steps for private vehicle sales.",
   };
 
   const label = product_labels[product] ?? "Vehicle Report";

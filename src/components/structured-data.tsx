@@ -4,93 +4,66 @@ export default function StructuredData() {
     "@graph": [
       {
         "@type": "WebSite",
-        name: "BuyingBuddy",
+        name: "Buying Buddy",
         url: "https://buyingbuddy.com.au",
         description:
-          "Brisbane car buyer’s agent service, free checks, PPSR reports, inspection tools, and QLD private sale paperwork.",
+          "Buyer-side used-car buying help: listing checks, PPSR reports, inspection prompts, and private-sale paperwork.",
         inLanguage: "en-AU",
       },
       {
-        "@type": "LocalBusiness",
-        name: "BuyingBuddy",
+        "@type": "Organization",
+        name: "Buying Buddy",
         url: "https://buyingbuddy.com.au",
-        image: "https://buyingbuddy.com.au",
         description:
-          "BuyingBuddy helps Brisbane used-car buyers find, negotiate, inspect, and complete private-sale deals with more confidence.",
-        areaServed: [
-          { "@type": "City", name: "Brisbane" },
-          { "@type": "Place", name: "Pullenvale" },
-          { "@type": "Place", name: "Kenmore" },
-          { "@type": "Place", name: "Chapel Hill" },
-          { "@type": "Place", name: "Brookfield" },
-          { "@type": "Place", name: "Moggill" },
-        ],
+          "Buying Buddy is a self-serve buyer's-agent alternative that helps used-car buyers avoid expensive mistakes with cheap, practical tools.",
         founder: {
           "@type": "Person",
           name: "Jordan Lansbury",
-          jobTitle: "Licensed QLD Dealer",
-          description: "15+ years experience in the Brisbane and QLD car industry.",
+          description: "Licensed QLD dealer with 15+ years in the car industry.",
         },
-        makesOffer: [
+        areaServed: {
+          "@type": "AdministrativeArea",
+          name: "Queensland, Australia",
+        },
+      },
+      {
+        "@type": "OfferCatalog",
+        name: "Buying Buddy launch tools",
+        itemListElement: [
           {
             "@type": "Offer",
-            name: "Brisbane Car Buyer’s Agent Service",
-            price: "997",
-            priceCurrency: "AUD",
-            description:
-              "Flat-fee used-car buyer representation covering car sourcing guidance, negotiation, and inspection coordination.",
-          },
-          {
-            "@type": "Offer",
-            name: "Free Car Check",
+            name: "Free Listing Check",
             price: "0",
             priceCurrency: "AUD",
             description:
-              "AI-powered listing analysis with red flags and market position.",
+              "A fast used-car listing sanity check with red flags and suggested next steps.",
           },
           {
             "@type": "Offer",
             name: "PPSR Report",
             price: "4.95",
             priceCurrency: "AUD",
-            description: "Official finance, stolen, and write-off vehicle history check.",
+            description:
+              "Finance owing, stolen, and written-off status explained in plain English.",
           },
           {
             "@type": "Offer",
-            name: "QLD Contract Pack",
-            price: "9.95",
+            name: "Deal Pack",
+            price: "9.99",
             priceCurrency: "AUD",
-            description: "Four QLD-specific private sale documents for handover day.",
+            description:
+              "PPSR, QLD contract pack, and guided handover steps for private car sales.",
           },
         ],
       },
       {
-        "@type": "Service",
-        serviceType: "Used car buyer’s agent",
-        provider: {
-          "@type": "LocalBusiness",
-          name: "BuyingBuddy",
-          url: "https://buyingbuddy.com.au",
-        },
-        areaServed: {
-          "@type": "City",
-          name: "Brisbane",
-        },
-        audience: {
-          "@type": "Audience",
-          audienceType: "Used car buyers",
-        },
-        description:
-          "BuyingBuddy helps Brisbane used-car buyers shortlist the right cars, negotiate better, and arrange independent inspections before purchase.",
-      },
-      {
         "@type": "WebApplication",
-        name: "BuyingBuddy Tools",
+        name: "Buying Buddy Buyer-Side Tools",
         url: "https://buyingbuddy.com.au",
         applicationCategory: "UtilitiesApplication",
         operatingSystem: "Web",
         description:
-          "Free AI car checks, PPSR reports, inspection tools, and QLD private-sale paperwork for used-car buyers.",
+          "Free listing checks, PPSR reports, inspection prompts, and private-sale paperwork for used-car buyers who want buyer-side help.",
       },
     ],
   };

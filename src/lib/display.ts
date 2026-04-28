@@ -3,9 +3,9 @@
 const PRODUCT_LABELS: Record<ProductType, string> = {
   free_check: "Free Check",
   ppsr: "PPSR Report",
-  dealer_review: "Dealer Review",
-  full_pack: "Full Confidence Pack",
-  deal_room: "Deal Room",
+  dealer_review: "Hidden Quick Review",
+  full_pack: "Legacy Pack",
+  deal_room: "Deal Pack",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {

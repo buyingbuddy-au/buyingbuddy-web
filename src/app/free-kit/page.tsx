@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { FreeKitForm } from "@/components/free-kit-form";
 
 export const metadata: Metadata = {
-  title: "Free QLD Car Buyer's Kit",
+  title: "Free Used Car Buyer's Kit",
   description:
-    "Download the QLD Used Car Buyer's Complete Protection Kit — free. Checklist, PPSR guide, private sale contract, negotiation scripts.",
+    "Download the free Used Car Buyer's Protection Kit: buyer-side checklist, PPSR guide, private-sale paperwork notes, and negotiation prompts."
 };
 
 const KIT_ITEMS = [
@@ -43,11 +43,10 @@ export default function FreeKitPage() {
           Free Download
         </p>
         <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
-          The QLD Used Car Buyer&apos;s Complete Protection Kit.
+          The Used Car Buyer&apos;s Protection Kit.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-gray-500">
-          15 years in the car industry. This is everything I wish everyday buyers knew before
-          handing over a single dollar.
+          Buyer-side guidance from 15 years in the car industry. The checks everyday buyers should run before handing over a single dollar.
         </p>
       </section>
 

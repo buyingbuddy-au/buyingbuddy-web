@@ -105,7 +105,7 @@ function wrapEmail(content: string) {
     <div class="shell">
       ${content}
       <div class="footer">
-        <p>Buying Buddy | Brisbane, Australia</p>
+        <p>Buying Buddy | Australia</p>
         <p><a href="https://buyingbuddy.com.au">buyingbuddy.com.au</a> | <a href="mailto:${INFO_EMAIL}">${INFO_EMAIL}</a></p>
       </div>
     </div>
@@ -125,11 +125,11 @@ export async function sendFreeKitWelcomeEmail({
 
   const welcomeHtml = wrapEmail(`
     <div class="header">
-      <h1>Your QLD buyer protection kit is ready</h1>
+      <h1>Your used-car buyer protection kit is ready</h1>
     </div>
     <div class="body">
       <p>Hi ${name},</p>
-      <p>Here is your free QLD Used Car Buyer's Protection Kit. It covers the checks that stop you buying a headache, not just the stuff sellers want you looking at.</p>
+      <p>Here is your free Used Car Buyer's Protection Kit. It covers the buyer-side checks that stop you buying a headache, not just the stuff sellers want you looking at.</p>
       <div class="card">
         <p><strong>Inside the kit:</strong></p>
         <ul>
@@ -140,7 +140,7 @@ export async function sendFreeKitWelcomeEmail({
           <li>Red flags that mean walk away</li>
         </ul>
       </div>
-      <p>If you want a second set of eyes before you buy, you can also run a check or book a pre-purchase inspection through Buying Buddy.</p>
+      <p>If you want a second set of eyes before you buy, run a free listing check or get a $4.95 PPSR through Buying Buddy.</p>
       <p><a class="button" href="${downloadUrl}">Download the free kit</a></p>
     </div>
   `);
@@ -154,14 +154,14 @@ export async function sendFreeKitWelcomeEmail({
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
       </div>
-      <p>This lead downloaded the QLD Used Car Buyer's Protection Kit.</p>
+      <p>This lead downloaded the Used Car Buyer's Protection Kit.</p>
     </div>
   `);
 
   await resend.emails.send({
     from: FROM,
     to: email,
-    subject: "Your free QLD used car buyer kit",
+    subject: "Your free used car buyer kit",
     html: welcomeHtml,
   });
 

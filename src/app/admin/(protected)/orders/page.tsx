@@ -19,9 +19,9 @@ const STATUS_OPTIONS = [
 const PRODUCT_OPTIONS = [
   { label: "All products", value: "all" },
   { label: "PPSR Report", value: "ppsr" },
-  { label: "Dealer Review", value: "dealer_review" },
-  { label: "Full Confidence Pack", value: "full_pack" },
-  { label: "Deal Room", value: "deal_room" },
+  { label: "Legacy Review", value: "dealer_review" },
+  { label: "Legacy Pack", value: "full_pack" },
+  { label: "Deal Pack", value: "deal_room" },
 ] as const;
 
 export default async function AdminOrdersPage({

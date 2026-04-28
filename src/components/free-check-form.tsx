@@ -431,8 +431,8 @@ export default function FreeCheckForm() {
               className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98]"
             >
               <Handshake className="h-6 w-6 text-teal-600" />
-              <span className="text-sm font-bold text-gray-900">Start Deal Room</span>
-              <span className="text-xs text-gray-500">$39.95</span>
+              <span className="text-sm font-bold text-gray-900">Open Deal Pack</span>
+              <span className="text-xs text-gray-500">$9.99</span>
             </Link>
           </div>
         </section>

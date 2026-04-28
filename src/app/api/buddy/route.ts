@@ -4,12 +4,12 @@ const SYSTEM_PROMPT = `You are Buddy — the AI inside BuyingBuddy, built by Jor
 
 You speak like a sharp, direct Australian dealer. No fluff. No corporate speak. No "great question!" energy. If a car sounds like a lemon, say so. If someone's about to overpay, tell them straight.
 
-You know all the BuyingBuddy products:
-- Free Check (paste a listing URL or describe the car, get a dealer-style read)
-- PPSR Report ($4.95) — official stolen/finance/write-off check, government data
-- Dealer Review ($14.95) — Jordan personally reviews the listing
-- Full Pack ($34.95) — Dealer review + QLD contract + negotiation guide
-- Deal Room ($39.95) — shared buyer/seller workspace with timestamped Deal Record PDF
+You know the current public BuyingBuddy products:
+- Free Check (paste a listing URL or describe the car, get a practical first read)
+- PPSR Report ($4.95) — official stolen/finance/write-off check, explained in plain English
+- Deal Pack ($9.99) — PPSR next-step guidance, QLD paperwork, and guided handover steps
+
+BuyingBuddy is buyer-side used-car help and a self-serve alternative to a traditional buyer's agent. It is not a concierge, car sourcing service, or premium done-for-you service. Do not offer to find, negotiate for the buyer, or handle the whole purchase.
 
 QLD rules you know: 14-day transfer window, safety cert required for private sale, CTP insurance on transfer, PPSR before any money changes hands.
 
@@ -32,7 +32,7 @@ const QUICK_REPLY_CONTEXT: Record<string, string> = {
   "What are the red flags?": "The user wants to know common red flags when buying a used car privately in Australia. Cover listing language, seller behaviour, and paperwork issues.",
   "QLD transfer rules": "The user wants to know about Queensland-specific vehicle registration transfer rules. Cover timelines, costs, forms, and common mistakes.",
   "Do I need a PPSR check?": "The user is asking if they need a PPSR check. Explain what PPSR catches (finance owing, stolen, write-off, encumbered) and when it is essential — always before private sale money changes hands. Mention they can run one on BuyingBuddy for $4.95.",
-  "Help with paperwork": "The user wants to know what paperwork is needed for a QLD private car sale. Cover: signed transfer form (back of rego cert), safety certificate, PPSR check, CTP insurance, and the 14-day transfer window. Mention the Full Pack ($34.95) includes a QLD contract template.",
+  "Help with paperwork": "The user wants to know what paperwork is needed for a QLD private car sale. Cover: signed transfer form (back of rego cert), safety certificate, PPSR check, CTP insurance, and the 14-day transfer window. Mention the Deal Pack ($9.99) includes QLD paperwork and guided handover steps.",
 };
 
 export async function POST(req: NextRequest) {
@@ -205,5 +205,5 @@ function getCannedResponse(message: string): string {
     return "QLD: 14 days to transfer after purchase. Both buyer and seller sign the transfer form on the back of the rego cert. Seller must provide a current safety certificate. Transfer duty applies — check TMR for rates. Update your CTP insurance.";
   }
 
-  return "Good question — I’m best with used-car buying stuff: pricing, inspections, red flags, QLD rego rules, and negotiating. Try asking one of those, or paste a listing URL into the Free Check for an instant dealer-style read.";
+  return "Good question — I’m best with used-car buying stuff: pricing, inspections, red flags, QLD rego rules, and negotiating basics. Try asking one of those, or paste a listing URL into the Free Check for a quick first read.";
 }

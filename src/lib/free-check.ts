@@ -140,9 +140,9 @@ export async function run_free_check({
   // Build market value section
   let market_value_estimate: string;
   if (scraped.price) {
-    market_value_estimate = `Listed at ${scraped.price}. Request a Dealer Review ($14.95) and we'll tell you if that's fair, overpriced, or a bargain based on current market data.`;
+    market_value_estimate = `Listed at ${scraped.price}. Use this as a starting point only — condition, history, kilometres, and finance status matter before any offer.`;
   } else {
-    market_value_estimate = "Price not visible in the listing. A Dealer Review ($14.95) will give you an accurate market value estimate based on make, model, year, and condition.";
+    market_value_estimate = "Price not visible in the listing. Ask the seller for the asking price before spending money on checks.";
   }
 
   // Build red flags
@@ -173,11 +173,11 @@ export async function run_free_check({
   // Build verdict
   let verdict: string;
   if (has_real_data && car_name && scraped.price) {
-    verdict = `This ${car_name} is listed at ${scraped.price} on ${platform}.${scraped.location ? ` Located in ${scraped.location}.` : ""} Before making any offer, run a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. For a complete dealer-level opinion including what you should offer, upgrade to a Dealer Review ($14.95).`;
+    verdict = `This ${car_name} is listed at ${scraped.price} on ${platform}.${scraped.location ? ` Located in ${scraped.location}.` : ""} Before making any offer, run a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the Deal Pack ($9.99) to handle the QLD paperwork and handover steps.`;
   } else if (has_real_data && scraped.title) {
-    verdict = `This listing on ${platform} is for "${scraped.title.slice(0, 60)}".${scraped.price ? ` Listed at ${scraped.price}.` : ""} We recommend a PPSR check ($4.95) as a minimum before any private purchase. For a full dealer opinion, upgrade to a Dealer Review ($14.95).`;
+    verdict = `This listing on ${platform} is for "${scraped.title.slice(0, 60)}".${scraped.price ? ` Listed at ${scraped.price}.` : ""} We recommend a PPSR check ($4.95) as a minimum before any private purchase. If the PPSR is clean, use the Deal Pack ($9.99) for the QLD paperwork and handover steps.`;
   } else {
-    verdict = `This listing is from ${platform !== "Unknown" ? platform : "an unrecognised platform"}. Before making any offer, we strongly recommend running a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. For a complete dealer-level opinion including what to offer, upgrade to a Dealer Review ($14.95).`;
+    verdict = `This listing is from ${platform !== "Unknown" ? platform : "an unrecognised platform"}. Before making any offer, we strongly recommend running a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the Deal Pack ($9.99) for the QLD paperwork and handover steps.`;
   }
 
   return {
@@ -203,7 +203,7 @@ export function run_placeholder_free_check(args: {
 
   return {
     listing_title: `${platform} Listing Analysis`,
-    market_value_estimate: "Request a Dealer Review ($14.95) for an accurate market value estimate.",
+    market_value_estimate: "Use the free check as a first filter, then run a PPSR before making any offer.",
     days_listed: 0,
     red_flags: ["Always run a PPSR check before committing", "If the price seems too good to be true, it usually is"],
     verdict: `This listing is from ${platform}. Run a PPSR check ($4.95) before making any offer.`,

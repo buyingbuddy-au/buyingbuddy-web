@@ -11,37 +11,37 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "BuyingBuddy | Brisbane Car Buyer’s Agent + Used Car Tools",
-    template: "%s | BuyingBuddy",
+    default: "Buying Buddy | Used Car Buying Help & Buyer-Side Tools",
+    template: "%s | Buying Buddy",
   },
   description:
-    "Brisbane car buyer’s agent service, free AI car checks, PPSR reports, inspection tools, and QLD private sale paperwork. Built by Jordan Lansbury, a licensed QLD dealer with 15+ years in the trade.",
+    "Self-serve buyer-side help for used-car buyers: free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
   openGraph: {
     type: "website",
     locale: "en_AU",
     url: "https://buyingbuddy.com.au",
-    siteName: "BuyingBuddy",
-    title: "BuyingBuddy | Brisbane Car Buyer’s Agent + Used Car Tools",
+    siteName: "Buying Buddy",
+    title: "Buying Buddy | Used Car Buying Help & Buyer-Side Tools",
     description:
-      "Brisbane buyer’s agent service, free checks, PPSR reports, inspections, and QLD paperwork in one place.",
+      "A self-serve buyer's-agent alternative with free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "BuyingBuddy | Brisbane Car Buyer’s Agent + Used Car Tools",
+    title: "Buying Buddy | Used Car Buying Help & Buyer-Side Tools",
     description:
-      "Brisbane buyer’s agent service, free car checks, PPSR reports, inspection tools, and QLD paperwork.",
+      "Buyer-side used-car help before money changes hands: check the listing, run the PPSR, inspect the car, and sort the paperwork.",
   },
   keywords: [
-    "car buyers agent Brisbane",
-    "used car buyer's agent Brisbane",
-    "pre purchase car inspection Brisbane",
-    "buy used car Brisbane",
-    "car buying service Brisbane",
-    "used car inspection Brisbane",
-    "PPSR check",
-    "private sale contract QLD",
-    "car scam prevention",
-    "BuyingBuddy",
+    "used car buying help Australia",
+    "buyer agent alternative Australia",
+    "used car check Australia",
+    "PPSR report Australia",
+    "PPSR check QLD",
+    "private car sale QLD",
+    "used car inspection checklist",
+    "QLD car sale contract",
+    "Facebook Marketplace car scam",
+    "Buying Buddy",
   ],
   robots: { index: true, follow: true },
 };

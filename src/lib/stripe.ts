@@ -10,21 +10,21 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
   },
   dealer_review: {
     product: "dealer_review",
-    name: "Dealer Review",
-    description: "Jordan reviews the listing and sends a straight verdict.",
-    price_cents: 1495,
+    name: "Hidden Quick Review",
+    description: "Post-purchase listing review. Not a public launch product.",
+    price_cents: 9900,
   },
   full_pack: {
     product: "full_pack",
-    name: "Full Confidence Pack",
-    description: "Dealer review, negotiation guidance, and confidence pack.",
-    price_cents: 3495,
+    name: "Legacy Pack",
+    description: "Legacy product retained for existing order compatibility.",
+    price_cents: 999,
   },
   deal_room: {
     product: "deal_room",
-    name: "Deal Room",
-    description: "Digital handover workspace for QLD private car sales.",
-    price_cents: 3995,
+    name: "Deal Pack",
+    description: "PPSR next-step guidance, QLD paperwork, and guided handover steps.",
+    price_cents: 999,
   },
 };
 

@@ -1,11 +1,10 @@
-import BuddyChat from "@/components/buddy-chat";
+import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Buddy Chat | Buying Buddy",
-  description:
-    "Ask Buddy anything about buying a used car in Queensland.",
+  title: "Free Used Car Check",
+  description: "Start with the free Buying Buddy listing check.",
 };
 
 export default function BuddyPage() {
-  return <BuddyChat />;
+  redirect("/check");
 }

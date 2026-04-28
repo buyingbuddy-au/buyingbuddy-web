@@ -31,7 +31,7 @@ const INCLUDED = [
 /* ── Trust signals ── */
 const TRUST_BADGES = [
   { icon: ShieldCheck, label: "Official PPSR data source" },
-  { icon: Timer, label: "Report delivered in under 2 hours" },
+  { icon: Timer, label: "Same business day, usually within 2 hours" },
   { icon: Lock, label: "Secure Stripe checkout" },
 ] as const;
 
@@ -250,7 +250,7 @@ export default function PpsrPage() {
             />
             <span>
               Pay securely via Stripe. Your report is prepared by a licensed
-              dealer and emailed within 2 hours.
+              dealer and emailed same business day, usually within 2 hours.
             </span>
           </div>
         </form>

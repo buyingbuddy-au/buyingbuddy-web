@@ -40,7 +40,7 @@ export default function AppHeader() {
         </nav>
 
         <span className="hidden rounded-full bg-teal-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-teal-700 sm:inline-flex">
-          Built for QLD private sales
+          Buyer-side used-car help
         </span>
       </div>
     </header>

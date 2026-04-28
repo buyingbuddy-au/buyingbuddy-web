@@ -323,7 +323,7 @@ function draw_dealer_review_page(doc: InstanceType<typeof PDFDocument>, dealer_v
   doc.addPage();
   let y = 50;
 
-  doc.fillColor(rgb(...TEAL_RGB)).fontSize(20).text("Dealer Review", MARGIN, y, {
+  doc.fillColor(rgb(...TEAL_RGB)).fontSize(20).text("Vehicle Review", MARGIN, y, {
     align: "left",
     width: CONTENT_WIDTH,
   });

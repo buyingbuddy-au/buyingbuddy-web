@@ -19,18 +19,20 @@ export function patchPdfKitFontPaths() {
     dataDirectory = null;
   }
 
-  fs.readFileSync = ((filePath: fs.PathLike | fs.FileHandle, ...rest: unknown[]) => {
+  const patchedReadFileSync = ((filePath: fs.PathOrFileDescriptor, ...args: unknown[]) => {
     const target = String(filePath).replace(/\\/g, "/");
 
     if (dataDirectory && /pdfkit\/js\/data\/(?:Helvetica|Courier|Times|Symbol|ZapfDingbats).*\.afm$/i.test(target)) {
       const fallback = path.join(dataDirectory, path.basename(target));
       if (fs.existsSync(fallback)) {
-        return originalReadFileSync(fallback, ...(rest as Parameters<typeof originalReadFileSync>));
+        return originalReadFileSync(fallback, ...(args as []));
       }
     }
 
-    return originalReadFileSync(filePath as fs.PathLike, ...(rest as Parameters<typeof originalReadFileSync>));
+    return originalReadFileSync(filePath, ...(args as []));
   }) as typeof fs.readFileSync;
+
+  fs.readFileSync = patchedReadFileSync;
 }
 
 patchPdfKitFontPaths();
