@@ -12,7 +12,6 @@ const nextConfig: NextConfig = {
       { source: "/second-opinion", destination: "/check", permanent: true },
       { source: "/about", destination: "/", permanent: false },
       { source: "/how-it-works", destination: "/", permanent: false },
-      { source: "/contact", destination: "/buddy", permanent: false },
     ];
   },
   outputFileTracingRoot: __dirname,

@@ -54,14 +54,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (product === "ppsr") {
-      if (!customer_email || !is_valid_email(customer_email)) {
-        return NextResponse.json(
-          { ok: false, error: "Please enter a valid email address." },
-          { status: 400 },
-        );
-      }
+    if (!customer_email || !is_valid_email(customer_email)) {
+      return NextResponse.json(
+        { ok: false, error: "Please enter a valid email address." },
+        { status: 400 },
+      );
+    }
 
+    if (product === "ppsr" || product === "deal_room") {
       if (!vehicle_identifier) {
         return NextResponse.json(
           { ok: false, error: "Enter the rego or VIN you want checked." },
@@ -90,6 +90,7 @@ export async function POST(request: Request) {
       base_url: resolve_base_url(request),
       customer_email,
       customer_name,
+      deal_id: product === "deal_room" ? `deal_${crypto.randomUUID().slice(0, 12)}` : null,
       listing_url,
       product,
       vehicle_identifier,

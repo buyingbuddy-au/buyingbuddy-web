@@ -16,7 +16,7 @@ export function is_valid_admin_password(candidate: string) {
   const configured = get_admin_password();
 
   if (!configured) {
-    return true;
+    return process.env.NODE_ENV !== "production";
   }
 
   return candidate === configured;
@@ -31,7 +31,7 @@ export async function is_admin_authenticated() {
   const configured = get_admin_password();
 
   if (!configured) {
-    return true;
+    return process.env.NODE_ENV !== "production";
   }
 
   const cookie_store = await cookies();
@@ -50,7 +50,7 @@ export function is_admin_request(request: Request) {
   const configured = get_admin_password();
 
   if (!configured) {
-    return true;
+    return process.env.NODE_ENV !== "production";
   }
 
   const header_password = request.headers.get("x-admin-password");

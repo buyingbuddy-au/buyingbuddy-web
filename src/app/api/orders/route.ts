@@ -20,6 +20,7 @@ const PRODUCT_TYPES: Array<ProductType | "all"> = [
   "ppsr",
   "dealer_review",
   "full_pack",
+  "deal_room",
 ];
 
 export async function GET(request: Request) {

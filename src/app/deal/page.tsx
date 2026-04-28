@@ -93,31 +93,29 @@ function DealLandingPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/deal/create", {
+      const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), rego: rego.trim() }),
+        body: JSON.stringify({
+          email: email.trim(),
+          product: "deal_room",
+          vehicle_identifier: rego.trim(),
+        }),
       });
 
       const data = (await res.json()) as {
         ok?: boolean;
-        room_url?: string;
+        checkout_url?: string;
         error?: string;
       };
 
-      if (!res.ok || !data.ok) {
-        setError(data.error ?? "Could not create Deal Room. Try again.");
+      if (!res.ok || !data.ok || !data.checkout_url) {
+        setError(data.error ?? "Could not open checkout. Try again.");
         return;
       }
 
       setSessionEmail(email.trim());
-
-      if (data.room_url) {
-        window.location.href = data.room_url;
-        return;
-      }
-
-      setError("Could not create Deal Room. Try again.");
+      window.location.href = data.checkout_url;
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
@@ -162,7 +160,7 @@ function DealLandingPage() {
             {deals.length > 0 ? "Start another deal" : "Create your Deal Room"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Enter your email and the car&apos;s rego. If you already have a deal for that rego, you&apos;ll go straight to it.
+            Enter your email and the car&apos;s rego, then pay securely through Stripe to open your Deal Pack.
           </p>
 
           <form onSubmit={handleCreateDeal} className="mt-6 grid gap-4">
@@ -204,9 +202,9 @@ function DealLandingPage() {
               className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 px-6 text-base font-black text-white transition hover:bg-teal-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" /> Opening room...</>
+                <><Loader2 className="h-5 w-5 animate-spin" /> Opening checkout...</>
               ) : (
-                "Open Deal Room"
+                "Open Deal Pack — $9.99"
               )}
             </button>
           </form>
