@@ -98,13 +98,21 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
-    if (webhook_secret) {
+    if (!webhook_secret) {
+      if (process.env.NODE_ENV === "production") {
+        console.error("[BuyingBuddy] Stripe webhook secret is not configured.");
+        return NextResponse.json(
+          { ok: false, error: "Stripe webhook secret is not configured." },
+          { status: 500 },
+        );
+      }
+
+      event = JSON.parse(raw_body) as Stripe.Event;
+    } else {
       if (!signature) {
         return NextResponse.json({ ok: false, error: "Missing Stripe signature." }, { status: 400 });
       }
       event = stripe.webhooks.constructEvent(raw_body, signature, webhook_secret);
-    } else {
-      event = JSON.parse(raw_body) as Stripe.Event;
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Unable to verify Stripe webhook." }, { status: 400 });

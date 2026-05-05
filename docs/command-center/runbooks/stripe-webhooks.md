@@ -53,7 +53,7 @@ In Stripe dashboard, verify:
 
 ## Known Risk From Code Inspection
 
-If `STRIPE_WEBHOOK_SECRET` is absent, webhook verification can fall back to parsing raw JSON. That is not acceptable for production payment reliability.
+Production Stripe webhooks now fail closed if `STRIPE_WEBHOOK_SECRET` is absent. That is safer than accepting unsigned webhook JSON, but paid order fulfilment is still blocked until the secret exists in Vercel production env.
 
 Required outcome before production reliance:
 

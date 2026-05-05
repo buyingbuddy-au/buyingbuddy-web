@@ -3,7 +3,17 @@ import { resend } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.STRIPE_WEBHOOK_SECRET}`) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+
+  if (!webhookSecret) {
+    console.error("[BuyingBuddy] PPSR webhook secret is not configured.");
+    return NextResponse.json(
+      { ok: false, error: "Webhook secret is not configured." },
+      { status: 500 },
+    );
+  }
+
+  if (authHeader !== `Bearer ${webhookSecret}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
