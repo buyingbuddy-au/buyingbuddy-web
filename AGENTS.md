@@ -3,6 +3,7 @@
 Before changing this project, read:
 
 - `docs/BUYING_BUDDY_CENTRE_OF_TRUTH.md`
+- `docs/command-center/README.md`
 - `docs/buyingbuddy-product-plan.md`
 - `docs/audits/2026-04-phase-1/drift-register.md`
 

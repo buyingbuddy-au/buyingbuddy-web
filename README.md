@@ -8,9 +8,13 @@
 
 ## Start here
 
-**→ `/docs/buyingbuddy-product-plan.md`** — the locked product plan (16 April 2026). This is the single source of truth for positioning, pricing, scope, and anti-drift rules.
+**Product truth:** `/docs/BUYING_BUDDY_CENTRE_OF_TRUTH.md` - current positioning, pricing, scope, and anti-drift rules.
 
-Anything else in this repo is either (a) a technical spec that pre-dates the plan (banner at top points back here), or (b) archived in `/docs/archive/2026-04-pre-lock/`.
+**Ops truth:** `/docs/command-center/README.md` - current agent, release, platform, email, and runbook control.
+
+**Locked product plan:** `/docs/buyingbuddy-product-plan.md` - original locked product plan from 16 April 2026.
+
+Anything else in this repo is either (a) a technical spec that may pre-date the plan, (b) command-center operational guidance, or (c) archived in `/docs/archive/2026-04-pre-lock/`.
 
 ---
 
