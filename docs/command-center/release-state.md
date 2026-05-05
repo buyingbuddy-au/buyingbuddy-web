@@ -29,6 +29,7 @@ This file answers one question: what is local, what is pushed, what is deployed,
   - full-service buyer-agent implications
 - Vercel CLI was available and logged in as `lansbury2002-2432`.
 - Browser Use was attempted but the Codex app-server path failed to start in this desktop session.
+- Command-center docs were created locally and must be pushed before other agents can treat GitHub as updated.
 
 ## Before Any Deploy
 
