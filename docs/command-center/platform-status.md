@@ -31,13 +31,13 @@ Observed by name only:
 - `STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`
 - `RESEND_API_KEY`
+- `NEXT_PUBLIC_SITE_URL` - Production
+- `SITE_URL` - Production
 
 Not observed during audit and must be checked before production reliance:
 
 - `STRIPE_WEBHOOK_SECRET`
 - `ADMIN_PASSWORD`
-- `NEXT_PUBLIC_SITE_URL`
-- `SITE_URL`
 
 Additional names referenced by code or scripts that require route-specific verification before use:
 
