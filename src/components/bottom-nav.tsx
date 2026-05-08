@@ -3,19 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BadgeCheck,
   ClipboardCheck,
-  Handshake,
+  FileText,
   Home,
-  Search,
   Shield,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/check", label: "Check", icon: Search },
+  { href: "/rego-check", label: "Rego", icon: BadgeCheck },
   { href: "/ppsr", label: "PPSR", icon: Shield },
   { href: "/inspect", label: "Inspect", icon: ClipboardCheck },
-  { href: "/deal", label: "Deals", icon: Handshake },
+  { href: "/contract-pack", label: "Paperwork", icon: FileText },
 ] as const;
 
 function isActiveRoute(pathname: string, href: string) {

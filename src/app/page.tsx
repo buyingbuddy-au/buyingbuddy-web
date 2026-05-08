@@ -4,132 +4,155 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
+  CarFront,
   CheckCircle2,
   ClipboardCheck,
   FileText,
-  Handshake,
   Search,
   ShieldCheck,
   Sparkles,
+  Wrench,
 } from "lucide-react";
 import { CheckoutCancelledBanner } from "@/components/checkout-cancelled-banner";
 
 const TRUST_PILLS = [
-  "Buyer-side used-car help",
-  "15+ yrs car-trade experience",
+  "QLD-first used-car buying tools",
+  "Official-source checks where possible",
+  "Plain-English next steps",
   "No dealer kickbacks",
-  "Self-serve buying guidance",
 ] as const;
 
-const PRIMARY_TOOLS = [
-  {
-    title: "Free Listing Check",
-    copy: "Paste a listing and get a quick sanity check before you waste a call, weekend, or deposit.",
-    href: "/check",
-    cta: "Run a free check",
-    icon: Search,
-  },
+const CORE_HOOKS = [
   {
     title: "Free QLD Rego Check",
-    copy: "Check live QLD rego details, then get plain-English prompts on what to ask the seller next.",
+    eyebrow: "Best first click",
+    copy: "Check live QLD rego status, expiry, VIN, vehicle description, and private/commercial/dealer use before you chase the car.",
     href: "/rego-check",
     cta: "Check a QLD rego",
     icon: BadgeCheck,
+    featured: true,
   },
   {
     title: "$4.95 PPSR Report",
-    copy: "Check finance owing, stolen status, and written-off history, then get the result explained in plain English.",
+    eyebrow: "Before deposit",
+    copy: "Finance owing, stolen status, written-off history, then a plain-English read on what the result means.",
     href: "/ppsr",
     cta: "Get PPSR report",
     icon: ShieldCheck,
+    featured: false,
   },
   {
-    title: "$9.99 Deal Pack",
-    copy: "Bundle the PPSR, contract pack, and guided handover steps when the car looks worth chasing.",
-    href: "/pricing",
-    cta: "See launch pricing",
-    icon: Handshake,
+    title: "Free Listing Sanity Check",
+    eyebrow: "Marketplace filter",
+    copy: "Paste the ad or enter the basics and get a quick buyer-side sniff test before you waste a weekend.",
+    href: "/check",
+    cta: "Check a listing",
+    icon: Search,
+    featured: false,
+  },
+  {
+    title: "QLD Handover Pack",
+    eyebrow: "Paperwork layer",
+    copy: "Private-sale checklist, transfer prompts, roadworthy reminders, and contract docs once the car looks worth buying.",
+    href: "/contract-pack",
+    cta: "Sort paperwork",
+    icon: FileText,
+    featured: false,
   },
 ] as const;
 
-const HOW_IT_WORKS = [
+const BUYER_PATH = [
   {
-    title: "Check the listing",
-    copy: "Look for obvious red flags before you message the seller or send money.",
-    icon: Search,
+    title: "Check the rego",
+    copy: "Confirm the car exists in the QLD registration system and see whether the use type matches the seller's story.",
+    icon: BadgeCheck,
   },
   {
-    title: "Verify the car",
-    copy: "Run the PPSR so finance owing, stolen, and write-off risk is not guesswork.",
+    title: "Run PPSR before money",
+    copy: "A current rego is not a clean-title check. PPSR is where finance, stolen, and write-off risk gets real.",
     icon: ShieldCheck,
   },
   {
-    title: "Inspect it properly",
-    copy: "Use the mobile checklist beside the car, not after you have already fallen in love with it.",
+    title: "Inspect like you mean it",
+    copy: "Use the mobile checklist beside the car, not after you have fallen in love with the shiny photos.",
     icon: ClipboardCheck,
   },
   {
-    title: "Do the paperwork",
-    copy: "Use QLD private-sale paperwork and a handover record before money changes hands.",
+    title: "Keep the handover tidy",
+    copy: "Roadworthy, transfer, receipt, insurance, and contract steps in one clean QLD-first flow.",
     icon: FileText,
   },
 ] as const;
 
-const RED_FLAGS = [
-  "Seller pushes for a deposit before you inspect",
-  "No VIN, no clear rego, or mismatched details",
-  "Price looks too good for the kilometres and model",
-  "Seller cannot explain finance owing or ownership",
-  "No safety certificate plan for a QLD sale",
-  "Pressure to skip the PPSR or paperwork",
+const SEO_WEB = [
+  {
+    title: "QLD rego check",
+    copy: "Free, fast, high-intent hook for buyers already looking at a specific car.",
+    href: "/rego-check",
+  },
+  {
+    title: "PPSR check QLD / Australia",
+    copy: "Money keyword. Capture people just before deposit or inspection.",
+    href: "/ppsr",
+  },
+  {
+    title: "Facebook Marketplace car scams",
+    copy: "Top-of-funnel education for buyers who feel unsure but have not chosen a tool yet.",
+    href: "/blog/fb-marketplace-car-scams",
+  },
+  {
+    title: "Private car sale QLD paperwork",
+    copy: "Handover, roadworthy, rego transfer, receipts, and buyer/seller responsibilities.",
+    href: "/contract-pack",
+  },
 ] as const;
 
 const FAQS = [
   {
-    question: "Is Buying Buddy a buyer's agent?",
+    question: "What should I check first on a QLD used car?",
     answer:
-      "Think of it as a self-serve buyer's-agent alternative. It gives you buyer-side checks, reports, inspection prompts, and paperwork guidance, but it does not find cars, negotiate for you, or handle the whole purchase.",
+      "Start with the free QLD rego check. It confirms current registration details and gives you questions to ask before you drive out. If the car still looks good, run the PPSR before sending money.",
   },
   {
-    question: "Why not just use the government PPSR site?",
+    question: "Does a current rego mean the car is safe to buy?",
     answer:
-      "You can. Buying Buddy is for people who want the PPSR result and the plain-English next step in one simple flow, alongside the rest of the buying checklist.",
+      "No. Current rego is useful, but it does not prove there is no finance owing, stolen record, written-off history, odometer issue, or mechanical problem.",
   },
   {
-    question: "What should I do before sending a deposit?",
+    question: "Is Buying Buddy only for Queensland?",
     answer:
-      "Run the free listing check, get a PPSR, confirm the seller details match the car, and know what paperwork is needed for the handover. Do not let urgency replace verification.",
+      "The sharpest launch tools are QLD-first because rego, transfer, safety certificate, and private-sale paperwork rules are state-specific. PPSR itself is national.",
   },
   {
-    question: "Is this only for Queensland?",
+    question: "Is this a buyer's agent?",
     answer:
-      "The launch is QLD-first because private-sale paperwork and safety certificate rules are state-specific. PPSR basics are national, but the handover guidance is written for QLD buyers first.",
+      "Not the traditional expensive version. Buying Buddy is a self-serve buyer-side toolkit: rego, PPSR, listing checks, inspection prompts, and handover guidance.",
   },
 ] as const;
 
 export const metadata: Metadata = {
-  title: "Buying Buddy | Used Car Buying Help, PPSR Reports & Buyer-Side Tools",
+  title: "Buying Buddy | Free QLD Rego Check, PPSR & Used-Car Buyer Tools",
   description:
-    "Buying Buddy is a self-serve buyer's-agent alternative for used-car buyers, with free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
+    "Check a QLD rego, run a PPSR, sanity-check a Facebook Marketplace car, and sort private-sale paperwork before you buy a used car.",
   keywords: [
-    "used car buying help Australia",
-    "buyer agent alternative Australia",
-    "used car check Australia",
-    "PPSR report Australia",
+    "QLD rego check",
+    "free QLD rego check",
     "PPSR check QLD",
-    "private car sale QLD",
-    "used car inspection checklist",
-    "QLD car sale contract",
-    "Facebook Marketplace car scam",
+    "Facebook Marketplace car scams",
+    "used car check Queensland",
+    "rego transfer QLD",
+    "roadworthy certificate QLD private sale",
+    "private car sale QLD paperwork",
+    "used car buying help Australia",
     "Buying Buddy",
   ],
   alternates: {
     canonical: "https://buyingbuddy.com.au/",
   },
   openGraph: {
-    title: "Buying Buddy | Used Car Buying Help, PPSR Reports & Buyer-Side Tools",
+    title: "Buying Buddy | Free QLD Rego Check, PPSR & Used-Car Buyer Tools",
     description:
-      "Buyer-side used-car help without a traditional buyer's-agent fee: free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
+      "QLD-first used-car buying tools: free rego check, PPSR reports, listing sanity checks, inspection prompts, and handover guidance.",
     url: "https://buyingbuddy.com.au/",
     siteName: "Buying Buddy",
     locale: "en_AU",
@@ -137,34 +160,33 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Buying Buddy | Used Car Buying Help, PPSR Reports & Buyer-Side Tools",
+    title: "Buying Buddy | Free QLD Rego Check, PPSR & Used-Car Buyer Tools",
     description:
-      "Self-serve buyer-side tools for used-car buyers: listing checks, PPSR reports, inspection prompts, and paperwork guidance.",
+      "Check the rego, verify the history, ask better seller questions, and buy the car with less guesswork.",
   },
 };
 
 export default function HomePage() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 sm:px-6 lg:px-8 lg:pt-8">
       <Suspense>
         <CheckoutCancelledBanner />
       </Suspense>
 
-      <section className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-white p-6 shadow-sm sm:p-8 lg:p-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-start">
-          <div>
+      <section className="overflow-hidden rounded-[2rem] border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-white shadow-sm">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-stretch">
+          <div className="p-5 sm:p-8 lg:p-10">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-teal-700 shadow-sm ring-1 ring-teal-100">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Buyer-side help for used-car buyers
+              QLD-first buyer-side car checks
             </div>
 
-            <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-[-0.07em] text-gray-900 sm:text-5xl lg:text-6xl">
-              Buyer-side help before you buy a used car.
+            <h1 className="mt-4 max-w-3xl text-4xl font-black leading-[0.95] tracking-[-0.075em] text-gray-900 sm:text-5xl lg:text-6xl">
+              Check the rego before you chase the car.
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-gray-700 sm:text-lg sm:leading-8">
-              A self-serve alternative to a traditional buyer&apos;s agent: check the
-              listing, run the PPSR, inspect the car, and sort the paperwork before money changes hands.
+              Buying Buddy helps QLD used-car buyers verify the rego, run the PPSR, ask sharper seller questions, and keep the handover paperwork tidy.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -179,68 +201,83 @@ export default function HomePage() {
               ))}
             </div>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
               <Link
-                href="/check"
+                href="/rego-check"
                 className="inline-flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl bg-teal-600 px-6 text-base font-black text-white shadow-sm transition hover:bg-teal-700 active:scale-[0.98]"
               >
-                Run a free check
+                Run free QLD rego check
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </Link>
               <Link
                 href="/ppsr"
                 className="inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl border border-gray-300 bg-white px-6 text-base font-black text-gray-900 transition hover:border-teal-300 hover:text-teal-700 active:scale-[0.98]"
               >
-                Get a PPSR report — $4.95
+                PPSR — $4.95
               </Link>
             </div>
 
             <p className="mt-3 text-xs font-semibold text-gray-500">
-              No sourcing fees, no dealer kickbacks, no pressure to upgrade.
+              Rego first. PPSR before money. Paperwork before handover.
             </p>
           </div>
 
-          <aside className="rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-600">
-              Buyer&apos;s-agent alternative
-            </p>
-            <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">
-              Car-smart help, without handing the whole job over.
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-gray-600">
-              Traditional buyer&apos;s agents can be useful, but most people just need
-              a fast second set of eyes before they chase the wrong car. Buying Buddy
-              turns car-trade experience into cheap, practical next steps.
-            </p>
-            <div className="mt-5 rounded-[1.25rem] border border-teal-200 bg-teal-50 p-4">
-              <p className="text-sm font-black text-teal-950">Best first move:</p>
-              <p className="mt-1 text-sm leading-6 text-teal-900">
-                Paste the listing into the free check. If it still looks worth
-                chasing, run the PPSR before sending money.
+          <aside className="border-t border-teal-100 bg-white/80 p-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-8">
+            <div className="rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-600">
+                Main hook
               </p>
+              <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">
+                Free QLD rego check that turns into better buyer questions.
+              </h2>
+              <div className="mt-5 grid gap-3">
+                {[
+                  ["Status + expiry", "Know if the rego story starts clean."],
+                  ["VIN + description", "Match the result against photos and paperwork."],
+                  ["Purpose of use", "Private, commercial, dealer: ask the right follow-up."],
+                ].map(([title, copy]) => (
+                  <div key={title} className="rounded-2xl bg-teal-50 p-4">
+                    <p className="text-sm font-black text-teal-950">{title}</p>
+                    <p className="mt-1 text-sm leading-6 text-teal-900">{copy}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </aside>
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-4">
-        {PRIMARY_TOOLS.map((tool) => {
+      <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+        {CORE_HOOKS.map((tool) => {
           const Icon = tool.icon;
           return (
             <article
               key={tool.title}
-              className="flex flex-col rounded-[1.75rem] border border-gray-200 bg-white p-6 shadow-sm"
+              className={`flex flex-col rounded-[1.75rem] border p-5 shadow-sm sm:p-6 ${
+                tool.featured
+                  ? "border-teal-200 bg-teal-50"
+                  : "border-gray-200 bg-white"
+              }`}
             >
-              <div className="inline-flex w-fit rounded-2xl bg-teal-50 p-3 text-teal-600">
-                <Icon className="h-6 w-6" aria-hidden="true" />
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.18em] text-teal-700">
+                  {tool.eyebrow}
+                </span>
+                <div className="inline-flex w-fit rounded-2xl bg-white p-3 text-teal-600 shadow-sm ring-1 ring-gray-100">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
               </div>
-              <h2 className="mt-5 text-xl font-black tracking-[-0.04em] text-gray-900">
+              <h2 className="mt-4 text-xl font-black tracking-[-0.04em] text-gray-900">
                 {tool.title}
               </h2>
               <p className="mt-3 flex-1 text-sm leading-6 text-gray-600">{tool.copy}</p>
               <Link
                 href={tool.href}
-                className="mt-6 inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-gray-300 px-4 text-sm font-black text-gray-900 transition hover:border-teal-300 hover:text-teal-700"
+                className={`mt-6 inline-flex min-h-[3rem] items-center justify-center rounded-2xl px-4 text-sm font-black transition ${
+                  tool.featured
+                    ? "bg-teal-600 text-white hover:bg-teal-700"
+                    : "border border-gray-300 text-gray-900 hover:border-teal-300 hover:text-teal-700"
+                }`}
               >
                 {tool.cta}
               </Link>
@@ -249,88 +286,130 @@ export default function HomePage() {
         })}
       </section>
 
-      <section className="mt-10 rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-8">
-        <div className="max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
-            How it works
-          </p>
-          <h2 className="mt-3 text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-4xl">
-            A simple path from listing to handover.
-          </h2>
-        </div>
+      <section className="mt-10 rounded-[2rem] border border-gray-200 bg-gray-50 p-5 shadow-sm sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
+              The buying flow
+            </p>
+            <h2 className="mt-3 text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-4xl">
+              Four checks. Less noise. Better decisions.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-gray-600 sm:text-base">
+              The site is being stripped back around the buyer journey: rego, PPSR, inspection, handover. Everything else should support one of those steps or wait its turn.
+            </p>
+          </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {HOW_IT_WORKS.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <article key={step.title} className="rounded-[1.5rem] bg-white p-5 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-teal-600 text-sm font-black text-white">
-                    {index + 1}
-                  </span>
-                  <Icon className="h-5 w-5 text-teal-600" aria-hidden="true" />
-                </div>
-                <h3 className="mt-4 text-base font-black tracking-[-0.03em] text-gray-900">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">{step.copy}</p>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
-            What we watch for
-          </p>
-          <h2 className="mt-3 text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-4xl">
-            The buyer-side checks are the ones that save you money.
-          </h2>
-          <p className="mt-4 text-base leading-7 text-gray-600">
-            Buying Buddy brings the buyer&apos;s-agent mindset into a simple self-serve flow:
-            spot risk early, verify the car, and keep the handover tidy.
-          </p>
-        </div>
-
-        <div className="grid gap-3">
-          {RED_FLAGS.map((item) => (
-            <div
-              key={item}
-              className="flex items-start gap-3 rounded-[1.25rem] border border-gray-200 bg-white p-4 shadow-sm"
-            >
-              <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" aria-hidden="true" />
-              <p className="text-sm leading-6 text-gray-700">{item}</p>
-            </div>
-          ))}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {BUYER_PATH.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <article key={step.title} className="rounded-[1.5rem] bg-white p-5 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-teal-600 text-sm font-black text-white">
+                      {index + 1}
+                    </span>
+                    <Icon className="h-5 w-5 text-teal-600" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-4 text-base font-black tracking-[-0.03em] text-gray-900">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-gray-600">{step.copy}</p>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <section className="mt-10 rounded-[2rem] border border-teal-200 bg-teal-50 p-6 text-center shadow-sm sm:p-10">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-700">
+      <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-start">
+        <div className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
+            Marketplace hook
+          </p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-4xl">
+            Found it on Facebook Marketplace? Start with the plate.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-gray-600 sm:text-base">
+            A lot of buyers ask, "Is this a scam?" The faster question is: does the rego, VIN, description, seller story, PPSR, and paperwork all line up?
+          </p>
+          <div className="mt-5 grid gap-3">
+            {[
+              "Seller won't provide VIN or rego before inspection",
+              "Purpose of use does not match the story",
+              "Price is cheap but transfer/roadworthy details are vague",
+              "Seller pushes deposit before PPSR",
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-2xl bg-gray-50 p-4">
+                <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" aria-hidden="true" />
+                <p className="text-sm leading-6 text-gray-700">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-teal-200 bg-teal-50 p-5 shadow-sm sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-700">
+            SEO spider web
+          </p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-4xl">
+            Build pages around jobs buyers already search.
+          </h2>
+          <div className="mt-5 grid gap-3">
+            {SEO_WEB.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="rounded-2xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <p className="text-sm font-black text-gray-900">{item.title}</p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">{item.copy}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-10 grid gap-4 sm:grid-cols-3">
+        {[
+          { icon: CarFront, title: "Rego transfer QLD", copy: "Turn into a simple buyer handover checklist and internal links from rego/PPSR pages." },
+          { icon: Wrench, title: "Roadworthy QLD", copy: "Explain safety certificate timing, buyer expectations, and seller questions without legal overclaiming." },
+          { icon: FileText, title: "Private sale contract", copy: "Make paperwork feel like the final confidence step, not admin homework." },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <article key={item.title} className="rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm">
+              <Icon className="h-6 w-6 text-teal-600" aria-hidden="true" />
+              <h3 className="mt-4 text-lg font-black tracking-[-0.04em] text-gray-900">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-gray-600">{item.copy}</p>
+            </article>
+          );
+        })}
+      </section>
+
+      <section className="mt-10 rounded-[2rem] border border-gray-900 bg-gray-950 p-6 text-center shadow-sm sm:p-10">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-300">
           Start here
         </p>
-        <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
-          Found a car? Get the buyer-side read before you chase it.
+        <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-[-0.06em] text-white sm:text-5xl">
+          Before you message the seller, check the rego.
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-teal-950">
-          Paste the listing into the free check. If it passes the sniff test,
-          run the PPSR before you talk money.
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-gray-300">
+          If the rego result makes sense, move to PPSR. If the seller's story does not match, you just saved yourself a drive.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Link
-            href="/check"
-            className="inline-flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl bg-teal-600 px-8 text-base font-black text-white transition hover:bg-teal-700"
+            href="/rego-check"
+            className="inline-flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl bg-teal-500 px-8 text-base font-black text-white transition hover:bg-teal-400"
           >
-            Run a free check
+            Run free QLD rego check
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </Link>
           <Link
-            href="/pricing"
-            className="inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl border border-teal-300 bg-white px-8 text-base font-black text-teal-800 transition hover:border-teal-500"
+            href="/ppsr"
+            className="inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl border border-white/20 bg-white px-8 text-base font-black text-gray-950 transition hover:bg-gray-100"
           >
-            View pricing
+            Get PPSR report
           </Link>
         </div>
       </section>

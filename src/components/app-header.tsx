@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation";
 
 const DESKTOP_NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/check", label: "Free Check" },
   { href: "/rego-check", label: "QLD Rego" },
   { href: "/ppsr", label: "PPSR" },
+  { href: "/check", label: "Listing Check" },
   { href: "/inspect", label: "Inspect" },
-  { href: "/deal", label: "Deals" },
-  { href: "/contract-pack", label: "Contracts" },
+  { href: "/contract-pack", label: "Paperwork" },
   { href: "/blog", label: "Guides" },
 ] as const;
 
