@@ -23,6 +23,9 @@ export default function SiteFooter() {
             <Link href="/pricing" className="font-semibold text-gray-700 transition hover:text-teal-600">
               Pricing
             </Link>
+            <Link href="/rego-check" className="font-semibold text-gray-700 transition hover:text-teal-600">
+              QLD Rego Check
+            </Link>
             <Link href="/blog" className="font-semibold text-gray-700 transition hover:text-teal-600">
               Guides
             </Link>

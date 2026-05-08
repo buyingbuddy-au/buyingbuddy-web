@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const DESKTOP_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/check", label: "Free Check" },
+  { href: "/rego-check", label: "QLD Rego" },
   { href: "/ppsr", label: "PPSR" },
   { href: "/inspect", label: "Inspect" },
   { href: "/deal", label: "Deals" },

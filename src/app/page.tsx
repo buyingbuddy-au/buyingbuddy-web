@@ -30,6 +30,13 @@ const PRIMARY_TOOLS = [
     icon: Search,
   },
   {
+    title: "Free QLD Rego Check",
+    copy: "Check live QLD rego details, then get plain-English prompts on what to ask the seller next.",
+    href: "/rego-check",
+    cta: "Check a QLD rego",
+    icon: BadgeCheck,
+  },
+  {
     title: "$4.95 PPSR Report",
     copy: "Check finance owing, stolen status, and written-off history, then get the result explained in plain English.",
     href: "/ppsr",
@@ -216,7 +223,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-3">
+      <section className="mt-8 grid gap-4 lg:grid-cols-4">
         {PRIMARY_TOOLS.map((tool) => {
           const Icon = tool.icon;
           return (
