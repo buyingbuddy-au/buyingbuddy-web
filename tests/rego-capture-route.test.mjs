@@ -238,6 +238,35 @@ test("rego capture invalid email returns stable input envelope", async () => {
   }
 });
 
+test("rego capture rejects non-string reason", async () => {
+  const compiled = compileRegoCaptureRoute();
+  const originalApiKey = process.env.RESEND_API_KEY;
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+
+  try {
+    const response = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "buyer@example.com", reason: 42 }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_reason");
+    assert.equal(payload.retryable, false);
+    assert.ok(typeof payload.userMessage === "string" && payload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 0, "non-string reason must not send capture emails");
+  } finally {
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
+    }
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;

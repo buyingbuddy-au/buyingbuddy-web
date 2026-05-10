@@ -10,7 +10,7 @@ const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 type RegoCaptureRequest = {
   rego?: unknown;
   email?: unknown;
-  reason?: string;
+  reason?: unknown;
 };
 
 type RegoCaptureParseResult =
@@ -118,7 +118,13 @@ export async function POST(request: Request) {
       return inputErrorResponse("invalid_rego", "Enter a valid QLD rego.");
     }
 
+    const rawReason = body.reason;
+    if (rawReason !== undefined && typeof rawReason !== "string") {
+      return inputErrorResponse("invalid_reason", "Enter a reason as text.");
+    }
+
     const email = typeof rawEmail === "string" ? rawEmail.trim() : "";
+    const reason = typeof rawReason === "string" ? rawReason : undefined;
     const validation = validateQldRego(typeof rawRego === "string" ? rawRego : "");
 
     if (!validation.ok) {
@@ -137,7 +143,7 @@ export async function POST(request: Request) {
         subject: `Your QLD rego follow-up for ${validation.rego}`,
         html: sellerScriptHtml(validation.rego),
       });
-      const reasonHtml = escapeHtml(body.reason ?? "not supplied");
+      const reasonHtml = escapeHtml(reason ?? "not supplied");
       const regoHtml = escapeHtml(validation.rego);
       const emailHtml = escapeHtml(email);
 
@@ -148,7 +154,7 @@ export async function POST(request: Request) {
         html: `<p><strong>Rego:</strong> ${regoHtml}</p><p><strong>Email:</strong> ${emailHtml}</p><p><strong>Reason:</strong> ${reasonHtml}</p>`,
       });
     } else {
-      console.info("rego capture stored without email provider", { rego: validation.rego, email, reason: body.reason });
+      console.info("rego capture stored without email provider", { rego: validation.rego, email, reason });
     }
 
     return NextResponse.json({ ok: true });

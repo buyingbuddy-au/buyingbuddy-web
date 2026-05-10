@@ -343,3 +343,8 @@ This batch is the clearest evidence yet that **the loop is producing tightly-evi
 
 - [DONE] Routed `/api/rego/capture` invalid email string validation failures through the stable `input_error` envelope — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 22, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:13` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects non-string reason`; post `{ rego: "123ABC", email: "buyer@example.com", reason: 42 }`, assert HTTP 400 `input_error`/`invalid_reason`, `checkedAt`, `retryable: false`, and zero email sends before changing `RegoCaptureRequest.reason` to `unknown` and adding a reason type guard.
+
+## 2026-05-11 — Iteration 23 Phase 2
+
+- [DONE] Added `/api/rego/capture` reason type guard so numeric reasons return HTTP 400 `input_error`/`invalid_reason` before email sends — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 23, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture enforces hourly cap`; with `RESEND_API_KEY=unit-test-api-key`, post the same valid capture request repeatedly and assert the over-limit request returns HTTP 429 with `x-rego-rate-limit-scope: instance` and sends zero additional emails before adding a simple per-instance capture limiter.
