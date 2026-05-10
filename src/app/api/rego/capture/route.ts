@@ -31,9 +31,21 @@ function inputErrorResponse(error: string, userMessage: string) {
   );
 }
 
+function isObjectBody(value: unknown): value is RegoCaptureRequest {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 async function parseRegoCaptureRequest(request: Request): Promise<RegoCaptureParseResult> {
   try {
-    const body = (await request.json()) as RegoCaptureRequest;
+    const body = await request.json();
+    if (!isObjectBody(body)) {
+      return {
+        ok: false,
+        error: "invalid_body",
+        userMessage: "Send rego capture details as a JSON object.",
+      };
+    }
+
     return { ok: true, body };
   } catch {
     return {
