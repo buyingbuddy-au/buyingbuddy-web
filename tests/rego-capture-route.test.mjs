@@ -14,6 +14,7 @@ function compileRegoCaptureRoute(options = {}) {
   const tsc = join(process.cwd(), "node_modules", ".bin", "tsc");
   const emailSends = [];
   const throwOnEmailSend = options.throwOnEmailSend ?? null;
+  const throwWhenEmailTo = options.throwWhenEmailTo ?? null;
   const throwMessage = options.throwMessage ?? "email provider failed";
 
   writeFileSync(
@@ -73,7 +74,7 @@ function compileRegoCaptureRoute(options = {}) {
               this.emails = {
                 send: async (message) => {
                   const sendNumber = emailSends.length + 1;
-                  if (throwOnEmailSend === sendNumber) {
+                  if (throwOnEmailSend === sendNumber || message.to === throwWhenEmailTo) {
                     throw new Error(throwMessage);
                   }
                   emailSends.push({ apiKey, ...message });
@@ -314,6 +315,41 @@ test("rego capture enforces hourly cap", async () => {
       delete process.env.REGO_CAPTURE_MAX_PER_HOUR;
     } else {
       process.env.REGO_CAPTURE_MAX_PER_HOUR = originalMaxPerHour;
+    }
+    compiled.cleanup();
+  }
+});
+
+test("rego capture aborts buyer email when notification send fails", async () => {
+  const compiled = compileRegoCaptureRoute({ throwWhenEmailTo: "info@buyingbuddy.com.au", throwMessage: "boom secret/path" });
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalConsoleError = console.error;
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  console.error = () => {};
+
+  try {
+    const response = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "buyer@example.com", reason: "manual follow-up" }),
+    );
+    const payload = await response.json();
+    const publicPayload = JSON.stringify(payload);
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "provider_error");
+    assert.equal(payload.error, "email_provider_failed");
+    assert.equal(payload.retryable, false);
+    assert.ok(typeof payload.userMessage === "string" && payload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.ok(!publicPayload.includes("boom"), `public payload leaked provider message: ${publicPayload}`);
+    assert.ok(!publicPayload.includes("secret/path"), `public payload leaked provider path: ${publicPayload}`);
+    assert.equal(compiled.getEmailSends().length, 0, "notification failure must not send buyer email first");
+  } finally {
+    console.error = originalConsoleError;
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
     }
     compiled.cleanup();
   }

@@ -404,3 +404,8 @@ Reviewer: Claude (read-only architectural review of commits `2f79655..aeeeeed`, 
 ### Bluntness note
 This is the strongest batch since iter 16. Three of five iters acted on Claude-flagged risks (reason guard, capture rate limit, provider envelope) instead of self-spawning yet another field-substitution NEXT. The loop has demonstrably learned to **escalate by risk within a stage** — that is genuinely new behaviour, not present in iters 7–20. What it has not learned, and provably will not learn through hints, is **stage navigation**. Stop fighting that. The loop is a sharp Stage 2 hardening tool with a working risk-promotion mechanism; it is not a multi-stage development loop. Re-scope its claim accordingly. The remaining wins inside Stage 2 — partial-success ordering on the capture sends, per-caller limiter partitioning, the long-queued status-to-HTTP map flatten — are real and reachable. Pick them. Stop asking the loop to pivot.
 
+## 2026-05-11 — Iteration 26 Phase 2
+
+- [DONE] Sent `/api/rego/capture` internal notification before buyer follow-up email so notification provider failures abort without spurious buyer emails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 26, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:219-220` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture route catch returns stable error envelope`; extend the route-test normalise mock to throw `new Error("boom secret/path")`, assert HTTP 500 returns stable `status`, `error`, `userMessage`, `checkedAt`, and `retryable: false` without public `boom` or `secret/path`, then replace the legacy catch-all `{ ok, error }` body.
+
