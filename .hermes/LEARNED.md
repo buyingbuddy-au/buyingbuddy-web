@@ -85,3 +85,8 @@ This file is the loop's working memory. Every iteration reads it. Every iteratio
 - [DONE] Added `/api/rego/check` runtime request parsing for malformed JSON and non-string `rego` with route-handler regression tests — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 4, 2026-05-11)
 - [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler tests named `rego check rejects non-object JSON` and `rego check rejects non-string state`; assert HTTP 400 `input_error` and zero QLD lookup calls. (added by iter 4)
 - [AVOID] Iter 4 route-handler harness: compiled `/tmp` route modules cannot resolve `next/server` relative to temp output; pre-load `next/server` via project `createRequire()` before overriding `Module._load`.
+
+## 2026-05-11 — Iteration 5 Phase 2
+
+- [DONE] Added `/api/rego/check` route-handler regression tests for non-object JSON and non-string `state` without QLD lookup calls — `tests/rego-check-route.test.mjs` (iter 5, 2026-05-11)
+- [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler tests named `rego check defaults missing state to QLD` and `rego check rejects unsupported state before lookup`; assert missing state reaches the mocked QLD lookup once and state `NSW` returns HTTP 400 `not_qld` with zero lookup calls. (added by iter 5)

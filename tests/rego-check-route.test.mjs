@@ -145,3 +145,39 @@ test("rego check rejects non-string rego", async () => {
     compiled.cleanup();
   }
 });
+
+test("rego check rejects non-object JSON", async () => {
+  const compiled = compileRegoCheckRoute();
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify("123ABC")));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_body");
+    assert.equal(payload.userMessage, "Send the rego as a JSON object.");
+    assert.equal(payload.retryable, false);
+    assert.equal(compiled.getLookupCalls(), 0, "non-object JSON must not call the QLD lookup");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
+test("rego check rejects non-string state", async () => {
+  const compiled = compileRegoCheckRoute();
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: 123 })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_state");
+    assert.equal(payload.userMessage, "This beta checks QLD regos only. Choose QLD or leave the state blank.");
+    assert.equal(payload.retryable, false);
+    assert.equal(compiled.getLookupCalls(), 0, "non-string state must not call the QLD lookup");
+  } finally {
+    compiled.cleanup();
+  }
+});
