@@ -1,0 +1,12 @@
+# Mission runtime noise — keep the reviewable audit/briefing/evidence markdown, ignore raw logs/state.
+logs/
+iter_prompts/
+scripts/
+run-state.json
+*.pid
+*.tmp
+*.lock
+__pycache__/
+*.pyc
+evidence/*.log
+evidence/a3-npm-test-json.log
