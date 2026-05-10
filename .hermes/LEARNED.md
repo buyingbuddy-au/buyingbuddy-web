@@ -278,3 +278,8 @@ Three patterns now confirmed over 15 iterations: (a) the loop respects code-spec
 
 - [DONE] Added `/api/rego/capture` object-body parsing so `null` JSON returns HTTP 400 `input_error`/`invalid_body` before email access — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 18, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:98-107` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects non-string email`; post `{ rego: "123ABC", email: 123 }`, assert HTTP 400 `input_error`/`invalid_email` and zero email sends before replacing `(body.email ?? "").trim()` with a string guard.
+
+## 2026-05-11 — Iteration 19 Phase 2
+
+- [DONE] Added `/api/rego/capture` email type guard so numeric email fields return HTTP 400 `input_error`/`invalid_email` before trimming or email sends — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 19, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:116` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects non-string rego`; post `{ rego: 123, email: "buyer@example.com" }`, assert HTTP 400 `input_error`/`invalid_rego` and zero email sends before changing `RegoCaptureRequest.rego` to `unknown` and guarding `validateQldRego()` input. (added by iter 19)

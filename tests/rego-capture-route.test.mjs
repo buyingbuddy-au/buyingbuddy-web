@@ -158,6 +158,26 @@ test("rego capture rejects non-object JSON", async () => {
   }
 });
 
+test("rego capture rejects non-string email", async () => {
+  const compiled = compileRegoCaptureRoute();
+
+  try {
+    const response = await compiled.route.POST(makeRequest({ rego: "123ABC", email: 123 }));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_email");
+    assert.equal(payload.userMessage, "Enter a valid email address.");
+    assert.equal(payload.retryable, false);
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 0, "non-string email must not send capture emails");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;

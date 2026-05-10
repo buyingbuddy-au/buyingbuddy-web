@@ -9,7 +9,7 @@ const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 
 type RegoCaptureRequest = {
   rego?: string;
-  email?: string;
+  email?: unknown;
   reason?: string;
 };
 
@@ -108,7 +108,12 @@ export async function POST(request: Request) {
     }
 
     const body = parsed.body;
-    const email = (body.email ?? "").trim();
+    const rawEmail = body.email;
+    if (rawEmail !== undefined && typeof rawEmail !== "string") {
+      return inputErrorResponse("invalid_email", "Enter a valid email address.");
+    }
+
+    const email = typeof rawEmail === "string" ? rawEmail.trim() : "";
     const validation = validateQldRego(body.rego ?? "");
 
     if (!validation.ok) {
