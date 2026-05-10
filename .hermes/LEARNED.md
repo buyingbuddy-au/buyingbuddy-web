@@ -194,3 +194,8 @@ Reviewer: Claude (read-only architectural review of commits `2d55761..38a8cc0`, 
 
 ### Bluntness note
 Two patterns now confirmed across 10 iterations: (a) the loop responds to specific code hints and ignores scope-pivot hints, and (b) it self-feeds smaller-and-smaller NEXTs out of its own previous iteration when an audit NEXT in another stage is right there. Iter 6 was the strongest pick of the batch — it acted on a direct vulnerability hint that had been queued for five iterations. Iter 10's spawned NEXT (delete one unreachable line) is the weakest. The trajectory is downward. If iter 11 still picks Stage 2, the controller's NEXT-selection logic — not the iteration quality — is what needs intervention.
+
+## 2026-05-11 — Iteration 11 Phase 2
+
+- [DONE] Removed the unreachable non-alphanumeric validation branch after normalisation strips punctuation — `src/lib/qld-rego/normalise.ts` (iter 11, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:282` + `tests/qld-rego-official-cache.test.mjs` — Add test named `official thrown fetch is non-retryable`; simulate a thrown official lookup fetch and assert `response.retryable === false`, then change the `official_fetch_failed` failure retryable argument from `true` to `false`. (carried forward by iter 11)

@@ -17,9 +17,5 @@ export function validateQldRego(input: string): { ok: true; rego: string } | { o
     return { ok: false, error: "That looks too long for a QLD rego. Use the plate only, no state or spaces." };
   }
 
-  if (!/^[A-Z0-9]+$/.test(rego)) {
-    return { ok: false, error: "QLD regos use letters and numbers only." };
-  }
-
   return { ok: true, rego };
 }
