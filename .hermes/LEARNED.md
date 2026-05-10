@@ -131,3 +131,8 @@ The loop is not producing slop, but it is producing **safe, low-risk, ever-narro
 
 - [DONE] Stopped `/api/rego/check` route catch from leaking raw exception messages and retry-amplifying unexpected failures — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 6, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:278-282` + `tests/qld-rego-official-cache.test.mjs` — Add test named `official unavailable returns stable error code`; simulate the official lookup fetch throwing `new Error("boom secret/path")` and assert the failure uses a stable public `error` code without including `boom` or `secret/path`. (added by iter 6)
+
+## 2026-05-11 — Iteration 7 Phase 2
+
+- [DONE] Stopped low-level QLD official lookup failures from leaking raw thrown fetch messages — `src/lib/qld-rego/official.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 7, 2026-05-11)
+- [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler tests named `rego check defaults missing state to QLD` and `rego check rejects unsupported state before lookup`; assert missing state reaches the mocked QLD lookup once and state `NSW` returns HTTP 400 `not_qld` with zero lookup calls. (carried forward by iter 7)

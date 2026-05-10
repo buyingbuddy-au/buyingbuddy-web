@@ -279,7 +279,8 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
     if (/captcha|robot|blocked|access denied/i.test(message)) {
       return failure("blocked", "official_blocked", "The QLD site asked for manual verification. We’ll need to check this one manually.", true, startedAt);
     }
-    return failure("official_unavailable", message, "The QLD check hit a technical snag. Leave your email and we’ll send the result when it clears.", true, startedAt);
+    console.error("[qld-rego] official lookup failed", error);
+    return failure("official_unavailable", "official_fetch_failed", "The QLD check hit a technical snag. Leave your email and we’ll send the result when it clears.", true, startedAt);
   } finally {
     clearTimeout(timeout);
     inFlight = false;
