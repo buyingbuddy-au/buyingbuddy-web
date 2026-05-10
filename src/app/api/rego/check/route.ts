@@ -5,10 +5,79 @@ import { validateQldRego } from "@/lib/qld-rego/normalise";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type RegoCheckRequest = {
+  rego: string;
+  state: string;
+};
+
+type RegoCheckParseResult =
+  | { ok: true; body: RegoCheckRequest }
+  | { ok: false; error: string; userMessage: string };
+
+function inputErrorResponse(error: string, userMessage: string) {
+  return NextResponse.json(
+    {
+      ok: false,
+      status: "input_error",
+      error,
+      userMessage,
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    },
+    { status: 400 },
+  );
+}
+
+async function parseRegoCheckRequest(request: Request): Promise<RegoCheckParseResult> {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return {
+      ok: false,
+      error: "invalid_json",
+      userMessage: "We couldn't read that rego check request. Try again.",
+    };
+  }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return {
+      ok: false,
+      error: "invalid_body",
+      userMessage: "Send the rego as a JSON object.",
+    };
+  }
+
+  const record = body as Record<string, unknown>;
+  if (typeof record.rego !== "string") {
+    return {
+      ok: false,
+      error: "invalid_rego",
+      userMessage: "Pop the QLD rego in first.",
+    };
+  }
+
+  const state = record.state ?? "QLD";
+  if (typeof state !== "string") {
+    return {
+      ok: false,
+      error: "invalid_state",
+      userMessage: "This beta checks QLD regos only. Choose QLD or leave the state blank.",
+    };
+  }
+
+  return { ok: true, body: { rego: record.rego, state } };
+}
+
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { rego?: string; state?: string };
-    const state = (body.state ?? "QLD").trim().toUpperCase();
+    const parsed = await parseRegoCheckRequest(request);
+    if (parsed.ok === false) {
+      return inputErrorResponse(parsed.error, parsed.userMessage);
+    }
+
+    const state = parsed.body.state.trim().toUpperCase();
 
     if (state && state !== "QLD") {
       return NextResponse.json(
@@ -24,7 +93,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const validation = validateQldRego(body.rego ?? "");
+    const validation = validateQldRego(parsed.body.rego);
     if (!validation.ok) {
       return NextResponse.json(
         {
