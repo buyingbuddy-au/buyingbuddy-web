@@ -84,6 +84,59 @@ const changedResultHtml = `
   </html>
 `;
 
+const noResultHtml = `
+  <html>
+    <body>
+      <main>
+        <h1>Vehicle search result</h1>
+        <p>We could not find any registration details for that plate.</p>
+      </main>
+    </body>
+  </html>
+`;
+
+test("no-result response is cached for the no-result TTL", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method ?? "GET" });
+    const html = requests.length === 1 ? searchFormHtml : noResultHtml;
+    return new Response(html, { status: 200, headers: { "content-type": "text/html" } });
+  };
+
+  const compiled = compileOfficialModule();
+  try {
+    const first = await compiled.module.runQldOfficialRegoCheck("123ABC");
+    const second = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(first.ok, false);
+    assert.equal(first.status, "no_result");
+    assert.equal(first.error, "no_official_result");
+    assert.equal(first.retryable, false);
+    assert.equal(first.cached, undefined, "fresh no-result responses should not be marked cached");
+
+    assert.equal(second.ok, false);
+    assert.equal(second.status, "no_result");
+    assert.equal(second.error, "no_official_result");
+    assert.equal(second.retryable, false);
+    assert.equal(second.cached, true, "second same-plate no-result response should come from cache");
+    assert.equal(requests.length, 2, "cached no-result lookup should not fetch QLD again");
+  } finally {
+    compiled.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
 test("parse error is not cached as no-result", async () => {
   const envSnapshot = {
     REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,

@@ -74,3 +74,8 @@ This file is the loop's working memory. Every iteration reads it. Every iteratio
 - [DONE] Stopped caching retryable `result_parse_failed` QLD rego responses as no-result cache entries — `src/lib/qld-rego/official.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 2, 2026-05-11)
 - [NEXT] `tests/qld-rego-official-cache.test.mjs` — Add test named `no-result response is cached for the no-result TTL`; assert two same-plate no-result lookups only fetch once and the second response has `cached: true`. (added by iter 2)
 - [AVOID] Iter 2 parse-error fixtures: avoid no-result keywords like `no registration` in changed-form HTML because `looksLikeNoResult()` will classify the branch as `no_result` instead of `parse_error`.
+
+## 2026-05-11 — Iteration 3 Phase 2
+
+- [DONE] Added no-result cache regression coverage — `tests/qld-rego-official-cache.test.mjs` (iter 3, 2026-05-11)
+- [NEXT] `src/app/api/rego/check/route.ts:8-40` + `tests/rego-check-route.test.mjs` — Add route-handler tests for malformed JSON and non-string `rego`, then add a runtime request parser that returns HTTP 400 `input_error` before calling QLD lookup. (added by iter 3)
