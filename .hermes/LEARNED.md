@@ -263,3 +263,8 @@ Reviewer: Claude (read-only architectural review of commits `609de62..baa83f0`, 
 
 ### Bluntness note
 Three patterns now confirmed over 15 iterations: (a) the loop respects code-specific [NEXT] hints, (b) the loop ignores scope-pivot hints — twice now, after explicit hard rules, (c) the loop will not pick capture-route NEXTs even when adjacent issues exist, because the in-flight check-route chain self-perpetuates. The work being shipped is genuinely useful — iter 13's rateLimitScope disclosure, iter 12's retry alignment, iter 15's 404 mapping are all real improvements. But the loop is a one-trick pony: it will hammer on `src/app/api/rego/check/route.ts` and `src/lib/qld-rego/official.ts` indefinitely. The HTML-injection in `capture/route.ts:59` will sit in the queue another 15 iterations if the controller is left alone. **Stop trying to fix the queue with hints. Fix the controller.**
+
+## 2026-05-11 — Iteration 16 Phase 2
+
+- [DONE] Escaped user-controlled rego capture HTML fields before sending buyer and internal notification emails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 16, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:33-40` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects malformed JSON`; assert malformed JSON returns HTTP 400 with a stable input-error envelope before adding a runtime parser that handles `request.json()` failures outside the catch-all 500 branch. (carried forward by iter 16)

@@ -11,11 +11,32 @@ function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function escapeHtml(value: unknown) {
+  return String(value).replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      case "'":
+        return "&#39;";
+      default:
+        return char;
+    }
+  });
+}
+
 function sellerScriptHtml(rego: string) {
+  const escapedRego = escapeHtml(rego);
+
   return `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;">
       <h1 style="margin:0 0 8px;font-size:24px;">Your seller question script</h1>
-      <p style="color:#4B5563;line-height:1.6;">We’ll keep trying the QLD rego check for <strong>${rego}</strong>. In the meantime, send this to the seller before you drive out:</p>
+      <p style="color:#4B5563;line-height:1.6;">We’ll keep trying the QLD rego check for <strong>${escapedRego}</strong>. In the meantime, send this to the seller before you drive out:</p>
       <div style="background:#F0FDFA;border:1px solid #99F6E4;border-radius:14px;padding:18px;margin:20px 0;">
         <p style="margin:0 0 12px;font-weight:700;color:#134E4A;">Copy/paste this:</p>
         <p style="white-space:pre-line;color:#134E4A;line-height:1.7;margin:0;">Hey, before I come inspect it, can you send me:
@@ -52,11 +73,15 @@ export async function POST(request: Request) {
         subject: `Your QLD rego follow-up for ${validation.rego}`,
         html: sellerScriptHtml(validation.rego),
       });
+      const reasonHtml = escapeHtml(body.reason ?? "not supplied");
+      const regoHtml = escapeHtml(validation.rego);
+      const emailHtml = escapeHtml(email);
+
       await resend.emails.send({
         from: FROM,
         to: NOTIFY_EMAIL,
         subject: `QLD rego fallback lead: ${validation.rego}`,
-        html: `<p><strong>Rego:</strong> ${validation.rego}</p><p><strong>Email:</strong> ${email}</p><p><strong>Reason:</strong> ${body.reason ?? "not supplied"}</p>`,
+        html: `<p><strong>Rego:</strong> ${regoHtml}</p><p><strong>Email:</strong> ${emailHtml}</p><p><strong>Reason:</strong> ${reasonHtml}</p>`,
       });
     } else {
       console.info("rego capture stored without email provider", { rego: validation.rego, email, reason: body.reason });
