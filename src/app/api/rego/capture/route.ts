@@ -8,7 +8,7 @@ const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 
 type RegoCaptureRequest = {
-  rego?: string;
+  rego?: unknown;
   email?: unknown;
   reason?: string;
 };
@@ -113,8 +113,13 @@ export async function POST(request: Request) {
       return inputErrorResponse("invalid_email", "Enter a valid email address.");
     }
 
+    const rawRego = body.rego;
+    if (rawRego !== undefined && typeof rawRego !== "string") {
+      return inputErrorResponse("invalid_rego", "Enter a valid QLD rego.");
+    }
+
     const email = typeof rawEmail === "string" ? rawEmail.trim() : "";
-    const validation = validateQldRego(body.rego ?? "");
+    const validation = validateQldRego(typeof rawRego === "string" ? rawRego : "");
 
     if (!validation.ok) {
       return NextResponse.json({ ok: false, error: validation.error }, { status: 400 });
