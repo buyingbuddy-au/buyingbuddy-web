@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     const validation = validateQldRego(typeof rawRego === "string" ? rawRego : "");
 
     if (!validation.ok) {
-      return NextResponse.json({ ok: false, error: validation.error }, { status: 400 });
+      return inputErrorResponse("invalid_rego", validation.error);
     }
     if (!validEmail(email)) {
       return NextResponse.json({ ok: false, error: "Enter a valid email address." }, { status: 400 });

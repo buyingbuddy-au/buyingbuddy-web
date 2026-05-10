@@ -198,6 +198,26 @@ test("rego capture rejects non-string rego", async () => {
   }
 });
 
+test("rego capture invalid string rego returns stable input envelope", async () => {
+  const compiled = compileRegoCaptureRoute();
+
+  try {
+    const response = await compiled.route.POST(makeRequest({ rego: "!!", email: "buyer@example.com" }));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_rego");
+    assert.equal(payload.retryable, false);
+    assert.ok(typeof payload.userMessage === "string" && payload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 0, "invalid string rego must not send capture emails");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;
