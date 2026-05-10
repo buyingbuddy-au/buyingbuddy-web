@@ -121,16 +121,17 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result, { status: statusCode });
   } catch (error) {
+    console.error("[rego-check] unhandled", error);
     return NextResponse.json(
       {
         ok: false,
         status: "error",
-        error: error instanceof Error ? error.message : "unknown_error",
-        userMessage: "The rego checker had a wobble. Try again or leave your email and we’ll send the result.",
+        error: "route_unhandled",
+        userMessage: "The rego checker had a technical snag. Leave your email and we’ll send the result.",
         checkedAt: new Date().toISOString(),
-        retryable: true,
+        retryable: false,
       },
-      { status: 500 },
+      { status: 502 },
     );
   }
 }

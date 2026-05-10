@@ -126,3 +126,8 @@ Reviewer: Claude (read-only architectural review of commits `6bded03..c26a233`).
 
 ### Bluntness note
 The loop is not producing slop, but it is producing **safe, low-risk, ever-narrower** work. Iters 3 and 5 were both test-only regression locks for behaviour added in the immediately-preceding iteration. That's defensible (TDD discipline) but the marginal risk reduction is small compared to the audit NEXTs sitting unpicked. The single highest-value unaddressed item — the `error.message` leak — has been in the queue since the Phase 1 audit and the loop has walked past it 5 times. Pick that one, or pick a Stage 7 item, before iter 6 burrows further into the rego-check route.
+
+## 2026-05-11 — Iteration 6 Phase 2
+
+- [DONE] Stopped `/api/rego/check` route catch from leaking raw exception messages and retry-amplifying unexpected failures — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 6, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:278-282` + `tests/qld-rego-official-cache.test.mjs` — Add test named `official unavailable returns stable error code`; simulate the official lookup fetch throwing `new Error("boom secret/path")` and assert the failure uses a stable public `error` code without including `boom` or `secret/path`. (added by iter 6)

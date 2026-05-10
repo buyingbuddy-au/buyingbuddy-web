@@ -8,7 +8,7 @@ import test from "node:test";
 
 const require = createRequire(import.meta.url);
 
-function compileRegoCheckRoute() {
+function compileRegoCheckRoute({ lookupHandler } = {}) {
   const outDir = mkdtempSync(join(tmpdir(), "buyingbuddy-rego-route-"));
   const tsconfigPath = join(outDir, "tsconfig.json");
   const tsc = join(process.cwd(), "node_modules", ".bin", "tsc");
@@ -61,8 +61,11 @@ function compileRegoCheckRoute() {
 
       if (request === "@/lib/qld-rego/official") {
         return {
-          runQldOfficialRegoCheck: async () => {
+          runQldOfficialRegoCheck: async (...args) => {
             lookupCalls += 1;
+            if (lookupHandler) {
+              return lookupHandler(...args);
+            }
             return {
               ok: true,
               status: "found",
@@ -178,6 +181,57 @@ test("rego check rejects non-string state", async () => {
     assert.equal(payload.retryable, false);
     assert.equal(compiled.getLookupCalls(), 0, "non-string state must not call the QLD lookup");
   } finally {
+    compiled.cleanup();
+  }
+});
+
+test("rego check route catch returns stable error code", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => {
+      throw new Error("boom secret/path");
+    },
+  });
+  const originalConsoleError = console.error;
+  const consoleErrors = [];
+  console.error = (...args) => {
+    consoleErrors.push(args);
+  };
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "error");
+    assert.equal(payload.error, "route_unhandled");
+    assert.equal(payload.error.includes("boom"), false);
+    assert.equal(payload.retryable, false);
+    assert.equal(compiled.getLookupCalls(), 1, "valid input should reach the mocked QLD lookup once before the catch branch");
+    assert.equal(consoleErrors.length, 1, "catch branch should log the raw server-side error once");
+    assert.equal(consoleErrors[0][0], "[rego-check] unhandled");
+    assert.ok(consoleErrors[0][1] instanceof Error);
+    assert.equal(consoleErrors[0][1].message, "boom secret/path");
+  } finally {
+    console.error = originalConsoleError;
+    compiled.cleanup();
+  }
+});
+
+test("rego check route catch returns 502 not 500", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => {
+      throw new Error("boom secret/path");
+    },
+  });
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+
+    assert.equal(response.status, 502);
+  } finally {
+    console.error = originalConsoleError;
     compiled.cleanup();
   }
 });
