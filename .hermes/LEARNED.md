@@ -214,3 +214,8 @@ Two patterns now confirmed across 10 iterations: (a) the loop responds to specif
 
 - [DONE] Exposed QLD rego busy rate-limit scope as the public `x-rego-rate-limit-scope` route header — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 14, 2026-05-11)
 - [NEXT] `src/app/api/rego/check/route.ts:112-120` + `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check no-result response returns 404 not 502`; mock `runQldOfficialRegoCheck()` to return `status: "no_result"` and assert HTTP 404 before adding an explicit `no_result` status-code branch ahead of the 502 fallback. (added by iter 14)
+
+## 2026-05-11 — Iteration 15 Phase 2
+
+- [DONE] Mapped `/api/rego/check` no-result lookup responses to HTTP 404 instead of the 502 fallback — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 15, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:33-40` + new `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects malformed JSON`; assert malformed JSON returns HTTP 400 with a stable input-error envelope before adding a runtime parser that handles `request.json()` failures outside the catch-all 500 branch. (added by iter 15)

@@ -113,11 +113,13 @@ export async function POST(request: Request) {
       ? 200
       : result.status === "input_error" || result.status === "not_qld"
         ? 400
-        : result.status === "busy"
-          ? 429
-          : result.status === "timeout"
-            ? 504
-            : 502;
+        : result.status === "no_result"
+          ? 404
+          : result.status === "busy"
+            ? 429
+            : result.status === "timeout"
+              ? 504
+              : 502;
 
     const headers = !result.ok && result.status === "busy" && result.rateLimitScope
       ? { "x-rego-rate-limit-scope": result.rateLimitScope }

@@ -245,6 +245,32 @@ test("rego check busy response sets rate-limit scope header", async () => {
   }
 });
 
+test("rego check no-result response returns 404 not 502", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => ({
+      ok: false,
+      status: "no_result",
+      error: "not_found",
+      userMessage: "We couldn't find that rego in the QLD lookup.",
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    }),
+  });
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 404);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "no_result");
+    assert.equal(payload.error, "not_found");
+    assert.equal(compiled.getLookupCalls(), 1, "valid no-result response should call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check route catch returns stable error code", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => {
