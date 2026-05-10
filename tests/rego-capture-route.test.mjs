@@ -110,6 +110,34 @@ function makeRequest(body) {
   });
 }
 
+function makeRawJsonRequest(body) {
+  return new Request("http://localhost/api/rego/capture", {
+    method: "POST",
+    body,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+test("rego capture rejects malformed JSON", async () => {
+  const compiled = compileRegoCaptureRoute();
+
+  try {
+    const response = await compiled.route.POST(makeRawJsonRequest('{"rego":"123ABC",'));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_json");
+    assert.equal(payload.userMessage, "We couldn't read that rego capture request. Try again.");
+    assert.equal(payload.retryable, false);
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 0, "malformed JSON must not send capture emails");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;

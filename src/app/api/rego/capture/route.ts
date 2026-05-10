@@ -7,6 +7,43 @@ export const runtime = "nodejs";
 const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 
+type RegoCaptureRequest = {
+  rego?: string;
+  email?: string;
+  reason?: string;
+};
+
+type RegoCaptureParseResult =
+  | { ok: true; body: RegoCaptureRequest }
+  | { ok: false; error: string; userMessage: string };
+
+function inputErrorResponse(error: string, userMessage: string) {
+  return NextResponse.json(
+    {
+      ok: false,
+      status: "input_error",
+      error,
+      userMessage,
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    },
+    { status: 400 },
+  );
+}
+
+async function parseRegoCaptureRequest(request: Request): Promise<RegoCaptureParseResult> {
+  try {
+    const body = (await request.json()) as RegoCaptureRequest;
+    return { ok: true, body };
+  } catch {
+    return {
+      ok: false,
+      error: "invalid_json",
+      userMessage: "We couldn't read that rego capture request. Try again.",
+    };
+  }
+}
+
 function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -53,7 +90,12 @@ function sellerScriptHtml(rego: string) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { rego?: string; email?: string; reason?: string };
+    const parsed = await parseRegoCaptureRequest(request);
+    if (parsed.ok === false) {
+      return inputErrorResponse(parsed.error, parsed.userMessage);
+    }
+
+    const body = parsed.body;
     const email = (body.email ?? "").trim();
     const validation = validateQldRego(body.rego ?? "");
 

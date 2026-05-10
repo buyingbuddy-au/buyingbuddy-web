@@ -268,3 +268,8 @@ Three patterns now confirmed over 15 iterations: (a) the loop respects code-spec
 
 - [DONE] Escaped user-controlled rego capture HTML fields before sending buyer and internal notification emails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 16, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:33-40` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects malformed JSON`; assert malformed JSON returns HTTP 400 with a stable input-error envelope before adding a runtime parser that handles `request.json()` failures outside the catch-all 500 branch. (carried forward by iter 16)
+
+## 2026-05-11 — Iteration 17 Phase 2
+
+- [DONE] Added malformed-JSON parsing for `/api/rego/capture` so bad request bodies return HTTP 400 `input_error` instead of catch-all 500 — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 17, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:54-67` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects non-object JSON`; post `null` or an array body, assert HTTP 400 `input_error`/`invalid_body` and zero email sends before adding an object guard ahead of `body.email` access. (added by iter 17)
