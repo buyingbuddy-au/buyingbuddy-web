@@ -48,6 +48,7 @@ export interface QldRegoCheckFailure {
   checkedAt: string;
   durationMs?: number;
   retryable: boolean;
+  cached?: boolean;
 }
 
 export type QldRegoCheckResponse = QldRegoCheckSuccess | QldRegoCheckFailure;

@@ -179,7 +179,7 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
   const rego = validation.rego;
   const cached = cache.get(rego);
   if (cached && cached.expiresAt > Date.now()) {
-    return { ...cached.value, cached: true } as QldRegoCheckResponse;
+    return { ...cached.value, cached: true };
   }
 
   if (process.env.REGO_CHECK_ENABLED === "false") {
