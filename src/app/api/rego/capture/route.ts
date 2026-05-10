@@ -58,20 +58,27 @@ async function parseRegoCaptureRequest(request: Request): Promise<RegoCapturePar
 
 const CAPTURE_RATE_LIMIT_SCOPE = "instance" as const;
 const CAPTURE_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const captureHourlyHits: number[] = [];
+const captureHourlyHitsByEmail = new Map<string, number[]>();
 
 function captureMaxPerHour() {
   const value = Number(process.env.REGO_CAPTURE_MAX_PER_HOUR ?? 6);
   return Number.isFinite(value) && value >= 0 ? value : 6;
 }
 
-function registerCaptureHit() {
+function registerCaptureHit(email: string) {
+  const key = email.toLowerCase();
+  const hits = captureHourlyHitsByEmail.get(key) ?? [];
   const cutoff = Date.now() - CAPTURE_RATE_LIMIT_WINDOW_MS;
-  while (captureHourlyHits.length && captureHourlyHits[0] < cutoff) captureHourlyHits.shift();
 
-  if (captureHourlyHits.length >= captureMaxPerHour()) return false;
+  while (hits.length && hits[0] < cutoff) hits.shift();
 
-  captureHourlyHits.push(Date.now());
+  if (hits.length >= captureMaxPerHour()) {
+    captureHourlyHitsByEmail.set(key, hits);
+    return false;
+  }
+
+  hits.push(Date.now());
+  captureHourlyHitsByEmail.set(key, hits);
   return true;
 }
 
@@ -196,7 +203,7 @@ export async function POST(request: Request) {
       return inputErrorResponse("invalid_email", "Enter a valid email address.");
     }
 
-    if (!registerCaptureHit()) {
+    if (!registerCaptureHit(email)) {
       return captureRateLimitResponse();
     }
 

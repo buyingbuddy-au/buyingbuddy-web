@@ -331,6 +331,48 @@ test("rego capture enforces hourly cap", async () => {
   }
 });
 
+test("rego capture limit is per email", async () => {
+  const compiled = compileRegoCaptureRoute();
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalMaxPerHour = process.env.REGO_CAPTURE_MAX_PER_HOUR;
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  process.env.REGO_CAPTURE_MAX_PER_HOUR = "6";
+
+  try {
+    const repeatedCapture = { rego: "123ABC", email: "buyer-a@example.com", reason: "manual follow-up" };
+
+    for (let i = 0; i < 6; i += 1) {
+      const response = await compiled.route.POST(makeRequest(repeatedCapture));
+      const payload = await response.json();
+      assert.equal(response.status, 200, `expected buyer-a capture ${i + 1} to succeed`);
+      assert.deepEqual(payload, { ok: true });
+    }
+
+    assert.equal(compiled.getEmailSends().length, 12, "six buyer-a captures should send buyer and notification emails");
+
+    const otherBuyerResponse = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "buyer-b@example.com", reason: "manual follow-up" }),
+    );
+    const otherBuyerPayload = await otherBuyerResponse.json();
+
+    assert.equal(otherBuyerResponse.status, 200, "buyer-b should not inherit buyer-a's hourly cap");
+    assert.deepEqual(otherBuyerPayload, { ok: true });
+    assert.equal(compiled.getEmailSends().length, 14, "buyer-b capture should still send both emails");
+  } finally {
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
+    }
+    if (originalMaxPerHour === undefined) {
+      delete process.env.REGO_CAPTURE_MAX_PER_HOUR;
+    } else {
+      process.env.REGO_CAPTURE_MAX_PER_HOUR = originalMaxPerHour;
+    }
+    compiled.cleanup();
+  }
+});
+
 test("rego capture aborts buyer email when notification send fails", async () => {
   const compiled = compileRegoCaptureRoute({ throwWhenEmailTo: "info@buyingbuddy.com.au", throwMessage: "boom secret/path" });
   const originalApiKey = process.env.RESEND_API_KEY;
