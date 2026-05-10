@@ -199,3 +199,8 @@ Two patterns now confirmed across 10 iterations: (a) the loop responds to specif
 
 - [DONE] Removed the unreachable non-alphanumeric validation branch after normalisation strips punctuation — `src/lib/qld-rego/normalise.ts` (iter 11, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:282` + `tests/qld-rego-official-cache.test.mjs` — Add test named `official thrown fetch is non-retryable`; simulate a thrown official lookup fetch and assert `response.retryable === false`, then change the `official_fetch_failed` failure retryable argument from `true` to `false`. (carried forward by iter 11)
+
+## 2026-05-11 — Iteration 12 Phase 2
+
+- [DONE] Aligned lower-level QLD official thrown-fetch failures with route-level retry guidance by making `official_fetch_failed` non-retryable — `src/lib/qld-rego/official.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 12, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:189-195` + `tests/qld-rego-official-cache.test.mjs` — Add test named `busy response declares per-instance rate limit scope`; force `worker_busy` or `hourly_limit` from `runQldOfficialRegoCheck()` and assert the failure response exposes a stable metadata field such as `rateLimitScope: "instance"` before adding route headers. (added by iter 12)

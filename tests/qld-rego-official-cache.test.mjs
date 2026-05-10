@@ -212,12 +212,47 @@ test("official unavailable returns stable error code", async () => {
     assert.equal(response.error.includes("boom"), false);
     assert.equal(response.userMessage.includes("boom"), false);
     assert.equal(response.userMessage.includes("secret/path"), false);
-    assert.equal(response.retryable, true);
+    assert.equal(response.retryable, false);
     assert.equal(requests.length, 1, "official lookup should stop after the first thrown fetch");
     assert.equal(consoleErrors.length, 1, "raw official lookup error should be logged server-side once");
     assert.equal(consoleErrors[0][0], "[qld-rego] official lookup failed");
     assert.ok(consoleErrors[0][1] instanceof Error);
     assert.equal(consoleErrors[0][1].message, "boom secret/path");
+  } finally {
+    compiled?.cleanup();
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
+test("official thrown fetch is non-retryable", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("boom secret/path");
+  };
+
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  let compiled;
+  try {
+    compiled = compileOfficialModule();
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, false);
+    assert.equal(response.status, "official_unavailable");
+    assert.equal(response.error, "official_fetch_failed");
+    assert.equal(response.retryable, false);
   } finally {
     compiled?.cleanup();
     console.error = originalConsoleError;
