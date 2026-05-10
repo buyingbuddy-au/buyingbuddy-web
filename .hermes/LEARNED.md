@@ -136,3 +136,8 @@ The loop is not producing slop, but it is producing **safe, low-risk, ever-narro
 
 - [DONE] Stopped low-level QLD official lookup failures from leaking raw thrown fetch messages — `src/lib/qld-rego/official.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 7, 2026-05-11)
 - [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler tests named `rego check defaults missing state to QLD` and `rego check rejects unsupported state before lookup`; assert missing state reaches the mocked QLD lookup once and state `NSW` returns HTTP 400 `not_qld` with zero lookup calls. (carried forward by iter 7)
+
+## 2026-05-11 — Iteration 8 Phase 2
+
+- [DONE] Added `/api/rego/check` state routing regression tests for missing-state QLD defaulting and unsupported-state pre-lookup rejection — `tests/rego-check-route.test.mjs` (iter 8, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/types.ts` + `tests/qld-rego-types.test.mjs` — Add a type fixture named `cached success response is assignable` that constructs a cached `QldRegoCheckSuccess` with `cached: true` and assigns it to `QldRegoCheckResponse`; if it fails, add `cached?: boolean` to the success contract. (added by iter 8)

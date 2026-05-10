@@ -185,6 +185,38 @@ test("rego check rejects non-string state", async () => {
   }
 });
 
+test("rego check defaults missing state to QLD", async () => {
+  const compiled = compileRegoCheckRoute();
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.equal(payload.status, "found");
+    assert.equal(compiled.getLookupCalls(), 1, "missing state should default to QLD and call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
+test("rego check rejects unsupported state before lookup", async () => {
+  const compiled = compileRegoCheckRoute();
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "NSW" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "not_qld");
+    assert.equal(payload.error, "qld_only");
+    assert.equal(payload.retryable, false);
+    assert.equal(compiled.getLookupCalls(), 0, "unsupported states must not call the QLD lookup");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check route catch returns stable error code", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => {
