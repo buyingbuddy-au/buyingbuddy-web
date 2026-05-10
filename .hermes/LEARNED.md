@@ -338,3 +338,8 @@ This batch is the clearest evidence yet that **the loop is producing tightly-evi
 
 - [DONE] Routed `/api/rego/capture` invalid string rego validation failures through the stable `input_error` envelope — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 21, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:127-129` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture invalid email returns stable input envelope`; post `{ rego: "123ABC", email: "not-an-email" }`, assert HTTP 400 `input_error`/`invalid_email`, `checkedAt`, `retryable: false`, and zero email sends before routing `validEmail()` failures through `inputErrorResponse()` instead of the legacy `{ ok: false, error }` body.
+
+## 2026-05-11 — Iteration 22 Phase 2
+
+- [DONE] Routed `/api/rego/capture` invalid email string validation failures through the stable `input_error` envelope — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 22, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:13` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture rejects non-string reason`; post `{ rego: "123ABC", email: "buyer@example.com", reason: 42 }`, assert HTTP 400 `input_error`/`invalid_reason`, `checkedAt`, `retryable: false`, and zero email sends before changing `RegoCaptureRequest.reason` to `unknown` and adding a reason type guard.

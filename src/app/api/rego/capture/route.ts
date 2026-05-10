@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       return inputErrorResponse("invalid_rego", validation.error);
     }
     if (!validEmail(email)) {
-      return NextResponse.json({ ok: false, error: "Enter a valid email address." }, { status: 400 });
+      return inputErrorResponse("invalid_email", "Enter a valid email address.");
     }
 
     const apiKey = process.env.RESEND_API_KEY;

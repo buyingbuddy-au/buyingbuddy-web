@@ -218,6 +218,26 @@ test("rego capture invalid string rego returns stable input envelope", async () 
   }
 });
 
+test("rego capture invalid email returns stable input envelope", async () => {
+  const compiled = compileRegoCaptureRoute();
+
+  try {
+    const response = await compiled.route.POST(makeRequest({ rego: "123ABC", email: "not-an-email" }));
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "input_error");
+    assert.equal(payload.error, "invalid_email");
+    assert.equal(payload.retryable, false);
+    assert.equal(payload.userMessage, "Enter a valid email address.");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 0, "invalid email must not send capture emails");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;
