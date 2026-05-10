@@ -209,3 +209,8 @@ Two patterns now confirmed across 10 iterations: (a) the loop responds to specif
 
 - [DONE] Exposed per-instance rate-limit scope on QLD rego busy failures — `src/lib/qld-rego/official.ts`, `src/lib/qld-rego/types.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 13, 2026-05-11)
 - [NEXT] `src/app/api/rego/check/route.ts:111-122` + `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check busy response sets rate-limit scope header`; mock `runQldOfficialRegoCheck()` to return a busy failure with `rateLimitScope: "instance"` and assert HTTP 429 plus `x-rego-rate-limit-scope: instance` before adding the route header mapping. (added by iter 13)
+
+## 2026-05-11 — Iteration 14 Phase 2
+
+- [DONE] Exposed QLD rego busy rate-limit scope as the public `x-rego-rate-limit-scope` route header — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 14, 2026-05-11)
+- [NEXT] `src/app/api/rego/check/route.ts:112-120` + `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check no-result response returns 404 not 502`; mock `runQldOfficialRegoCheck()` to return `status: "no_result"` and assert HTTP 404 before adding an explicit `no_result` status-code branch ahead of the 502 fallback. (added by iter 14)

@@ -119,7 +119,11 @@ export async function POST(request: Request) {
             ? 504
             : 502;
 
-    return NextResponse.json(result, { status: statusCode });
+    const headers = !result.ok && result.status === "busy" && result.rateLimitScope
+      ? { "x-rego-rate-limit-scope": result.rateLimitScope }
+      : undefined;
+
+    return NextResponse.json(result, { status: statusCode, headers });
   } catch (error) {
     console.error("[rego-check] unhandled", error);
     return NextResponse.json(

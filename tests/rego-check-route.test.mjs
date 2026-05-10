@@ -217,6 +217,34 @@ test("rego check rejects unsupported state before lookup", async () => {
   }
 });
 
+test("rego check busy response sets rate-limit scope header", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => ({
+      ok: false,
+      status: "busy",
+      error: "hourly_limit",
+      userMessage: "The QLD rego checker is busy. Try again shortly.",
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+      rateLimitScope: "instance",
+    }),
+  });
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 429);
+    assert.equal(response.headers.get("x-rego-rate-limit-scope"), "instance");
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "busy");
+    assert.equal(payload.rateLimitScope, "instance");
+    assert.equal(compiled.getLookupCalls(), 1, "valid busy response should call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check route catch returns stable error code", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => {
