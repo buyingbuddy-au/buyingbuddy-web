@@ -8,11 +8,13 @@ import test from "node:test";
 
 const require = createRequire(import.meta.url);
 
-function compileRegoCaptureRoute() {
+function compileRegoCaptureRoute(options = {}) {
   const outDir = mkdtempSync(join(tmpdir(), "buyingbuddy-rego-capture-route-"));
   const tsconfigPath = join(outDir, "tsconfig.json");
   const tsc = join(process.cwd(), "node_modules", ".bin", "tsc");
   const emailSends = [];
+  const throwOnEmailSend = options.throwOnEmailSend ?? null;
+  const throwMessage = options.throwMessage ?? "email provider failed";
 
   writeFileSync(
     tsconfigPath,
@@ -70,6 +72,10 @@ function compileRegoCaptureRoute() {
               this.apiKey = apiKey;
               this.emails = {
                 send: async (message) => {
+                  const sendNumber = emailSends.length + 1;
+                  if (throwOnEmailSend === sendNumber) {
+                    throw new Error(throwMessage);
+                  }
                   emailSends.push({ apiKey, ...message });
                   return { data: { id: `test-email-${emailSends.length}` }, error: null };
                 },
@@ -308,6 +314,41 @@ test("rego capture enforces hourly cap", async () => {
       delete process.env.REGO_CAPTURE_MAX_PER_HOUR;
     } else {
       process.env.REGO_CAPTURE_MAX_PER_HOUR = originalMaxPerHour;
+    }
+    compiled.cleanup();
+  }
+});
+
+test("rego capture provider failure returns stable error envelope", async () => {
+  const compiled = compileRegoCaptureRoute({ throwOnEmailSend: 2, throwMessage: "boom secret/path" });
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalConsoleError = console.error;
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  console.error = () => {};
+
+  try {
+    const response = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "buyer@example.com", reason: "manual follow-up" }),
+    );
+    const payload = await response.json();
+    const publicPayload = JSON.stringify(payload);
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "provider_error");
+    assert.equal(payload.error, "email_provider_failed");
+    assert.equal(payload.retryable, false);
+    assert.ok(typeof payload.userMessage === "string" && payload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.ok(!publicPayload.includes("boom"), `public payload leaked provider message: ${publicPayload}`);
+    assert.ok(!publicPayload.includes("secret/path"), `public payload leaked provider path: ${publicPayload}`);
+    assert.equal(compiled.getEmailSends().length, 1, "provider failure should stop after the first successful send");
+  } finally {
+    console.error = originalConsoleError;
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
     }
     compiled.cleanup();
   }

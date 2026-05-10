@@ -90,6 +90,20 @@ function captureRateLimitResponse() {
   );
 }
 
+function providerErrorResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      status: "provider_error",
+      error: "email_provider_failed",
+      userMessage: "Could not save that email. Try again.",
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    },
+    { status: 502 },
+  );
+}
+
 function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -175,22 +189,27 @@ export async function POST(request: Request) {
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey && apiKey !== "re_your_resend_api_key_here") {
       const resend = new Resend(apiKey);
-      await resend.emails.send({
-        from: FROM,
-        to: email,
-        subject: `Your QLD rego follow-up for ${validation.rego}`,
-        html: sellerScriptHtml(validation.rego),
-      });
-      const reasonHtml = escapeHtml(reason ?? "not supplied");
-      const regoHtml = escapeHtml(validation.rego);
-      const emailHtml = escapeHtml(email);
+      try {
+        await resend.emails.send({
+          from: FROM,
+          to: email,
+          subject: `Your QLD rego follow-up for ${validation.rego}`,
+          html: sellerScriptHtml(validation.rego),
+        });
+        const reasonHtml = escapeHtml(reason ?? "not supplied");
+        const regoHtml = escapeHtml(validation.rego);
+        const emailHtml = escapeHtml(email);
 
-      await resend.emails.send({
-        from: FROM,
-        to: NOTIFY_EMAIL,
-        subject: `QLD rego fallback lead: ${validation.rego}`,
-        html: `<p><strong>Rego:</strong> ${regoHtml}</p><p><strong>Email:</strong> ${emailHtml}</p><p><strong>Reason:</strong> ${reasonHtml}</p>`,
-      });
+        await resend.emails.send({
+          from: FROM,
+          to: NOTIFY_EMAIL,
+          subject: `QLD rego fallback lead: ${validation.rego}`,
+          html: `<p><strong>Rego:</strong> ${regoHtml}</p><p><strong>Email:</strong> ${emailHtml}</p><p><strong>Reason:</strong> ${reasonHtml}</p>`,
+        });
+      } catch (error) {
+        console.error("rego capture email provider failed", error);
+        return providerErrorResponse();
+      }
     } else {
       console.info("rego capture stored without email provider", { rego: validation.rego, email, reason });
     }

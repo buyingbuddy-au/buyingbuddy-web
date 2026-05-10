@@ -353,3 +353,8 @@ This batch is the clearest evidence yet that **the loop is producing tightly-evi
 
 - [DONE] Added a per-instance hourly cap to `/api/rego/capture` so repeated valid fallback leads return 429 before extra email sends — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 24, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:199-201` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture provider failure returns stable error envelope`; mock the second Resend send to throw `new Error("boom secret/path")` and assert HTTP 502 or 500 uses a stable `status`, `error`, `userMessage`, `checkedAt`, and `retryable` contract without leaking `boom` or `secret/path`.
+
+## 2026-05-11 — Iteration 25 Phase 2
+
+- [DONE] Returned a stable provider-error envelope when `/api/rego/capture` Resend sends fail, without leaking raw provider messages — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 25, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:218-220` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture route catch returns stable error envelope`; extend the route-test normalise mock to throw `new Error("boom secret/path")`, assert HTTP 500 returns stable `status`, `error`, `userMessage`, `checkedAt`, and `retryable: false` without public `boom` or `secret/path`, then replace the legacy catch-all `{ ok, error }` body.
