@@ -13,6 +13,10 @@ const cache = new Map<string, CacheEntry>();
 let inFlight = false;
 const hourlyHits: number[] = [];
 
+type FailureOptions = {
+  rateLimitScope?: "instance";
+};
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -23,6 +27,7 @@ function failure(
   userMessage: string,
   retryable: boolean,
   startedAt?: number,
+  options: FailureOptions = {},
 ): QldRegoCheckResponse {
   return {
     ok: false,
@@ -32,6 +37,7 @@ function failure(
     retryable,
     checkedAt: nowIso(),
     durationMs: startedAt ? Date.now() - startedAt : undefined,
+    ...options,
   };
 }
 
@@ -187,11 +193,15 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
   }
 
   if (inFlight) {
-    return failure("busy", "worker_busy", "The checker is busy for a moment. Try again shortly, or leave your email and we’ll send it.", true, startedAt);
+    return failure("busy", "worker_busy", "The checker is busy for a moment. Try again shortly, or leave your email and we’ll send it.", true, startedAt, {
+      rateLimitScope: "instance",
+    });
   }
 
   if (!registerHit()) {
-    return failure("busy", "hourly_limit", "We’re pacing the free checks so the QLD source stays happy. Leave your email and we’ll send yours shortly.", true, startedAt);
+    return failure("busy", "hourly_limit", "We’re pacing the free checks so the QLD source stays happy. Leave your email and we’ll send yours shortly.", true, startedAt, {
+      rateLimitScope: "instance",
+    });
   }
 
   inFlight = true;

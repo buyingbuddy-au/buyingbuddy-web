@@ -260,3 +260,38 @@ test("official thrown fetch is non-retryable", async () => {
     restoreEnv(envSnapshot);
   }
 });
+
+test("busy response declares per-instance rate limit scope", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "0";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  let fetchCalled = false;
+  globalThis.fetch = async () => {
+    fetchCalled = true;
+    throw new Error("rate-limited requests should not fetch QLD");
+  };
+
+  let compiled;
+  try {
+    compiled = compileOfficialModule();
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, false);
+    assert.equal(response.status, "busy");
+    assert.equal(response.error, "hourly_limit");
+    assert.equal(response.retryable, true);
+    assert.equal(response.rateLimitScope, "instance");
+    assert.equal(fetchCalled, false, "hourly limit should stop before an official QLD fetch");
+  } finally {
+    compiled?.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});

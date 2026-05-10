@@ -49,6 +49,7 @@ export interface QldRegoCheckFailure {
   durationMs?: number;
   retryable: boolean;
   cached?: boolean;
+  rateLimitScope?: "instance";
 }
 
 export type QldRegoCheckResponse = QldRegoCheckSuccess | QldRegoCheckFailure;
