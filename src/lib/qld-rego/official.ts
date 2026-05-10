@@ -252,7 +252,9 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
         !noResult,
         startedAt,
       );
-      cache.set(rego, { value: response, expiresAt: Date.now() + NO_RESULT_CACHE_MS });
+      if (noResult) {
+        cache.set(rego, { value: response, expiresAt: Date.now() + NO_RESULT_CACHE_MS });
+      }
       return response;
     }
 

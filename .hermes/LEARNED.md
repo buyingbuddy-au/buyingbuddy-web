@@ -68,3 +68,9 @@ This file is the loop's working memory. Every iteration reads it. Every iteratio
 - [DONE] Fixed cached no-result rego response typing and removed the cached response cast — `src/lib/qld-rego/types.ts`, `src/lib/qld-rego/official.ts` (iter 1, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:243-256` — Stop caching retryable `result_parse_failed` responses for `NO_RESULT_CACHE_MS`; add test named `parse error is not cached as no-result`. (added by iter 1)
 - [AVOID] Iter 1 smoke server: `npm run start -- -p 3210` left only an npm process and did not bind the port; use `./node_modules/.bin/next start -p <port>` plus a `/rego-check` health check before `scripts/rego-api-smoke.mjs`.
+
+## 2026-05-11 — Iteration 2 Phase 2
+
+- [DONE] Stopped caching retryable `result_parse_failed` QLD rego responses as no-result cache entries — `src/lib/qld-rego/official.ts`, `tests/qld-rego-official-cache.test.mjs` (iter 2, 2026-05-11)
+- [NEXT] `tests/qld-rego-official-cache.test.mjs` — Add test named `no-result response is cached for the no-result TTL`; assert two same-plate no-result lookups only fetch once and the second response has `cached: true`. (added by iter 2)
+- [AVOID] Iter 2 parse-error fixtures: avoid no-result keywords like `no registration` in changed-form HTML because `looksLikeNoResult()` will classify the branch as `no_result` instead of `parse_error`.
