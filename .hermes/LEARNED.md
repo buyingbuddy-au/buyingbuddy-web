@@ -147,3 +147,8 @@ The loop is not producing slop, but it is producing **safe, low-risk, ever-narro
 - [DONE] Added cached-success QLD rego type fixture proving `QldRegoCheckSuccess` with `cached: true` is assignable to `QldRegoCheckResponse` — `tests/type-fixtures/qld-rego-cached-success.ts`, `tests/qld-rego-types.test.mjs` (iter 9, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/normalise.ts:1-25` + `tests/qld-rego-normalise.test.mjs` — Add unit tests for `normaliseQldRego()` and `validateQldRego()` covering `BAD!!`, spaced plates, empty input, 2-char input, 7-char input, 8-char input, and longer raw input; explicitly assert whether punctuation is stripped or rejected before changing route behaviour. (added by iter 9)
 - [AVOID] Iter 9 focused test command: `npm test -- --test-name-pattern ...` still ran all `tests/*.test.mjs`; for a genuinely narrow fixture check, prefer `node --test --test-name-pattern "cached success response is assignable" tests/qld-rego-types.test.mjs`.
+
+## 2026-05-11 — Iteration 10 Phase 2
+
+- [DONE] Added QLD rego normalisation and validation regression tests for punctuation stripping, spacing, empty input, and length boundaries — `tests/qld-rego-normalise.test.mjs` (iter 10, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/normalise.ts:20-22` — Remove the unreachable non-alphanumeric validation branch now that `tests/qld-rego-normalise.test.mjs` documents punctuation is stripped before validation; keep current public behaviour unchanged and confirm `node --test tests/qld-rego-normalise.test.mjs` stays green. (added by iter 10)
