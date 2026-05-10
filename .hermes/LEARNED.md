@@ -348,3 +348,8 @@ This batch is the clearest evidence yet that **the loop is producing tightly-evi
 
 - [DONE] Added `/api/rego/capture` reason type guard so numeric reasons return HTTP 400 `input_error`/`invalid_reason` before email sends — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 23, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture enforces hourly cap`; with `RESEND_API_KEY=unit-test-api-key`, post the same valid capture request repeatedly and assert the over-limit request returns HTTP 429 with `x-rego-rate-limit-scope: instance` and sends zero additional emails before adding a simple per-instance capture limiter.
+
+## 2026-05-11 — Iteration 24 Phase 2
+
+- [DONE] Added a per-instance hourly cap to `/api/rego/capture` so repeated valid fallback leads return 429 before extra email sends — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 24, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:199-201` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture provider failure returns stable error envelope`; mock the second Resend send to throw `new Error("boom secret/path")` and assert HTTP 502 or 500 uses a stable `status`, `error`, `userMessage`, `checkedAt`, and `retryable` contract without leaking `boom` or `secret/path`.

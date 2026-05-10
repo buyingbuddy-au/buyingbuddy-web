@@ -267,6 +267,52 @@ test("rego capture rejects non-string reason", async () => {
   }
 });
 
+test("rego capture enforces hourly cap", async () => {
+  const compiled = compileRegoCaptureRoute();
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalMaxPerHour = process.env.REGO_CAPTURE_MAX_PER_HOUR;
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  process.env.REGO_CAPTURE_MAX_PER_HOUR = "6";
+
+  try {
+    const validCapture = { rego: "123ABC", email: "buyer@example.com", reason: "manual follow-up" };
+
+    for (let i = 0; i < 6; i += 1) {
+      const response = await compiled.route.POST(makeRequest(validCapture));
+      const payload = await response.json();
+      assert.equal(response.status, 200, `expected allowed capture ${i + 1} to succeed`);
+      assert.deepEqual(payload, { ok: true });
+    }
+
+    assert.equal(compiled.getEmailSends().length, 12, "six successful captures should send buyer and notification emails");
+
+    const overLimitResponse = await compiled.route.POST(makeRequest(validCapture));
+    const overLimitPayload = await overLimitResponse.json();
+
+    assert.equal(overLimitResponse.status, 429);
+    assert.equal(overLimitResponse.headers.get("x-rego-rate-limit-scope"), "instance");
+    assert.equal(overLimitPayload.ok, false);
+    assert.equal(overLimitPayload.status, "busy");
+    assert.equal(overLimitPayload.error, "hourly_limit");
+    assert.equal(overLimitPayload.retryable, true);
+    assert.ok(typeof overLimitPayload.userMessage === "string" && overLimitPayload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(overLimitPayload.checkedAt), `expected ISO checkedAt, got ${overLimitPayload.checkedAt}`);
+    assert.equal(compiled.getEmailSends().length, 12, "over-limit capture must not send additional emails");
+  } finally {
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
+    }
+    if (originalMaxPerHour === undefined) {
+      delete process.env.REGO_CAPTURE_MAX_PER_HOUR;
+    } else {
+      process.env.REGO_CAPTURE_MAX_PER_HOUR = originalMaxPerHour;
+    }
+    compiled.cleanup();
+  }
+});
+
 test("rego capture escapes reason in notification HTML", async () => {
   const compiled = compileRegoCaptureRoute();
   const originalApiKey = process.env.RESEND_API_KEY;

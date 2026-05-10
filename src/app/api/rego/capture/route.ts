@@ -56,6 +56,40 @@ async function parseRegoCaptureRequest(request: Request): Promise<RegoCapturePar
   }
 }
 
+const CAPTURE_RATE_LIMIT_SCOPE = "instance" as const;
+const CAPTURE_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const captureHourlyHits: number[] = [];
+
+function captureMaxPerHour() {
+  const value = Number(process.env.REGO_CAPTURE_MAX_PER_HOUR ?? 6);
+  return Number.isFinite(value) && value >= 0 ? value : 6;
+}
+
+function registerCaptureHit() {
+  const cutoff = Date.now() - CAPTURE_RATE_LIMIT_WINDOW_MS;
+  while (captureHourlyHits.length && captureHourlyHits[0] < cutoff) captureHourlyHits.shift();
+
+  if (captureHourlyHits.length >= captureMaxPerHour()) return false;
+
+  captureHourlyHits.push(Date.now());
+  return true;
+}
+
+function captureRateLimitResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      status: "busy",
+      error: "hourly_limit",
+      userMessage: "We’re pacing rego follow-up emails for the moment. Try again shortly.",
+      checkedAt: new Date().toISOString(),
+      retryable: true,
+      rateLimitScope: CAPTURE_RATE_LIMIT_SCOPE,
+    },
+    { status: 429, headers: { "x-rego-rate-limit-scope": CAPTURE_RATE_LIMIT_SCOPE } },
+  );
+}
+
 function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -132,6 +166,10 @@ export async function POST(request: Request) {
     }
     if (!validEmail(email)) {
       return inputErrorResponse("invalid_email", "Enter a valid email address.");
+    }
+
+    if (!registerCaptureHit()) {
+      return captureRateLimitResponse();
     }
 
     const apiKey = process.env.RESEND_API_KEY;
