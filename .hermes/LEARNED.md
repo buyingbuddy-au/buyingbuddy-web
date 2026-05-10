@@ -141,3 +141,9 @@ The loop is not producing slop, but it is producing **safe, low-risk, ever-narro
 
 - [DONE] Added `/api/rego/check` state routing regression tests for missing-state QLD defaulting and unsupported-state pre-lookup rejection — `tests/rego-check-route.test.mjs` (iter 8, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/types.ts` + `tests/qld-rego-types.test.mjs` — Add a type fixture named `cached success response is assignable` that constructs a cached `QldRegoCheckSuccess` with `cached: true` and assigns it to `QldRegoCheckResponse`; if it fails, add `cached?: boolean` to the success contract. (added by iter 8)
+
+## 2026-05-11 — Iteration 9 Phase 2
+
+- [DONE] Added cached-success QLD rego type fixture proving `QldRegoCheckSuccess` with `cached: true` is assignable to `QldRegoCheckResponse` — `tests/type-fixtures/qld-rego-cached-success.ts`, `tests/qld-rego-types.test.mjs` (iter 9, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/normalise.ts:1-25` + `tests/qld-rego-normalise.test.mjs` — Add unit tests for `normaliseQldRego()` and `validateQldRego()` covering `BAD!!`, spaced plates, empty input, 2-char input, 7-char input, 8-char input, and longer raw input; explicitly assert whether punctuation is stripped or rejected before changing route behaviour. (added by iter 9)
+- [AVOID] Iter 9 focused test command: `npm test -- --test-name-pattern ...` still ran all `tests/*.test.mjs`; for a genuinely narrow fixture check, prefer `node --test --test-name-pattern "cached success response is assignable" tests/qld-rego-types.test.mjs`.

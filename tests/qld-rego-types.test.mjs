@@ -35,3 +35,7 @@ function runTypecheckFixture(path) {
 test("runQldOfficialRegoCheck returns typed cached no-result response", () => {
   runTypecheckFixture("tests/type-fixtures/qld-rego-cached-failure.ts");
 });
+
+test("cached success response is assignable", () => {
+  runTypecheckFixture("tests/type-fixtures/qld-rego-cached-success.ts");
+});
