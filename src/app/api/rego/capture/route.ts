@@ -104,6 +104,20 @@ function providerErrorResponse() {
   );
 }
 
+function routeUnhandledResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      status: "error",
+      error: "route_unhandled",
+      userMessage: "Could not save that email. Try again.",
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    },
+    { status: 500 },
+  );
+}
+
 function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -218,6 +232,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("rego capture route error", error);
-    return NextResponse.json({ ok: false, error: "Could not save that email. Try again." }, { status: 500 });
+    return routeUnhandledResponse();
   }
 }

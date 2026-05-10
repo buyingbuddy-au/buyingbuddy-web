@@ -409,3 +409,8 @@ This is the strongest batch since iter 16. Three of five iters acted on Claude-f
 - [DONE] Sent `/api/rego/capture` internal notification before buyer follow-up email so notification provider failures abort without spurious buyer emails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 26, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:219-220` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture route catch returns stable error envelope`; extend the route-test normalise mock to throw `new Error("boom secret/path")`, assert HTTP 500 returns stable `status`, `error`, `userMessage`, `checkedAt`, and `retryable: false` without public `boom` or `secret/path`, then replace the legacy catch-all `{ ok, error }` body.
 
+## 2026-05-11 — Iteration 27 Phase 2
+
+- [DONE] Returned a stable `route_unhandled` envelope from `/api/rego/capture` catch-all without leaking thrown route errors — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 27, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:60-72` + `tests/rego-capture-route.test.mjs` — Add test named `rego capture limit is per email`; post 6 valid captures from `buyer-a@example.com`, then a 7th from `buyer-b@example.com` and assert HTTP 200 before replacing the global `captureHourlyHits: number[]` limiter with a map keyed by validated email (or validated rego+email).
+

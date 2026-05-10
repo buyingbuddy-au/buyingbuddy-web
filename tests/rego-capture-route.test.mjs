@@ -16,6 +16,8 @@ function compileRegoCaptureRoute(options = {}) {
   const throwOnEmailSend = options.throwOnEmailSend ?? null;
   const throwWhenEmailTo = options.throwWhenEmailTo ?? null;
   const throwMessage = options.throwMessage ?? "email provider failed";
+  const throwOnValidateRego = options.throwOnValidateRego ?? false;
+  const validateThrowMessage = options.validateThrowMessage ?? "rego validation failed";
 
   writeFileSync(
     tsconfigPath,
@@ -63,7 +65,16 @@ function compileRegoCaptureRoute(options = {}) {
       }
 
       if (request === "@/lib/qld-rego/normalise") {
-        return require(normalisePath);
+        const normalise = require(normalisePath);
+        if (throwOnValidateRego) {
+          return {
+            ...normalise,
+            validateQldRego: () => {
+              throw new Error(validateThrowMessage);
+            },
+          };
+        }
+        return normalise;
       }
 
       if (request === "resend") {
@@ -351,6 +362,32 @@ test("rego capture aborts buyer email when notification send fails", async () =>
     } else {
       process.env.RESEND_API_KEY = originalApiKey;
     }
+    compiled.cleanup();
+  }
+});
+
+test("rego capture route catch returns stable error envelope", async () => {
+  const compiled = compileRegoCaptureRoute({ throwOnValidateRego: true, validateThrowMessage: "boom secret/path" });
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  try {
+    const response = await compiled.route.POST(makeRequest({ rego: "123ABC", email: "buyer@example.com" }));
+    const payload = await response.json();
+    const publicPayload = JSON.stringify(payload);
+
+    assert.equal(response.status, 500);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "error");
+    assert.equal(payload.error, "route_unhandled");
+    assert.equal(payload.retryable, false);
+    assert.ok(typeof payload.userMessage === "string" && payload.userMessage.length > 0, "expected userMessage text");
+    assert.ok(Date.parse(payload.checkedAt), `expected ISO checkedAt, got ${payload.checkedAt}`);
+    assert.ok(!publicPayload.includes("boom"), `public payload leaked route message: ${publicPayload}`);
+    assert.ok(!publicPayload.includes("secret/path"), `public payload leaked route path: ${publicPayload}`);
+    assert.equal(compiled.getEmailSends().length, 0, "route catch must not send capture emails");
+  } finally {
+    console.error = originalConsoleError;
     compiled.cleanup();
   }
 });
