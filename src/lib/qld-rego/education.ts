@@ -83,11 +83,11 @@ export function classifyQldRego(data: QldRegoData): QldRegoClassification {
   if (!status.includes("CURRENT")) return "stop";
 
   const expiry = parseQldDate(data.expiry);
-  if (expiry) {
-    const days = Math.ceil((expiry.getTime() - Date.now()) / 86_400_000);
-    if (days < 0) return "stop";
-    if (days <= 30) return "watch";
-  }
+  if (!expiry) return "stop";
+
+  const days = Math.ceil((expiry.getTime() - Date.now()) / 86_400_000);
+  if (days < 0) return "stop";
+  if (days <= 30) return "watch";
 
   const purpose = (data.purpose ?? "").toUpperCase();
   if (purpose.includes("COMMERCIAL") || purpose.includes("DEALER") || purpose.includes("CONDITIONAL")) {

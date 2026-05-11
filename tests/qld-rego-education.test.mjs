@@ -84,3 +84,17 @@ test("classifyQldRego stops expired current registrations", () => {
     Date.now = originalDateNow;
   }
 });
+
+test("classifyQldRego treats unparseable expiry as stop", () => {
+  const { classifyQldRego } = getEducationModule();
+
+  assert.equal(
+    classifyQldRego({
+      rego: "123ABC",
+      purpose: "PRIVATE",
+      registrationStatus: "CURRENT",
+      expiry: "2026-01-14",
+    }),
+    "stop",
+  );
+});
