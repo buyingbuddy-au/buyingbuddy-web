@@ -855,3 +855,8 @@ After these three, the input-validation surface is genuinely saturated and the l
 
 - [DONE] Added Stage 7 PPSR process route guard for missing `orderId` records returning 404 before PPSR extraction, PDF generation, order mutation, or report email send — `tests/ppsr-process-route.test.mjs` (iter 57, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects mismatched order and customerEmail before report side effects`; provide `orderId: "order_x"` plus `customerEmail: "different@example.com"` with `options.order` returning `{ id: "order_x", customer_email: "buyer@example.com", product: "ppsr", status: "pending" }`, assert HTTP 400, `error: "customerEmail does not match the selected order."`, and zero `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
+
+## 2026-05-11 — Iteration 58 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route guard for mismatched order/customer email returning 400 before PPSR extraction, PDF generation, order mutation, or report email send — `tests/ppsr-process-route.test.mjs` (iter 58, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route success updates order and sends report email in order`; provide valid `rawPPSRText`, `orderId: "order_ok"`, matching `customerEmail`, dummy `RESEND_API_KEY`, and an `options.order` with `product: "ppsr"`; assert HTTP 200, one PDF generation, one Resend email to `buyer@example.com`, first `updateOrder` stores `ppsr_result`/`ppsr_checked_at`/`report_pdf_path`, and second `updateOrder` sets `report_sent_at` plus `status: "complete"`.

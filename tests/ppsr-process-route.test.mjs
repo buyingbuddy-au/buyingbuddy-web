@@ -372,6 +372,50 @@ test("PPSR process route returns 404 when orderId is provided but order is missi
   }
 });
 
+test("PPSR process route rejects mismatched order and customerEmail before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_x",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: "different@example.com",
+        orderId: "order_x",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "customerEmail does not match the selected order." });
+    assert.equal(processErrors.length, 1, "expected the route to log the mismatched customer email once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_x"], "provided orderId should be looked up once");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "email mismatch must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "email mismatch must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "email mismatch must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "email mismatch must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
 test("PPSR process route does not mutate order when extraction fails", async () => {
   const compiled = compilePpsrProcessRoute({
     order: {
