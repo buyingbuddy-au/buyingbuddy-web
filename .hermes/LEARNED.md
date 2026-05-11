@@ -490,3 +490,8 @@ This batch closed two big Claude-flagged risks (notification-first ordering, per
 - [DONE] Pruned expired `/api/rego/capture` per-email limiter buckets before registering fresh capture hits — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 33, 2026-05-11)
 - [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check parse-error response returns 502`; mock `runQldOfficialRegoCheck()` to return `status: "parse_error"` and assert HTTP 502 plus one lookup call so `STATUS_TO_HTTP.parse_error` is covered.
 
+## 2026-05-11 — Iteration 34 Phase 2
+
+- [DONE] Added `/api/rego/check` parse-error route regression coverage for `STATUS_TO_HTTP.parse_error -> 502` — `tests/rego-check-route.test.mjs` (iter 34, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/education.ts:81-90` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego stops expired current registrations`; stub `Date.now()` after an expired `expiry` date, pass a `registrationStatus: "CURRENT"` fixture, and assert `classifyQldRego()` returns `"stop"` before any broader education-table coverage.
+

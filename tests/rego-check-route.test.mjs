@@ -297,6 +297,32 @@ test("rego check timeout response returns 504", async () => {
   }
 });
 
+test("rego check parse-error response returns 502", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => ({
+      ok: false,
+      status: "parse_error",
+      error: "qld_parse_failed",
+      userMessage: "The QLD rego checker returned an unexpected result. Try again shortly.",
+      checkedAt: new Date().toISOString(),
+      retryable: true,
+    }),
+  });
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "parse_error");
+    assert.equal(payload.error, "qld_parse_failed");
+    assert.equal(compiled.getLookupCalls(), 1, "valid parse-error response should call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check unknown status falls back to 502", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => ({
