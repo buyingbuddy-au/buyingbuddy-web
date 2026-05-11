@@ -297,3 +297,38 @@ test("PPSR process route rejects invalid customerEmail format before report side
     compiled.cleanup();
   }
 });
+
+test("PPSR process route rejects missing rawPPSRText before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        customerEmail: "buyer@example.com",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "rawPPSRText is required." });
+    assert.equal(processErrors.length, 1, "expected the route to log the rejected request once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, [], "missing rawPPSRText must fail before order lookup");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "missing rawPPSRText must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "missing rawPPSRText must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "missing rawPPSRText must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "missing rawPPSRText must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
