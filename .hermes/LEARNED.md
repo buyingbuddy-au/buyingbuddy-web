@@ -865,3 +865,8 @@ After these three, the input-validation surface is genuinely saturated and the l
 
 - [DONE] Added Stage 7 PPSR process route success guard for order checked → report email → order complete sequencing — `tests/ppsr-process-route.test.mjs` (iter 59, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route treats Telegram notification failure as non-fatal after report email`; provide valid `rawPPSRText`, `orderId: "order_ok"`, matching `customerEmail`, dummy `RESEND_API_KEY`, and a `TELEGRAM_BOT_TOKEN`; mock Telegram `fetch` to return HTTP 500, assert HTTP 200, `telegramSent: false`, one Resend email, two `updateOrder` calls including `status: "complete"`, and one `console.warn` tagged `[PPSR] Telegram notification failed:`.
+
+## 2026-05-11 — Iteration 60 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route guard proving Telegram HTTP failure stays non-fatal after buyer report email and order completion — `tests/ppsr-process-route.test.mjs` (iter 60, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route returns 502 when report email send fails after checked update`; extend the Resend mock to throw `new Error("resend outage")` for this test, post valid `rawPPSRText`, `orderId: "order_ok"`, matching `customerEmail`, and dummy `RESEND_API_KEY`, then assert HTTP 502, `error` includes `Failed to send PPSR report email: resend outage`, exactly one `updateOrder` call storing `ppsr_result`/`ppsr_checked_at`/`report_pdf_path`, zero complete-status update, zero Telegram fetches, and one Resend email attempt.

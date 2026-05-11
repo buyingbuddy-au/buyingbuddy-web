@@ -569,3 +569,119 @@ test("PPSR process route success updates order and sends report email in order",
     compiled.cleanup();
   }
 });
+
+test("PPSR process route treats Telegram notification failure as non-fatal after report email", async () => {
+  const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  const originalFetch = globalThis.fetch;
+  const hadResendApiKey = Object.prototype.hasOwnProperty.call(process.env, "RESEND_API_KEY");
+  const originalResendApiKey = process.env.RESEND_API_KEY;
+  const hadTelegramBotToken = Object.prototype.hasOwnProperty.call(process.env, "TELEGRAM_BOT_TOKEN");
+  const originalTelegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+  const processErrors = [];
+  const processWarnings = [];
+  const telegramFetches = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  console.warn = (...args) => {
+    processWarnings.push(args);
+  };
+  globalThis.fetch = async (url, init) => {
+    telegramFetches.push({ url: String(url), init });
+    return new Response("telegram upstream down", { status: 500 });
+  };
+  process.env.RESEND_API_KEY = "unit-test-resend-key";
+  process.env.TELEGRAM_BOT_TOKEN = "unit-test-telegram-token";
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: rawPpsrText,
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.deepEqual(payload.data, SAMPLE_PPSR_DATA);
+    assert.equal(payload.telegramSent, false);
+    assert.match(payload.reportPath, /^ppsr_order_ok_\d+\.pdf$/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up once");
+    assert.deepEqual(compiled.calls.extractPpsrData, [rawPpsrText]);
+    assert.equal(compiled.calls.generatePpsrPdf.length, 1);
+    assert.deepEqual(compiled.calls.generatePpsrPdf[0].data, SAMPLE_PPSR_DATA);
+    assert.equal(compiled.calls.generatePpsrPdf[0].filename, payload.reportPath);
+    assert.deepEqual(
+      compiled.calls.events.map((event) => event.type),
+      ["updateOrder", "resendEmail", "updateOrder"],
+      "telegram failure should happen only after order is checked, email is sent, and order is completed",
+    );
+
+    assert.equal(compiled.calls.updateOrder.length, 2);
+    assert.deepEqual(compiled.calls.updateOrder[0], {
+      orderId: "order_ok",
+      patch: {
+        ppsr_result: SAMPLE_PPSR_DATA,
+        ppsr_checked_at: "2026-05-11 07:40:00",
+        report_pdf_path: payload.reportPath,
+      },
+    });
+    assert.deepEqual(compiled.calls.updateOrder[1], {
+      orderId: "order_ok",
+      patch: {
+        report_sent_at: "2026-05-11 07:40:00",
+        status: "complete",
+      },
+    });
+
+    assert.deepEqual(compiled.calls.resendConstructors, ["unit-test-resend-key"]);
+    assert.equal(compiled.calls.resendEmails.length, 1);
+    assert.equal(compiled.calls.resendEmails[0].to, "buyer@example.com");
+    assert.equal(compiled.calls.resendEmails[0].subject, "Your PPSR Report - Verdict: CLEAR");
+    assert.equal(telegramFetches.length, 1, "telegram notification should be attempted once when a token is configured");
+    assert.match(telegramFetches[0].url, /^https:\/\/api\.telegram\.org\/botunit-test-telegram-token\/sendMessage$/);
+    assert.equal(telegramFetches[0].init.method, "POST");
+    assert.deepEqual(JSON.parse(telegramFetches[0].init.body), {
+      chat_id: "1296786949",
+      text: [
+        "PPSR REPORT GENERATED",
+        "Verdict: CLEAR",
+        "Vehicle: Toyota Hilux 2021 (6FPAAAJGSW6A12345)",
+        "Customer: buyer@example.com",
+        "Order ID: order_ok",
+      ].join("\n"),
+    });
+    assert.deepEqual(processErrors, [], "telegram failure should not log a process error");
+    assert.equal(processWarnings.length, 1, "telegram HTTP failure should warn once without failing the route");
+    assert.match(String(processWarnings[0][0]), /\[PPSR\] Telegram notification failed:/);
+    assert.match(String(processWarnings[0][1]), /Telegram notification failed: 500 telegram upstream down/);
+  } finally {
+    if (hadResendApiKey) {
+      process.env.RESEND_API_KEY = originalResendApiKey;
+    } else {
+      delete process.env.RESEND_API_KEY;
+    }
+    if (hadTelegramBotToken) {
+      process.env.TELEGRAM_BOT_TOKEN = originalTelegramBotToken;
+    } else {
+      delete process.env.TELEGRAM_BOT_TOKEN;
+    }
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
