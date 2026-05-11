@@ -297,6 +297,32 @@ test("rego check timeout response returns 504", async () => {
   }
 });
 
+test("rego check unknown status falls back to 502", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => ({
+      ok: false,
+      status: "future_unknown",
+      error: "future_error",
+      userMessage: "The QLD rego checker returned an unexpected status.",
+      checkedAt: new Date().toISOString(),
+      retryable: false,
+    }),
+  });
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "future_unknown");
+    assert.equal(payload.error, "future_error");
+    assert.equal(compiled.getLookupCalls(), 1, "valid unknown-status response should call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check route catch returns stable error code", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => {

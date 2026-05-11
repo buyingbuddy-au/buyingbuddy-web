@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     }
 
     const result = await runQldOfficialRegoCheck(validation.rego);
-    const statusCode = result.ok ? 200 : STATUS_TO_HTTP[result.status];
+    const statusCode = result.ok ? 200 : (STATUS_TO_HTTP[result.status] ?? 502);
 
     const headers = !result.ok && result.status === "busy" && result.rateLimitScope
       ? { "x-rego-rate-limit-scope": result.rateLimitScope }
