@@ -625,3 +625,8 @@ But there are now two structural caps approaching. First, the field-by-field cad
 - [DONE] Added a QLD official parser happy-path fixture so complete `Registration details` HTML returns success with source, VIN, expiry, and registration status intact — `tests/qld-rego-parser.test.mjs` (iter 41, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:249-264` HTTP-status handling + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser maps upstream 503 to official_unavailable`; mock the second fetch/result-page response as `new Response("Service Unavailable", { status: 503 })` and assert `ok: false`, `status: "official_unavailable"`, a stable `error` code, a non-empty `userMessage`, `retryable: true`, and two fetch calls before adding explicit non-2xx result-page handling ahead of `parseResult()`.
 
+## 2026-05-11 — Iteration 42 Phase 2
+
+- [DONE] Mapped upstream QLD Transport non-2xx result-page responses to retryable `official_unavailable` failures before parsing — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 42, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:98-106` (`looksLikeNoResult`) + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser detects empty result table as no_result`; feed a result-page HTML body with the search/result shell but no `Registration details` heading and no explicit error banner, assert `ok: false`, `status: "no_result"`, `error: "no_official_result"`, `retryable: false`, and two fetch calls before extending `looksLikeNoResult()` if needed.
+

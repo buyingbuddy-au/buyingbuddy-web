@@ -261,6 +261,16 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
       controller.signal,
     );
 
+    if (resultPage.status < 200 || resultPage.status >= 300) {
+      return failure(
+        "official_unavailable",
+        `official_result_http_${resultPage.status}`,
+        "QLD Transport returned a temporary error before the result loaded. Leave your email and we’ll send the result when it clears.",
+        true,
+        startedAt,
+      );
+    }
+
     const data = parseResult(rego, resultPage.html);
     if (!data) {
       const noResult = looksLikeNoResult(resultPage.html);

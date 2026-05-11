@@ -322,6 +322,43 @@ test("qld official parser rejects empty registration status value", async () => 
   }
 });
 
+test("qld official parser maps upstream 503 to official_unavailable", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method ?? "GET" });
+    if (requests.length === 1) {
+      return new Response(searchFormHtml, { status: 200, headers: { "content-type": "text/html" } });
+    }
+    return new Response("Service Unavailable", { status: 503, headers: { "content-type": "text/plain" } });
+  };
+
+  const compiled = compileOfficialModule();
+  try {
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, false);
+    assert.equal(response.status, "official_unavailable");
+    assert.equal(response.error, "official_result_http_503");
+    assert.ok(response.userMessage.length > 0);
+    assert.equal(response.retryable, true);
+    assert.equal(requests.length, 2, "upstream 503 result should fetch form and result pages once");
+  } finally {
+    compiled.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
 test("qld official parser parses successful registration details", async () => {
   const envSnapshot = {
     REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
