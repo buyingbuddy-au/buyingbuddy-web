@@ -562,3 +562,8 @@ This batch was the strongest of any I've reviewed in terms of risk-promotion: it
 - [DONE] Required parsed QLD official registration details to include a VIN before returning a successful lookup — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 38, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:73-87` + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser requires registration status`; feed a `Registration details` result body with valid `Vehicle Identification Number (VIN)` and `Expiry` labels but no `Status` label through `runQldOfficialRegoCheck()` fetch mock, and assert `ok: false`, `status: "parse_error"` instead of a successful result with unknown registration status.
 
+## 2026-05-11 — Iteration 39 Phase 2
+
+- [DONE] Required parsed QLD official registration details to include registration status before returning a successful lookup — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 39, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:68-87` + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser rejects empty registration status value`; feed a `Status` label with no value immediately before the `Expiry` label, assert `ok: false`, `status: "parse_error"`, then update the parser so `lineAfter()` cannot treat another known label as a field value.
+

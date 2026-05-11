@@ -83,7 +83,7 @@ function parseResult(rego: string, html: string): QldRegoData | null {
     expiry: lineAfter(lines, "Expiry"),
   };
 
-  if (!data.expiry || !data.vin) return null;
+  if (!data.expiry || !data.vin || !data.registrationStatus) return null;
   return data;
 }
 
