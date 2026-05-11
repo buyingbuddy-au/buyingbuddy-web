@@ -65,19 +65,28 @@ function captureMaxPerHour() {
   return Number.isFinite(value) && value >= 0 ? value : 6;
 }
 
+function pruneExpiredCaptureHits(cutoff: number) {
+  for (const [key, hits] of captureHourlyHitsByEmail) {
+    while (hits.length && hits[0] < cutoff) hits.shift();
+    if (hits.length === 0) {
+      captureHourlyHitsByEmail.delete(key);
+    }
+  }
+}
+
 function registerCaptureHit(email: string) {
   const key = email.toLowerCase();
+  const now = Date.now();
+  const cutoff = now - CAPTURE_RATE_LIMIT_WINDOW_MS;
+  pruneExpiredCaptureHits(cutoff);
   const hits = captureHourlyHitsByEmail.get(key) ?? [];
-  const cutoff = Date.now() - CAPTURE_RATE_LIMIT_WINDOW_MS;
-
-  while (hits.length && hits[0] < cutoff) hits.shift();
 
   if (hits.length >= captureMaxPerHour()) {
     captureHourlyHitsByEmail.set(key, hits);
     return false;
   }
 
-  hits.push(Date.now());
+  hits.push(now);
   captureHourlyHitsByEmail.set(key, hits);
   return true;
 }

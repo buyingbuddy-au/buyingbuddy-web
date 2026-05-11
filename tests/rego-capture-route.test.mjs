@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import Module, { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -56,6 +56,10 @@ function compileRegoCaptureRoute(options = {}) {
     const normalisePath = join(outDir, "src", "lib", "qld-rego", "normalise.js");
     assert.ok(existsSync(routePath), `Compiled route.js not found at ${routePath}`);
     assert.ok(existsSync(normalisePath), `Compiled normalise.js not found at ${normalisePath}`);
+    writeFileSync(
+      routePath,
+      `${readFileSync(routePath, "utf8")}\nexports.__getCaptureLimiterKeyCount = () => captureHourlyHitsByEmail.size;\n`,
+    );
 
     const originalLoad = Module._load;
     const nextServer = require("next/server");
@@ -105,6 +109,7 @@ function compileRegoCaptureRoute(options = {}) {
       return {
         route,
         getEmailSends: () => emailSends,
+        getCaptureLimiterKeyCount: () => route.__getCaptureLimiterKeyCount(),
         cleanup: () => {
           Module._load = originalLoad;
           rmSync(outDir, { force: true, recursive: true });
@@ -359,6 +364,57 @@ test("rego capture limit is per email", async () => {
     assert.deepEqual(otherBuyerPayload, { ok: true });
     assert.equal(compiled.getEmailSends().length, 14, "buyer-b capture should still send both emails");
   } finally {
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
+    }
+    if (originalMaxPerHour === undefined) {
+      delete process.env.REGO_CAPTURE_MAX_PER_HOUR;
+    } else {
+      process.env.REGO_CAPTURE_MAX_PER_HOUR = originalMaxPerHour;
+    }
+    compiled.cleanup();
+  }
+});
+
+test("rego capture limiter drops expired email keys", async () => {
+  const compiled = compileRegoCaptureRoute();
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalMaxPerHour = process.env.REGO_CAPTURE_MAX_PER_HOUR;
+  const originalDateNow = Date.now;
+  const baseNow = Date.parse("2026-05-11T00:00:00.000Z");
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  process.env.REGO_CAPTURE_MAX_PER_HOUR = "6";
+  Date.now = () => baseNow;
+
+  try {
+    const staleResponse = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "stale@example.com", reason: "manual follow-up" }),
+    );
+    const stalePayload = await staleResponse.json();
+
+    assert.equal(staleResponse.status, 200);
+    assert.deepEqual(stalePayload, { ok: true });
+    assert.equal(compiled.getCaptureLimiterKeyCount(), 1, "first capture should create one limiter email key");
+
+    Date.now = () => baseNow + 60 * 60 * 1000 + 1;
+
+    const freshResponse = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "fresh@example.com", reason: "manual follow-up" }),
+    );
+    const freshPayload = await freshResponse.json();
+
+    assert.equal(freshResponse.status, 200);
+    assert.deepEqual(freshPayload, { ok: true });
+    assert.equal(
+      compiled.getCaptureLimiterKeyCount(),
+      1,
+      "expired stale email key should be pruned before the fresh hit is stored",
+    );
+    assert.equal(compiled.getEmailSends().length, 4, "two successful captures should send buyer and notification emails");
+  } finally {
+    Date.now = originalDateNow;
     if (originalApiKey === undefined) {
       delete process.env.RESEND_API_KEY;
     } else {

@@ -485,3 +485,8 @@ This batch closed two big Claude-flagged risks (notification-first ordering, per
 - [DONE] Logged a tagged `/api/rego/capture` partial-success warning when the internal notification email succeeds but the buyer follow-up email fails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 32, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:68-82` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture limiter drops expired email keys`; stub `Date.now()` to create an expired per-email limiter bucket, assert stale email keys are pruned before adding the new hit, then update `registerCaptureHit()` so `captureHourlyHitsByEmail` is bounded to active-window keys.
 
+## 2026-05-11 — Iteration 33 Phase 2
+
+- [DONE] Pruned expired `/api/rego/capture` per-email limiter buckets before registering fresh capture hits — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 33, 2026-05-11)
+- [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check parse-error response returns 502`; mock `runQldOfficialRegoCheck()` to return `status: "parse_error"` and assert HTTP 502 plus one lookup call so `STATUS_TO_HTTP.parse_error` is covered.
+
