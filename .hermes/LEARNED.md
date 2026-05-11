@@ -772,3 +772,9 @@ Two more quality signals: (a) "`node scripts/rego-api-smoke.mjs` — Not run" is
 **The eight-file tsc-compile clone is now a stop-the-loop item.** Three reviews flagged it as "do this awake-Jordan before iter N." The loop has added a copy each time. One more iter that imports the harness pattern locks it in for another awake-Jordan window. Extract before iter 51.
 
 Two strong iters out of five is a worse ratio than the last two batches. The loop's discipline on test quality, evidence files, mutation-RED, and gate progression is unchanged — those mechanics are excellent. What has slipped is **target selection**: the loop is choosing adjacent cheap picks over the named, harder, higher-risk targets that two reviews in a row have flagged. Fix iter 42, write the first PPSR test, and the loop earns its next batch. Keep writing moat-tests around the funnel and the next review will be a third naming of the same problem.
+
+## 2026-05-11 — Iteration 51 Phase 3
+
+- [DONE] Added the first Stage 7 PPSR process route-handler guard for invalid `customerEmail` type failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 51, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects blank orderId before report side effects`; post valid `rawPPSRText`/`customerEmail` with `orderId: "   "`, assert HTTP 400, `error: "orderId must be a non-empty string when provided."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
+- [AVOID] Iter 51 PPSR route harness: direct `tsc` CommonJS compile of `src/app/api/ppsr/process/route.ts` pulls `src/lib/pdfkit-compat.ts` and fails on `import.meta`; use `typescript.transpileModule()` plus `Module._load` mocks for this route until the shared test compile harness exists.

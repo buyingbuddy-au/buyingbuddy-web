@@ -1,0 +1,191 @@
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import Module, { createRequire } from "node:module";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+const require = createRequire(import.meta.url);
+const ts = require("typescript");
+
+const SAMPLE_PPSR_DATA = {
+  vin: "6FPAAAJGSW6A12345",
+  rego: "123ABC",
+  make: "Toyota",
+  model: "Hilux",
+  year: 2021,
+  finance_owing: false,
+  finance_details: null,
+  stolen: false,
+  stolen_details: null,
+  writeoff: false,
+  writeoff_details: null,
+  registration_status: "Current",
+  registration_expiry: "01/02/2027",
+  verdict: "CLEAR",
+  summary: "No finance, stolen, or write-off flags found in the sample report.",
+  what_this_means: "The sample PPSR data is clear for this regression test.",
+  what_to_do_next: "Keep checking paperwork before money changes hands.",
+  extracted_at: "2026-05-11T07:40:00.000Z",
+  source: "fallback",
+};
+
+function compilePpsrProcessRoute(options = {}) {
+  const outDir = mkdtempSync(join(tmpdir(), "buyingbuddy-ppsr-process-route-"));
+  const routeSourcePath = join(process.cwd(), "src/app/api/ppsr/process/route.ts");
+  const routePath = join(outDir, "route.js");
+  const calls = {
+    extractPpsrData: [],
+    generatePpsrPdf: [],
+    getOrderById: [],
+    updateOrder: [],
+    resendConstructors: [],
+    resendEmails: [],
+  };
+
+  const transpiledRoute = ts.transpileModule(readFileSync(routeSourcePath, "utf8"), {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.CommonJS,
+      esModuleInterop: true,
+    },
+    fileName: routeSourcePath,
+  });
+
+  writeFileSync(routePath, transpiledRoute.outputText);
+
+  try {
+    const originalLoad = Module._load;
+    const nextServer = require("next/server");
+
+    class FakeResend {
+      constructor(apiKey) {
+        calls.resendConstructors.push(apiKey);
+        this.emails = {
+          send: async (input) => {
+            calls.resendEmails.push(input);
+            return { data: { id: "email_test_ppsr_process" }, error: null };
+          },
+        };
+      }
+    }
+
+    Module._load = function loadPpsrProcessDependency(request, parent, isMain) {
+      if (request === "next/server") {
+        return nextServer;
+      }
+
+      if (request === "resend") {
+        return { Resend: FakeResend };
+      }
+
+      if (request === "@/lib/admin-auth") {
+        return {
+          is_admin_request: options.isAdminRequest ?? (() => true),
+        };
+      }
+
+      if (request === "@/lib/db") {
+        return {
+          get_order_by_id: async (orderId) => {
+            calls.getOrderById.push(orderId);
+            return options.order ?? null;
+          },
+          to_sqlite_datetime: () => "2026-05-11 07:40:00",
+          update_order: async (orderId, patch) => {
+            calls.updateOrder.push({ orderId, patch });
+            return { ...options.order, id: orderId, ...patch };
+          },
+        };
+      }
+
+      if (request === "@/lib/ppsr-report-generator") {
+        return {
+          extract_ppsr_data: async (rawPpsrText) => {
+            calls.extractPpsrData.push(rawPpsrText);
+            return options.ppsrData ?? SAMPLE_PPSR_DATA;
+          },
+        };
+      }
+
+      if (request === "@/lib/ppsr-pdf") {
+        return {
+          generate_ppsr_pdf: async (data, filename) => {
+            calls.generatePpsrPdf.push({ data, filename });
+            return {
+              buffer: Buffer.from("%PDF-1.4\n% PPSR process route test\n"),
+              filename,
+            };
+          },
+        };
+      }
+
+      return originalLoad.call(this, request, parent, isMain);
+    };
+
+    try {
+      const route = require(routePath);
+      return {
+        route,
+        calls,
+        cleanup: () => {
+          Module._load = originalLoad;
+          rmSync(outDir, { force: true, recursive: true });
+        },
+      };
+    } catch (error) {
+      Module._load = originalLoad;
+      throw error;
+    }
+  } catch (error) {
+    rmSync(outDir, { force: true, recursive: true });
+    throw error;
+  }
+}
+
+function makePpsrProcessRequest(body) {
+  return new Request("http://localhost/api/ppsr/process", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "content-type": "application/json",
+      "x-admin-password": "test-admin-password",
+    },
+  });
+}
+
+test("PPSR process route rejects non-string customerEmail before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: 123,
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "customerEmail must be a string when provided." });
+    assert.equal(processErrors.length, 1, "expected the route to log the rejected request once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, [], "invalid customerEmail must fail before order lookup");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "invalid customerEmail must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "invalid customerEmail must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "invalid customerEmail must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "invalid customerEmail must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
