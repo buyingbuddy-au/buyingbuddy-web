@@ -799,3 +799,49 @@ Two strong iters out of five is a worse ratio than the last two batches. The loo
 
 - [DONE] Added Stage 7 PPSR process route-handler guard for missing `rawPPSRText` failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 55, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects blank rawPPSRText before report side effects`; post `customerEmail: "buyer@example.com"` with `rawPPSRText: "   "`, assert HTTP 400, `error: "rawPPSRText is required."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
+
+## CLAUDE REVIEW 2026-05-11T19:30:00+10:00
+
+Scope: iters 51–55 (commits 333c656 → b659970), all on `tests/ppsr-process-route.test.mjs`, all input-validation guards on the PPSR process route.
+
+### 1. Drift check — on the named branch scope, but stalled at the boundary
+- Branch is `hardening/rego-ppsr-funnel`. Iter 51 made the right pivot (rego moat → first PPSR test). **That part is correct.**
+- Iters 52–55 then **stayed at the boundary** — every iter is another "rejects X before report side effects" against `parse_request_payload`. The route has 8 throw sites; the loop has covered 5 of them (`rawPPSRText required`, `orderId non-empty`, `customerEmail required without orderId`, `customerEmail must be string`, `customerEmail valid email`). The three untouched throws are arguably **higher-value** (404 missing-order, email/order mismatch, Resend 502) and currently zero behaviour past validation is locked.
+- Iter 51's own evidence file said "iters 46–50 wrote a moat around the funnel; this NEXT writes the first test inside the funnel." Iters 52–55 effectively wrote a **moat around the moat**. The loop has not yet entered the funnel.
+- Iter 55's [NEXT] is "rejects blank rawPPSRText" — that's a tighter variant of iter 55's own assertion (`rawPPSRText.trim()` then `if (!raw_ppsr_text)`). It is the same code path. **The loop is now repeating itself.** Stop.
+
+### 2. Quality check — evidence still specific, but template fatigue is severe
+- Evidence files iter-52 through iter-55 are near byte-identical: same harness, same mutation-RED proof pattern, same gate list, same time-taken format. Iter 51 was the substantive pivot; iters 52–55 are micro-variations of one another. Diffing iter-52 and iter-55 gives you four field-name swaps and nothing else.
+- Iter 54 evidence honestly flagged "discarded out-of-scope/less-specific target-selection false starts" — **the only signal the loop knows it is running out of in-scope cheap targets.** That self-awareness was real; the corrective response (more of the same) was not.
+- [NEXT] hints written by the loop are now hyper-prescriptive (assertion strings verbatim, exact zero-call list). That's great for execution determinism but means the loop is no longer **picking** targets — it is queueing a sibling test. The `[AVOID] Iter 54 LEARNED pagination` note is a good catch about reading the tail before target selection.
+- `npm test` AVOID at LEARNED.md:149 still being ignored: iters 51, 52, 53, 54, 55 evidence files **all** show `npm test (59/60/61/62/63 tests)` runs after focused changes. **Five more violations of the same corrective memory the prior review flagged.** The loop is not consuming its own AVOIDs.
+
+### 3. Code check — same `Module._load` harness duplication, plus per-test transpile cost (NOTE only)
+- `tests/ppsr-process-route.test.mjs` is the **6th** file using the bespoke tsc-transpile → tmpdir → `Module._load` harness (after `qld-rego-parser.test.mjs`, `qld-rego-check-route.test.mjs`, `rego-capture-route.test.mjs`, et al.). The prior review tracked this as 3→4→5; it is now 6. This belongs to awake-Jordan. Note only.
+- Worse than the duplication: `compilePpsrProcessRoute()` is invoked **per test**, not per file. With 5 tests now in the file, every `npm test` pays for 5 full TypeScript transpiles of `route.ts`. Same risk previously flagged for `compileOfficialModule()` — now repeated for PPSR. Note only.
+- The tests couple themselves to the **internal log prefix** `[PPSR] Process error:` via `assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/)` — that ties contract tests to a `console.error` string. Brittle. If anyone reformats the log line, 5 tests break despite no behavioural change.
+
+### 4. Test check — these are SHAPE tests, not BEHAVIOUR tests
+- Every iter-51-to-55 test asserts: HTTP 400 + exact error string + five `assert.deepEqual(calls.X, [])`. That locks **the rejection envelope**, not the funnel.
+- The route's success branch — `extract_ppsr_data` → `generate_ppsr_pdf` → `update_order` (twice) → `send_ppsr_report_email` → Telegram → final `update_order` — is **completely untested**. The "before report side effects" naming is aspirational: nothing in the suite proves what side effects look like when the route reaches them, or in what order they run.
+- The actual side-effect ordering invariants in production (mutate order **before** email; second order mutation **only after** successful email; Telegram failure is non-fatal) are entirely unprotected. A regression that swapped the two `update_order` calls would pass `npm test`.
+
+### 5. Risk check — two NEW production smells the suite cannot catch
+- **(NEW, medium) Partial-failure leaves order half-marked.** `route.ts:326–331` writes `ppsr_result`/`ppsr_checked_at`/`report_pdf_path` to the order **before** `send_ppsr_report_email` runs at 334. If Resend throws (502 branch at line 228–235), the order row now shows "PPSR checked, report path set" with no `report_sent_at` and no email out. No compensating delete. A retry will re-extract and overwrite `ppsr_checked_at` again — eventually succeed — but the half-written state is observable and could mislead admin UI. None of the iter 51–55 tests touch this.
+- **(NEW, medium) `order.customer_email.toLowerCase()` at route.ts:307 assumes non-null.** If DB ever returns an order with `customer_email = null` (older rows, manual inserts, refunded orders), the route crashes with TypeError inside the try/catch and returns a generic 500. The validation tests never exercised the order-present branch, so this could ship undetected.
+- **(NEW, low) `build_report_filename` collision risk.** `manual-${Date.now()}_${Date.now()}.pdf` — two `Date.now()` calls within microseconds usually return the same value, so the suffix and infix are identical. Cosmetic only.
+- **(NEW, low) Hardcoded `TELEGRAM_CHAT_ID` fallback `"1296786949"`.** If env is unset in prod, notifications still send — to whoever owns chat 1296786949 (presumably Jordan personally). Document or make required. Note only.
+- **(carryover, do NOT loop) `Module._load` harness duplication is now 6 files.** Awake-Jordan.
+- **(carryover, do NOT loop) Per-test transpile cost.** Awake-Jordan.
+
+### 6. Top 3 NEW [NEXT] hints — higher leverage than iter 55's "blank rawPPSRText" repeat
+
+These are deliberately inside `tests/ppsr-process-route.test.mjs` (same file, same harness, same speed) but move from boundary-rejection coverage to **branch coverage of the throws past validation** and **side-effect ordering on the success branch**. Each one tests a distinct code path the suite currently does not cover.
+
+1. **(highest leverage)** `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route does not mutate order when extraction fails`. Provide a valid request with `orderId: "order_ok"` + matching `customerEmail`, mock `options.order` returning `{ id: "order_ok", customer_email: "buyer@example.com", product: "ppsr", status: "pending" }`, mock `extract_ppsr_data` to throw `new Error("upstream parse failure")`, assert HTTP 500, `error` includes `"upstream parse failure"`, **`updateOrder` called zero times**, `generatePpsrPdf` called zero times, `resendEmails` called zero times. This locks the side-effect-ordering invariant the suite's test names keep claiming — but on the success path, where it actually matters in prod. (This is the real Stage 7 work iter 51 promised.)
+
+2. `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route returns 404 when orderId is provided but order is missing`. Post valid `rawPPSRText` + `orderId: "order_missing"` (no `customerEmail`), leave `options.order` at its default `null`, assert HTTP 404, `error: "Order not found."`, and zero `extractPpsrData`/`generatePpsrPdf`/`updateOrder`/`resendEmails` calls. Covers the first untouched throw branch (`route.ts:303–305`) in one cheap test.
+
+3. `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects mismatched order and customerEmail before report side effects`. Provide `orderId: "order_x"` + `customerEmail: "different@example.com"` with `options.order` returning `{ id: "order_x", customer_email: "buyer@example.com", product: "ppsr", status: "pending" }`. Assert HTTP 400, `error: "customerEmail does not match the selected order."`, and zero `extractPpsrData`/`generatePpsrPdf`/`updateOrder`/`resendEmails` calls. This is the actual **anti-abuse guard** in the route (caller bringing their own order ID + their own delivery email). Currently untested. Far higher leverage than iter 55's "blank rawPPSRText" sibling.
+
+After these three, the input-validation surface is genuinely saturated and the loop will need to either (a) finally enter the success branch with a happy-path fixture test, or (b) pivot to the medium production smells in §5. Do not let the loop write another "rejects missing field N+1" — there isn't one worth writing.
