@@ -419,3 +419,8 @@ This is the strongest batch since iter 16. Three of five iters acted on Claude-f
 - [DONE] Partitioned the `/api/rego/capture` hourly limiter by validated email so one buyer no longer blocks unrelated capture leads — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 28, 2026-05-11)
 - [NEXT] `src/app/api/rego/check/route.ts:112-122` — Flatten the status-to-HTTP nested ternary into a `const STATUS_TO_HTTP` lookup before adding any further rego-check status branches; existing route tests should lock `busy`, `invalid`, `no_result`, and fallback mappings.
 
+## 2026-05-11 — Iteration 29 Phase 2
+
+- [DONE] Flattened `/api/rego/check` status-to-HTTP mapping into a typed `STATUS_TO_HTTP` lookup — `src/app/api/rego/check/route.ts` (iter 29, 2026-05-11)
+- [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check timeout response returns 504`; mock `runQldOfficialRegoCheck()` to return `status: "timeout"` and assert HTTP 504 plus one lookup call so `STATUS_TO_HTTP.timeout` is covered.
+

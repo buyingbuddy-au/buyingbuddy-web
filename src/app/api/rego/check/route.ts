@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { runQldOfficialRegoCheck } from "@/lib/qld-rego/official";
 import { validateQldRego } from "@/lib/qld-rego/normalise";
+import type { QldRegoCheckFailure } from "@/lib/qld-rego/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const STATUS_TO_HTTP = {
+  input_error: 400,
+  not_qld: 400,
+  no_result: 404,
+  busy: 429,
+  timeout: 504,
+  official_unavailable: 502,
+  parse_error: 502,
+  blocked: 502,
+  error: 502,
+} satisfies Record<QldRegoCheckFailure["status"], number>;
 
 type RegoCheckRequest = {
   rego: string;
@@ -109,17 +122,7 @@ export async function POST(request: Request) {
     }
 
     const result = await runQldOfficialRegoCheck(validation.rego);
-    const statusCode = result.ok
-      ? 200
-      : result.status === "input_error" || result.status === "not_qld"
-        ? 400
-        : result.status === "no_result"
-          ? 404
-          : result.status === "busy"
-            ? 429
-            : result.status === "timeout"
-              ? 504
-              : 502;
+    const statusCode = result.ok ? 200 : STATUS_TO_HTTP[result.status];
 
     const headers = !result.ok && result.status === "busy" && result.rateLimitScope
       ? { "x-rego-rate-limit-scope": result.rateLimitScope }
