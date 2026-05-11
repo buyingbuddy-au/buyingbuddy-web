@@ -567,3 +567,8 @@ This batch was the strongest of any I've reviewed in terms of risk-promotion: it
 - [DONE] Required parsed QLD official registration details to include registration status before returning a successful lookup — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 39, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:68-87` + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser rejects empty registration status value`; feed a `Status` label with no value immediately before the `Expiry` label, assert `ok: false`, `status: "parse_error"`, then update the parser so `lineAfter()` cannot treat another known label as a field value.
 
+## 2026-05-11 — Iteration 40 Phase 2
+
+- [DONE] Prevented the QLD official parser from treating another known result label as an empty field's value — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 40, 2026-05-11)
+- [NEXT] `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser parses successful registration details`; feed a complete `Registration details` body and assert `ok: true`, `status: "success"`, `source: "qld-transport-check-rego"`, plus `data.vin`, `data.expiry`, and `data.registrationStatus` so the label-value guard does not regress the happy path.
+

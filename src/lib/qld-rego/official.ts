@@ -65,9 +65,17 @@ function inputValue(html: string, name: string) {
   return htmlDecode(pattern.exec(html)?.[1] ?? "");
 }
 
+const RESULT_LABELS = new Set(
+  ["Registration number", "Vehicle Identification Number (VIN)", "Description", "Purpose of use", "Status", "Expiry"].map((label) =>
+    label.toLowerCase(),
+  ),
+);
+
 function lineAfter(lines: string[], label: string) {
   const idx = lines.findIndex((line) => line.toLowerCase() === label.toLowerCase());
-  return idx >= 0 ? lines[idx + 1] : undefined;
+  const value = idx >= 0 ? lines[idx + 1] : undefined;
+  if (!value || RESULT_LABELS.has(value.toLowerCase())) return undefined;
+  return value;
 }
 
 function parseResult(rego: string, html: string): QldRegoData | null {

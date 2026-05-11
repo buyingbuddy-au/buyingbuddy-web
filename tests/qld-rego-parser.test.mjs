@@ -139,6 +139,29 @@ const registrationDetailsWithoutStatusHtml = `
   </html>
 `;
 
+const registrationDetailsWithEmptyStatusHtml = `
+  <html>
+    <body>
+      <main>
+        <h1>Registration details</h1>
+        <dl>
+          <dt>Registration number</dt>
+          <dd>123ABC</dd>
+          <dt>Vehicle Identification Number (VIN)</dt>
+          <dd>JTMHU09J604123456</dd>
+          <dt>Description</dt>
+          <dd>2020 TOYOTA HILUX</dd>
+          <dt>Purpose of use</dt>
+          <dd>PRIVATE</dd>
+          <dt>Status</dt>
+          <dt>Expiry</dt>
+          <dd>14/01/2027</dd>
+        </dl>
+      </main>
+    </body>
+  </html>
+`;
+
 test("qld official parser requires registration expiry", async () => {
   const envSnapshot = {
     REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
@@ -234,6 +257,40 @@ test("qld official parser requires registration status", async () => {
     assert.equal(response.error, "result_parse_failed");
     assert.equal(response.retryable, true);
     assert.equal(requests.length, 2, "missing-status result should fetch form and result pages once");
+  } finally {
+    compiled.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
+test("qld official parser rejects empty registration status value", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method ?? "GET" });
+    const html = requests.length === 1 ? searchFormHtml : registrationDetailsWithEmptyStatusHtml;
+    return new Response(html, { status: 200, headers: { "content-type": "text/html" } });
+  };
+
+  const compiled = compileOfficialModule();
+  try {
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, false);
+    assert.equal(response.status, "parse_error");
+    assert.equal(response.error, "result_parse_failed");
+    assert.equal(response.retryable, true);
+    assert.equal(requests.length, 2, "empty-status result should fetch form and result pages once");
   } finally {
     compiled.cleanup();
     globalThis.fetch = originalFetch;
