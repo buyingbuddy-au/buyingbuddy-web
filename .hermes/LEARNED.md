@@ -709,3 +709,8 @@ The one real bug-shaped risk introduced this batch is iter 42's "all non-2xx is 
 - [NEXT] `tests/sitemap-completeness.test.mjs` — Add Stage 7 sitemap completeness test that imports or reads `src/app/sitemap.ts` and asserts launch routes `/`, `/check`, `/rego-check`, `/ppsr`, `/inspect`, `/inspect/full`, `/inspect/print`, `/contract-pack`, `/deal`, `/free-kit`, `/pricing`, and `/contact` appear exactly once while legacy `/buddy`, `/ppi`, and `/car-buyers-agent-pullenvale` are absent.
 - [AVOID] Iter 48 mutation fixture: do not name temporary scanner fixtures with `secret`; `tests/no-live-stripe-keys.test.mjs` rejects credential-like path names before it reaches key-prefix assertions.
 
+## 2026-05-11 — Iteration 49 Phase 3
+
+- [DONE] Added a Stage 7 checkout route-handler whitelist guard rejecting unknown product slugs before mocked Stripe checkout-session creation — `tests/checkout-whitelist.test.mjs` (iter 49, 2026-05-11)
+- [NEXT] `tests/checkout-whitelist.test.mjs` — Add test named `checkout API allows launch paid product slugs`; post valid `ppsr` and `deal_room` requests, assert HTTP 200, and assert the mocked checkout-session calls carry exactly `ppsr` and `deal_room` products.
+
