@@ -495,3 +495,8 @@ This batch closed two big Claude-flagged risks (notification-first ordering, per
 - [DONE] Added `/api/rego/check` parse-error route regression coverage for `STATUS_TO_HTTP.parse_error -> 502` — `tests/rego-check-route.test.mjs` (iter 34, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/education.ts:81-90` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego stops expired current registrations`; stub `Date.now()` after an expired `expiry` date, pass a `registrationStatus: "CURRENT"` fixture, and assert `classifyQldRego()` returns `"stop"` before any broader education-table coverage.
 
+## 2026-05-11 — Iteration 35 Phase 2
+
+- [DONE] Added expired-current QLD rego classification coverage for `classifyQldRego()` — `tests/qld-rego-education.test.mjs` (iter 35, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/education.ts:92-95` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego watches commercial current registrations`; stub `Date.now()` with an expiry more than 30 days ahead, pass `registrationStatus: "CURRENT"` and `purpose: "COMMERCIAL"`, and assert `classifyQldRego()` returns `"watch"` before broader dealer/conditional education coverage.
+
