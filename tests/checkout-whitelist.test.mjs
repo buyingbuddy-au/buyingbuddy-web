@@ -128,3 +128,34 @@ test("checkout API rejects unknown product slugs before creating a Stripe sessio
     compiled.cleanup();
   }
 });
+
+test("checkout API allows launch paid product slugs", async () => {
+  const compiled = compileCheckoutRoute();
+
+  try {
+    for (const product of ["ppsr", "deal_room"]) {
+      const response = await compiled.route.POST(
+        makeCheckoutRequest({
+          product,
+          email: `${product}@example.com`,
+          customer_name: "Buyer Example",
+          vehicle_identifier: "123ABC",
+        }),
+      );
+      const payload = await response.json();
+
+      assert.equal(response.status, 200, `${product} should create a checkout session`);
+      assert.equal(payload.ok, true);
+      assert.equal(payload.session_id, "cs_test_checkout_whitelist");
+      assert.equal(payload.checkout_url, "https://checkout.stripe.test/session");
+    }
+
+    assert.deepEqual(
+      compiled.getCheckoutSessions().map((session) => session.product),
+      ["ppsr", "deal_room"],
+      "launch paid products should reach checkout session creation in order",
+    );
+  } finally {
+    compiled.cleanup();
+  }
+});

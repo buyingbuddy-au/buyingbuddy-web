@@ -714,3 +714,8 @@ The one real bug-shaped risk introduced this batch is iter 42's "all non-2xx is 
 - [DONE] Added a Stage 7 checkout route-handler whitelist guard rejecting unknown product slugs before mocked Stripe checkout-session creation — `tests/checkout-whitelist.test.mjs` (iter 49, 2026-05-11)
 - [NEXT] `tests/checkout-whitelist.test.mjs` — Add test named `checkout API allows launch paid product slugs`; post valid `ppsr` and `deal_room` requests, assert HTTP 200, and assert the mocked checkout-session calls carry exactly `ppsr` and `deal_room` products.
 
+## 2026-05-11 — Iteration 50 Phase 3
+
+- [DONE] Added a Stage 7 checkout route-handler guard proving launch paid slugs `ppsr` and `deal_room` create mocked checkout sessions — `tests/checkout-whitelist.test.mjs` (iter 50, 2026-05-11)
+- [NEXT] `tests/sitemap-completeness.test.mjs` — Add Stage 7 sitemap completeness test named `sitemap includes launch routes exactly once and excludes legacy routes`; import or read `src/app/sitemap.ts`, assert `/`, `/check`, `/rego-check`, `/ppsr`, `/inspect`, `/inspect/full`, `/inspect/print`, `/contract-pack`, `/deal`, `/free-kit`, `/pricing`, and `/contact` appear exactly once, and assert `/buddy`, `/ppi`, and `/car-buyers-agent-pullenvale` are absent.
+
