@@ -261,3 +261,39 @@ test("PPSR process route rejects missing customerEmail when orderId is absent be
     compiled.cleanup();
   }
 });
+
+test("PPSR process route rejects invalid customerEmail format before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: "not-an-email",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "customerEmail must be a valid email address." });
+    assert.equal(processErrors.length, 1, "expected the route to log the rejected request once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, [], "invalid customerEmail format must fail before order lookup");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "invalid customerEmail format must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "invalid customerEmail format must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "invalid customerEmail format must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "invalid customerEmail format must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
