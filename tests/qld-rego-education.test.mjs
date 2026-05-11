@@ -98,3 +98,23 @@ test("classifyQldRego treats unparseable expiry as stop", () => {
     "stop",
   );
 });
+
+test("classifyQldRego parses zero-padded expiry dates", () => {
+  const { classifyQldRego } = getEducationModule();
+  const originalDateNow = Date.now;
+  Date.now = () => new Date(2027, 0, 15).getTime();
+
+  try {
+    assert.equal(
+      classifyQldRego({
+        rego: "123ABC",
+        purpose: "PRIVATE",
+        registrationStatus: "CURRENT",
+        expiry: "01/02/2027",
+      }),
+      "watch",
+    );
+  } finally {
+    Date.now = originalDateNow;
+  }
+});

@@ -635,3 +635,8 @@ But there are now two structural caps approaching. First, the field-by-field cad
 - [DONE] Mapped empty QLD Transport result-table shells to stable `no_result` failures instead of parser failures — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 43, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/education.ts:75-86` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego parses zero-padded expiry dates`; freeze `Date.now` to 2027-01-15, classify CURRENT/PRIVATE with `expiry: "01/02/2027"`, assert `"watch"` (not `"stop"`), and use a temporary regex mutation RED guard if current code already passes.
 
+## 2026-05-11 — Iteration 44 Phase 2
+
+- [DONE] Added QLD rego classification coverage for zero-padded `dd/mm/yyyy` expiry strings staying in the normal expiry-window flow — `tests/qld-rego-education.test.mjs` (iter 44, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/education.ts:75-78` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego parses text-month expiry dates`; freeze `Date.now` to 2027-01-15, classify CURRENT/PRIVATE with `expiry: "1 Feb 2027"`, assert `"watch"` before extending `parseQldDate()` to accept `d MMM yyyy`.
+
