@@ -210,6 +210,7 @@ export async function POST(request: Request) {
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey && apiKey !== "re_your_resend_api_key_here") {
       const resend = new Resend(apiKey);
+      let notificationSent = false;
       try {
         const reasonHtml = escapeHtml(reason ?? "not supplied");
         const regoHtml = escapeHtml(validation.rego);
@@ -221,6 +222,7 @@ export async function POST(request: Request) {
           subject: `QLD rego fallback lead: ${validation.rego}`,
           html: `<p><strong>Rego:</strong> ${regoHtml}</p><p><strong>Email:</strong> ${emailHtml}</p><p><strong>Reason:</strong> ${reasonHtml}</p>`,
         });
+        notificationSent = true;
 
         await resend.emails.send({
           from: FROM,
@@ -229,6 +231,9 @@ export async function POST(request: Request) {
           html: sellerScriptHtml(validation.rego),
         });
       } catch (error) {
+        if (notificationSent) {
+          console.warn("rego capture buyer send failed after notification succeeded");
+        }
         console.error("rego capture email provider failed", error);
         return providerErrorResponse();
       }

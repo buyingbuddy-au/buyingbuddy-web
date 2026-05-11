@@ -480,3 +480,8 @@ This batch closed two big Claude-flagged risks (notification-first ordering, per
 - [DONE] Added a runtime HTTP 502 fallback for unknown `/api/rego/check` lookup failure statuses — `src/app/api/rego/check/route.ts`, `tests/rego-check-route.test.mjs` (iter 31, 2026-05-11)
 - [NEXT] `src/app/api/rego/capture/route.ts:211-225` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture logs partial success when buyer send fails`; mock the second Resend send to throw, capture `console.warn`, assert exactly one tagged warning before returning the provider-error envelope, then track notification-sent state and warn before `providerErrorResponse()`.
 
+## 2026-05-11 — Iteration 32 Phase 2
+
+- [DONE] Logged a tagged `/api/rego/capture` partial-success warning when the internal notification email succeeds but the buyer follow-up email fails — `src/app/api/rego/capture/route.ts`, `tests/rego-capture-route.test.mjs` (iter 32, 2026-05-11)
+- [NEXT] `src/app/api/rego/capture/route.ts:68-82` + `tests/rego-capture-route.test.mjs` — Add route-handler test named `rego capture limiter drops expired email keys`; stub `Date.now()` to create an expired per-email limiter bucket, assert stale email keys are pruned before adding the new hit, then update `registerCaptureHit()` so `captureHourlyHitsByEmail` is bounded to active-window keys.
+

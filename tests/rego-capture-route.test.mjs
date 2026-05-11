@@ -408,6 +408,42 @@ test("rego capture aborts buyer email when notification send fails", async () =>
   }
 });
 
+test("rego capture logs partial success when buyer send fails", async () => {
+  const compiled = compileRegoCaptureRoute({ throwOnEmailSend: 2, throwMessage: "boom secret/path" });
+  const originalApiKey = process.env.RESEND_API_KEY;
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  const warnCalls = [];
+  process.env.RESEND_API_KEY = "unit-test-api-key";
+  console.error = () => {};
+  console.warn = (...args) => warnCalls.push(args);
+
+  try {
+    const response = await compiled.route.POST(
+      makeRequest({ rego: "123ABC", email: "buyer@example.com", reason: "manual follow-up" }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "provider_error");
+    assert.equal(payload.error, "email_provider_failed");
+    assert.equal(payload.retryable, false);
+    assert.equal(compiled.getEmailSends().length, 1, "notification send should be the only successful email");
+    assert.equal(warnCalls.length, 1, "buyer-send failure after notification success should emit one warning");
+    assert.equal(warnCalls[0][0], "rego capture buyer send failed after notification succeeded");
+  } finally {
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+    if (originalApiKey === undefined) {
+      delete process.env.RESEND_API_KEY;
+    } else {
+      process.env.RESEND_API_KEY = originalApiKey;
+    }
+    compiled.cleanup();
+  }
+});
+
 test("rego capture route catch returns stable error envelope", async () => {
   const compiled = compileRegoCaptureRoute({ throwOnValidateRego: true, validateThrowMessage: "boom secret/path" });
   const originalConsoleError = console.error;
@@ -438,8 +474,10 @@ test("rego capture provider failure returns stable error envelope", async () => 
   const compiled = compileRegoCaptureRoute({ throwOnEmailSend: 2, throwMessage: "boom secret/path" });
   const originalApiKey = process.env.RESEND_API_KEY;
   const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
   process.env.RESEND_API_KEY = "unit-test-api-key";
   console.error = () => {};
+  console.warn = () => {};
 
   try {
     const response = await compiled.route.POST(
@@ -460,6 +498,7 @@ test("rego capture provider failure returns stable error envelope", async () => 
     assert.equal(compiled.getEmailSends().length, 1, "provider failure should stop after the first successful send");
   } finally {
     console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
     if (originalApiKey === undefined) {
       delete process.env.RESEND_API_KEY;
     } else {
