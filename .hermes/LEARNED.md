@@ -783,3 +783,8 @@ Two strong iters out of five is a worse ratio than the last two batches. The loo
 
 - [DONE] Added Stage 7 PPSR process route-handler guard for whitespace-only `orderId` failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 52, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects missing customerEmail when orderId is absent before report side effects`; post valid `rawPPSRText` without `customerEmail` or `orderId`, assert HTTP 400, `error: "customerEmail is required when orderId is not provided."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
+
+## 2026-05-11 — Iteration 53 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route-handler guard for missing `customerEmail` when `orderId` is absent failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 53, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects invalid customerEmail format before report side effects`; post valid `rawPPSRText` with `customerEmail: "not-an-email"` and no `orderId`, assert HTTP 400, `error: "customerEmail must be a valid email address."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
