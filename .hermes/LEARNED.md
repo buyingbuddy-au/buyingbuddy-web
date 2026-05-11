@@ -850,3 +850,8 @@ After these three, the input-validation surface is genuinely saturated and the l
 
 - [DONE] Added Stage 7 PPSR process route guard for extraction failure not mutating orders, generating PDFs, or sending report emails — `tests/ppsr-process-route.test.mjs` (iter 56, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route returns 404 when orderId is provided but order is missing`; post valid `rawPPSRText` plus `orderId: "order_missing"` with no `customerEmail`, leave `options.order` at default `null`, assert HTTP 404, `error: "Order not found."`, and zero `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls. (added by iter 56)
+
+## 2026-05-11 — Iteration 57 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route guard for missing `orderId` records returning 404 before PPSR extraction, PDF generation, order mutation, or report email send — `tests/ppsr-process-route.test.mjs` (iter 57, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects mismatched order and customerEmail before report side effects`; provide `orderId: "order_x"` plus `customerEmail: "different@example.com"` with `options.order` returning `{ id: "order_x", customer_email: "buyer@example.com", product: "ppsr", status: "pending" }`, assert HTTP 400, `error: "customerEmail does not match the selected order."`, and zero `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.

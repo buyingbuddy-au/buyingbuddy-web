@@ -336,6 +336,42 @@ test("PPSR process route rejects missing rawPPSRText before report side effects"
   }
 });
 
+test("PPSR process route returns 404 when orderId is provided but order is missing", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        orderId: "order_missing",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 404);
+    assert.deepEqual(payload, { ok: false, error: "Order not found." });
+    assert.equal(processErrors.length, 1, "expected the route to log the missing order once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_missing"], "provided orderId should be looked up once");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "missing order must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "missing order must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "missing order must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "missing order must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
 test("PPSR process route does not mutate order when extraction fails", async () => {
   const compiled = compilePpsrProcessRoute({
     order: {
