@@ -860,3 +860,8 @@ After these three, the input-validation surface is genuinely saturated and the l
 
 - [DONE] Added Stage 7 PPSR process route guard for mismatched order/customer email returning 400 before PPSR extraction, PDF generation, order mutation, or report email send — `tests/ppsr-process-route.test.mjs` (iter 58, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route success updates order and sends report email in order`; provide valid `rawPPSRText`, `orderId: "order_ok"`, matching `customerEmail`, dummy `RESEND_API_KEY`, and an `options.order` with `product: "ppsr"`; assert HTTP 200, one PDF generation, one Resend email to `buyer@example.com`, first `updateOrder` stores `ppsr_result`/`ppsr_checked_at`/`report_pdf_path`, and second `updateOrder` sets `report_sent_at` plus `status: "complete"`.
+
+## 2026-05-11 — Iteration 59 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route success guard for order checked → report email → order complete sequencing — `tests/ppsr-process-route.test.mjs` (iter 59, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route treats Telegram notification failure as non-fatal after report email`; provide valid `rawPPSRText`, `orderId: "order_ok"`, matching `customerEmail`, dummy `RESEND_API_KEY`, and a `TELEGRAM_BOT_TOKEN`; mock Telegram `fetch` to return HTTP 500, assert HTTP 200, `telegramSent: false`, one Resend email, two `updateOrder` calls including `status: "complete"`, and one `console.warn` tagged `[PPSR] Telegram notification failed:`.

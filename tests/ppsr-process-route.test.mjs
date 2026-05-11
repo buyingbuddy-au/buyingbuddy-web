@@ -41,6 +41,7 @@ function compilePpsrProcessRoute(options = {}) {
     updateOrder: [],
     resendConstructors: [],
     resendEmails: [],
+    events: [],
   };
 
   const transpiledRoute = ts.transpileModule(readFileSync(routeSourcePath, "utf8"), {
@@ -64,6 +65,7 @@ function compilePpsrProcessRoute(options = {}) {
         this.emails = {
           send: async (input) => {
             calls.resendEmails.push(input);
+            calls.events.push({ type: "resendEmail", input });
             return { data: { id: "email_test_ppsr_process" }, error: null };
           },
         };
@@ -94,6 +96,7 @@ function compilePpsrProcessRoute(options = {}) {
           to_sqlite_datetime: () => "2026-05-11 07:40:00",
           update_order: async (orderId, patch) => {
             calls.updateOrder.push({ orderId, patch });
+            calls.events.push({ type: "updateOrder", orderId, patch });
             return { ...options.order, id: orderId, ...patch };
           },
         };
@@ -454,6 +457,114 @@ test("PPSR process route does not mutate order when extraction fails", async () 
     assert.deepEqual(compiled.calls.resendEmails, [], "extraction failure must fail before report email send");
   } finally {
     console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
+test("PPSR process route success updates order and sends report email in order", async () => {
+  const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  const originalFetch = globalThis.fetch;
+  const hadResendApiKey = Object.prototype.hasOwnProperty.call(process.env, "RESEND_API_KEY");
+  const originalResendApiKey = process.env.RESEND_API_KEY;
+  const hadTelegramBotToken = Object.prototype.hasOwnProperty.call(process.env, "TELEGRAM_BOT_TOKEN");
+  const originalTelegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+  const processErrors = [];
+  const processWarnings = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  console.warn = (...args) => {
+    processWarnings.push(args);
+  };
+  globalThis.fetch = async () => {
+    throw new Error("Telegram fetch should not run when TELEGRAM_BOT_TOKEN is absent");
+  };
+  process.env.RESEND_API_KEY = "unit-test-resend-key";
+  delete process.env.TELEGRAM_BOT_TOKEN;
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: rawPpsrText,
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.deepEqual(payload.data, SAMPLE_PPSR_DATA);
+    assert.equal(payload.telegramSent, false);
+    assert.match(payload.reportPath, /^ppsr_order_ok_\d+\.pdf$/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up once");
+    assert.deepEqual(compiled.calls.extractPpsrData, [rawPpsrText]);
+    assert.equal(compiled.calls.generatePpsrPdf.length, 1);
+    assert.deepEqual(compiled.calls.generatePpsrPdf[0].data, SAMPLE_PPSR_DATA);
+    assert.equal(compiled.calls.generatePpsrPdf[0].filename, payload.reportPath);
+    assert.deepEqual(
+      compiled.calls.events.map((event) => event.type),
+      ["updateOrder", "resendEmail", "updateOrder"],
+      "order should be marked checked before email and marked complete after email",
+    );
+
+    assert.equal(compiled.calls.updateOrder.length, 2);
+    assert.deepEqual(compiled.calls.updateOrder[0], {
+      orderId: "order_ok",
+      patch: {
+        ppsr_result: SAMPLE_PPSR_DATA,
+        ppsr_checked_at: "2026-05-11 07:40:00",
+        report_pdf_path: payload.reportPath,
+      },
+    });
+    assert.deepEqual(compiled.calls.updateOrder[1], {
+      orderId: "order_ok",
+      patch: {
+        report_sent_at: "2026-05-11 07:40:00",
+        status: "complete",
+      },
+    });
+
+    assert.deepEqual(compiled.calls.resendConstructors, ["unit-test-resend-key"]);
+    assert.equal(compiled.calls.resendEmails.length, 1);
+    assert.equal(compiled.calls.resendEmails[0].to, "buyer@example.com");
+    assert.equal(compiled.calls.resendEmails[0].subject, "Your PPSR Report - Verdict: CLEAR");
+    assert.match(compiled.calls.resendEmails[0].html, /Your PPSR report has been generated/);
+    assert.deepEqual(compiled.calls.resendEmails[0].attachments, [
+      {
+        content: Buffer.from("%PDF-1.4\n% PPSR process route test\n"),
+        filename: payload.reportPath,
+        contentType: "application/pdf",
+      },
+    ]);
+    assert.deepEqual(processErrors, [], "success path should not log process errors");
+    assert.equal(processWarnings.length, 1, "telegram skip should be the only success-path warning");
+    assert.match(String(processWarnings[0][0]), /\[PPSR\] TELEGRAM_BOT_TOKEN missing/);
+  } finally {
+    if (hadResendApiKey) {
+      process.env.RESEND_API_KEY = originalResendApiKey;
+    } else {
+      delete process.env.RESEND_API_KEY;
+    }
+    if (hadTelegramBotToken) {
+      process.env.TELEGRAM_BOT_TOKEN = originalTelegramBotToken;
+    } else {
+      delete process.env.TELEGRAM_BOT_TOKEN;
+    }
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
     globalThis.fetch = originalFetch;
     compiled.cleanup();
   }
