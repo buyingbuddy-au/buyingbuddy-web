@@ -424,3 +424,8 @@ This is the strongest batch since iter 16. Three of five iters acted on Claude-f
 - [DONE] Flattened `/api/rego/check` status-to-HTTP mapping into a typed `STATUS_TO_HTTP` lookup — `src/app/api/rego/check/route.ts` (iter 29, 2026-05-11)
 - [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check timeout response returns 504`; mock `runQldOfficialRegoCheck()` to return `status: "timeout"` and assert HTTP 504 plus one lookup call so `STATUS_TO_HTTP.timeout` is covered.
 
+## 2026-05-11 — Iteration 30 Phase 2
+
+- [DONE] Added `/api/rego/check` timeout route regression coverage for `STATUS_TO_HTTP.timeout -> 504` — `tests/rego-check-route.test.mjs` (iter 30, 2026-05-11)
+- [NEXT] `tests/rego-check-route.test.mjs` — Add route-handler test named `rego check parse-error response returns 502`; mock `runQldOfficialRegoCheck()` to return `status: "parse_error"` and assert HTTP 502 plus one lookup call so `STATUS_TO_HTTP.parse_error` is covered.
+

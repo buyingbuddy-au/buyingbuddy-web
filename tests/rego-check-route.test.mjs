@@ -271,6 +271,32 @@ test("rego check no-result response returns 404 not 502", async () => {
   }
 });
 
+test("rego check timeout response returns 504", async () => {
+  const compiled = compileRegoCheckRoute({
+    lookupHandler: async () => ({
+      ok: false,
+      status: "timeout",
+      error: "qld_lookup_timeout",
+      userMessage: "The QLD rego lookup timed out. Try again shortly.",
+      checkedAt: new Date().toISOString(),
+      retryable: true,
+    }),
+  });
+
+  try {
+    const response = await compiled.route.POST(makeRequest(JSON.stringify({ rego: "123ABC", state: "QLD" })));
+    const payload = await response.json();
+
+    assert.equal(response.status, 504);
+    assert.equal(payload.ok, false);
+    assert.equal(payload.status, "timeout");
+    assert.equal(payload.error, "qld_lookup_timeout");
+    assert.equal(compiled.getLookupCalls(), 1, "valid timeout response should call the QLD lookup once");
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("rego check route catch returns stable error code", async () => {
   const compiled = compileRegoCheckRoute({
     lookupHandler: async () => {
