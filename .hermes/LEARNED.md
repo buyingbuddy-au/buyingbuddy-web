@@ -640,3 +640,8 @@ But there are now two structural caps approaching. First, the field-by-field cad
 - [DONE] Added QLD rego classification coverage for zero-padded `dd/mm/yyyy` expiry strings staying in the normal expiry-window flow — `tests/qld-rego-education.test.mjs` (iter 44, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/education.ts:75-78` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego parses text-month expiry dates`; freeze `Date.now` to 2027-01-15, classify CURRENT/PRIVATE with `expiry: "1 Feb 2027"`, assert `"watch"` before extending `parseQldDate()` to accept `d MMM yyyy`.
 
+## 2026-05-11 — Iteration 45 Phase 2
+
+- [DONE] Added QLD rego classification support for `d MMM yyyy` text-month expiry strings staying in the normal expiry-window flow — `src/lib/qld-rego/education.ts`, `tests/qld-rego-education.test.mjs` (iter 45, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/education.ts:75-104` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego parses full text-month expiry dates`; freeze `Date.now` to 2027-01-15, classify CURRENT/PRIVATE with `expiry: "1 February 2027"`, assert `"watch"`, then extend `parseQldDate()` to accept full month names without changing invalid-month `stop` behaviour.
+

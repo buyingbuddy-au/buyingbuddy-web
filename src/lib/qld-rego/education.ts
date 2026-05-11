@@ -72,10 +72,34 @@ export function getPurposeEducation(purpose?: string): QldRegoEducation {
   return DEFAULT;
 }
 
+const TEXT_MONTH_INDEX: Record<string, number> = {
+  jan: 0,
+  feb: 1,
+  mar: 2,
+  apr: 3,
+  may: 4,
+  jun: 5,
+  jul: 6,
+  aug: 7,
+  sep: 8,
+  oct: 9,
+  nov: 10,
+  dec: 11,
+};
+
 function parseQldDate(input?: string) {
-  const match = input?.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (!match) return null;
-  return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+  const slashMatch = input?.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) {
+    return new Date(Number(slashMatch[3]), Number(slashMatch[2]) - 1, Number(slashMatch[1]));
+  }
+
+  const textMonthMatch = input?.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (!textMonthMatch) return null;
+
+  const monthIndex = TEXT_MONTH_INDEX[textMonthMatch[2].toLowerCase()];
+  if (monthIndex === undefined) return null;
+
+  return new Date(Number(textMonthMatch[3]), monthIndex, Number(textMonthMatch[1]));
 }
 
 export function classifyQldRego(data: QldRegoData): QldRegoClassification {
