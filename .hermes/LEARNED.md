@@ -778,3 +778,8 @@ Two strong iters out of five is a worse ratio than the last two batches. The loo
 - [DONE] Added the first Stage 7 PPSR process route-handler guard for invalid `customerEmail` type failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 51, 2026-05-11)
 - [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects blank orderId before report side effects`; post valid `rawPPSRText`/`customerEmail` with `orderId: "   "`, assert HTTP 400, `error: "orderId must be a non-empty string when provided."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.
 - [AVOID] Iter 51 PPSR route harness: direct `tsc` CommonJS compile of `src/app/api/ppsr/process/route.ts` pulls `src/lib/pdfkit-compat.ts` and fails on `import.meta`; use `typescript.transpileModule()` plus `Module._load` mocks for this route until the shared test compile harness exists.
+
+## 2026-05-11 — Iteration 52 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route-handler guard for whitespace-only `orderId` failing before order lookup, PPSR extraction, PDF generation, order update, or report email send — `tests/ppsr-process-route.test.mjs` (iter 52, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects missing customerEmail when orderId is absent before report side effects`; post valid `rawPPSRText` without `customerEmail` or `orderId`, assert HTTP 400, `error: "customerEmail is required when orderId is not provided."`, and zero `getOrderById`, `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls.

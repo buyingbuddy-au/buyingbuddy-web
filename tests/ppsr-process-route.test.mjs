@@ -189,3 +189,40 @@ test("PPSR process route rejects non-string customerEmail before report side eff
     compiled.cleanup();
   }
 });
+
+test("PPSR process route rejects blank orderId before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: "buyer@example.com",
+        orderId: "   ",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "orderId must be a non-empty string when provided." });
+    assert.equal(processErrors.length, 1, "expected the route to log the rejected request once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, [], "blank orderId must fail before order lookup");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "blank orderId must fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "blank orderId must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "blank orderId must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "blank orderId must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
