@@ -103,6 +103,9 @@ function compilePpsrProcessRoute(options = {}) {
         return {
           extract_ppsr_data: async (rawPpsrText) => {
             calls.extractPpsrData.push(rawPpsrText);
+            if (options.extractPpsrData) {
+              return options.extractPpsrData(rawPpsrText);
+            }
             return options.ppsrData ?? SAMPLE_PPSR_DATA;
           },
         };
@@ -326,6 +329,49 @@ test("PPSR process route rejects missing rawPPSRText before report side effects"
     assert.deepEqual(compiled.calls.generatePpsrPdf, [], "missing rawPPSRText must fail before PDF generation");
     assert.deepEqual(compiled.calls.updateOrder, [], "missing rawPPSRText must fail before order mutation");
     assert.deepEqual(compiled.calls.resendEmails, [], "missing rawPPSRText must fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
+test("PPSR process route does not mutate order when extraction fails", async () => {
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+    extractPpsrData: async () => {
+      throw new Error("upstream parse failure");
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+
+  console.error = () => {};
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 500);
+    assert.equal(payload.ok, false);
+    assert.match(payload.error, /upstream parse failure/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up before extraction");
+    assert.deepEqual(compiled.calls.extractPpsrData, ["Sample PPSR text with VIN 6FPAAAJGSW6A12345"]);
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "extraction failure must fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "extraction failure must fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "extraction failure must fail before report email send");
   } finally {
     console.error = originalConsoleError;
     globalThis.fetch = originalFetch;

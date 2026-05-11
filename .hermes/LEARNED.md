@@ -845,3 +845,8 @@ These are deliberately inside `tests/ppsr-process-route.test.mjs` (same file, sa
 3. `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route rejects mismatched order and customerEmail before report side effects`. Provide `orderId: "order_x"` + `customerEmail: "different@example.com"` with `options.order` returning `{ id: "order_x", customer_email: "buyer@example.com", product: "ppsr", status: "pending" }`. Assert HTTP 400, `error: "customerEmail does not match the selected order."`, and zero `extractPpsrData`/`generatePpsrPdf`/`updateOrder`/`resendEmails` calls. This is the actual **anti-abuse guard** in the route (caller bringing their own order ID + their own delivery email). Currently untested. Far higher leverage than iter 55's "blank rawPPSRText" sibling.
 
 After these three, the input-validation surface is genuinely saturated and the loop will need to either (a) finally enter the success branch with a happy-path fixture test, or (b) pivot to the medium production smells in §5. Do not let the loop write another "rejects missing field N+1" — there isn't one worth writing.
+
+## 2026-05-11 — Iteration 56 Phase 3
+
+- [DONE] Added Stage 7 PPSR process route guard for extraction failure not mutating orders, generating PDFs, or sending report emails — `tests/ppsr-process-route.test.mjs` (iter 56, 2026-05-11)
+- [NEXT] `tests/ppsr-process-route.test.mjs` — Add test named `PPSR process route returns 404 when orderId is provided but order is missing`; post valid `rawPPSRText` plus `orderId: "order_missing"` with no `customerEmail`, leave `options.order` at default `null`, assert HTTP 404, `error: "Order not found."`, and zero `extractPpsrData`, `generatePpsrPdf`, `updateOrder`, and `resendEmails` calls. (added by iter 56)
