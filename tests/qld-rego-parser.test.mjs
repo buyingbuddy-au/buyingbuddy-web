@@ -162,6 +162,30 @@ const registrationDetailsWithEmptyStatusHtml = `
   </html>
 `;
 
+const registrationDetailsCompleteHtml = `
+  <html>
+    <body>
+      <main>
+        <h1>Registration details</h1>
+        <dl>
+          <dt>Registration number</dt>
+          <dd>123ABC</dd>
+          <dt>Vehicle Identification Number (VIN)</dt>
+          <dd>JTMHU09J604123456</dd>
+          <dt>Description</dt>
+          <dd>2020 TOYOTA HILUX SR5</dd>
+          <dt>Purpose of use</dt>
+          <dd>PRIVATE</dd>
+          <dt>Status</dt>
+          <dd>CURRENT</dd>
+          <dt>Expiry</dt>
+          <dd>14/01/2099</dd>
+        </dl>
+      </main>
+    </body>
+  </html>
+`;
+
 test("qld official parser requires registration expiry", async () => {
   const envSnapshot = {
     REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
@@ -291,6 +315,45 @@ test("qld official parser rejects empty registration status value", async () => 
     assert.equal(response.error, "result_parse_failed");
     assert.equal(response.retryable, true);
     assert.equal(requests.length, 2, "empty-status result should fetch form and result pages once");
+  } finally {
+    compiled.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
+test("qld official parser parses successful registration details", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method ?? "GET" });
+    const html = requests.length === 1 ? searchFormHtml : registrationDetailsCompleteHtml;
+    return new Response(html, { status: 200, headers: { "content-type": "text/html" } });
+  };
+
+  const compiled = compileOfficialModule();
+  try {
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, true);
+    assert.equal(response.status, "success");
+    assert.equal(response.source, "qld-transport-check-rego");
+    assert.equal(response.data.rego, "123ABC");
+    assert.equal(response.data.vin, "JTMHU09J604123456");
+    assert.equal(response.data.expiry, "14/01/2099");
+    assert.equal(response.data.registrationStatus, "CURRENT");
+    assert.equal(response.data.purpose, "PRIVATE");
+    assert.equal(response.data.description, "2020 TOYOTA HILUX SR5");
+    assert.equal(requests.length, 2, "successful result should fetch form and result pages once");
   } finally {
     compiled.cleanup();
     globalThis.fetch = originalFetch;
