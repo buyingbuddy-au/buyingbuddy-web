@@ -703,3 +703,9 @@ The one real bug-shaped risk introduced this batch is iter 42's "all non-2xx is 
 - [DONE] Added Stage 7 static QA guard for committed live Stripe publishable/secret key prefixes under `src/`, `tests/`, and `scripts/` — `tests/no-live-stripe-keys.test.mjs` (iter 47, 2026-05-11)
 - [NEXT] `tests/no-live-stripe-keys.test.mjs` — Extend test `committed code does not contain live Stripe publishable or secret keys` to also catch restricted-key and webhook-secret prefixes (`rk_live_`, `whsec_`) without embedding contiguous live-secret literals in the test source.
 
+## 2026-05-11 — Iteration 48 Phase 3
+
+- [DONE] Extended the Stage 7 Stripe key guard to catch restricted-key and webhook-secret prefixes without embedding contiguous live-secret literals in the scanner source — `tests/no-live-stripe-keys.test.mjs` (iter 48, 2026-05-11)
+- [NEXT] `tests/sitemap-completeness.test.mjs` — Add Stage 7 sitemap completeness test that imports or reads `src/app/sitemap.ts` and asserts launch routes `/`, `/check`, `/rego-check`, `/ppsr`, `/inspect`, `/inspect/full`, `/inspect/print`, `/contract-pack`, `/deal`, `/free-kit`, `/pricing`, and `/contact` appear exactly once while legacy `/buddy`, `/ppi`, and `/car-buyers-agent-pullenvale` are absent.
+- [AVOID] Iter 48 mutation fixture: do not name temporary scanner fixtures with `secret`; `tests/no-live-stripe-keys.test.mjs` rejects credential-like path names before it reaches key-prefix assertions.
+

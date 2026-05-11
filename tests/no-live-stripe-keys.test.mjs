@@ -18,7 +18,21 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 
 const FORBIDDEN_PATH_PART = /(^|[\\/\.])env($|[\\/])|secret|credentials|\.key$|\.pem$/i;
-const LIVE_KEY_PATTERN = new RegExp(`\\b(?:${["pk", "sk"].join("|")})_${"live"}_[A-Za-z0-9_]+`, "g");
+const LIVE_MODE = "live";
+const FORBIDDEN_STRIPE_KEY_PREFIXES = [
+  ["pk", LIVE_MODE].join("_") + "_",
+  ["sk", LIVE_MODE].join("_") + "_",
+  ["rk", LIVE_MODE].join("_") + "_",
+  ["wh", "sec"].join("") + "_",
+];
+const LIVE_KEY_PATTERN = new RegExp(
+  `\\b(?:${FORBIDDEN_STRIPE_KEY_PREFIXES.map((prefix) => prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})[A-Za-z0-9_]+`,
+  "g",
+);
+
+function findForbiddenStripeKeyMaterial(source) {
+  return source.match(LIVE_KEY_PATTERN) ?? [];
+}
 
 function walk(root) {
   const pending = [root];
@@ -48,14 +62,28 @@ function walk(root) {
   return files;
 }
 
-test("committed code does not contain live Stripe publishable or secret keys", () => {
+test("Stripe key material detector catches live secret families", () => {
+  const liveMode = "live";
+  const examples = [
+    ["pk", liveMode, "fakePublishable123"].join("_"),
+    ["sk", liveMode, "fakeSecret123"].join("_"),
+    ["rk", liveMode, "fakeRestricted123"].join("_"),
+    `${["wh", "sec"].join("")}_fakeWebhook123`,
+  ];
+
+  for (const example of examples) {
+    assert.deepEqual(findForbiddenStripeKeyMaterial(`const value = "${example}";`), [example]);
+  }
+});
+
+test("committed code does not contain live Stripe publishable, secret, restricted, or webhook keys", () => {
   const scannedFiles = SCAN_ROOTS.flatMap((root) => walk(join(process.cwd(), root)));
   assert.ok(scannedFiles.length > 0, "expected to scan committed source/test/script files");
 
   const matches = [];
   for (const file of scannedFiles) {
     const source = readFileSync(file, "utf8");
-    const fileMatches = source.match(LIVE_KEY_PATTERN) ?? [];
+    const fileMatches = findForbiddenStripeKeyMaterial(source);
     for (const match of fileMatches) {
       matches.push(`${relative(process.cwd(), file).split(sep).join("/")}: ${match.slice(0, 12)}…`);
     }
