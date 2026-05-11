@@ -552,4 +552,9 @@ This batch was the strongest of any I've reviewed in terms of risk-promotion: it
 - [DONE] Treated CURRENT QLD rego results with unparseable expiry strings as `stop` instead of clean `pass` — `src/lib/qld-rego/education.ts`, `tests/qld-rego-education.test.mjs` (iter 36, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:73-85` + new `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser requires registration expiry`; feed a `Registration details` result body with `Status` = `CURRENT` but no `Expiry` label through a narrow parser helper or `runQldOfficialRegoCheck()` fetch mock, and assert the official lookup returns `ok: false`, `status: "parse_error"` instead of a successful result with unknown expiry.
 
+## 2026-05-11 — Iteration 37 Phase 2
+
+- [DONE] Required parsed QLD official registration details to include an `Expiry` label before returning a successful lookup — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 37, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/official.ts:73-86` + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser requires VIN`; feed a `Registration details` result body with `Status` = `CURRENT` and a valid `Expiry` but no `Vehicle Identification Number (VIN)` label through `runQldOfficialRegoCheck()` fetch mock, and assert `ok: false`, `status: "parse_error"` instead of a successful result with unknown VIN.
+
 

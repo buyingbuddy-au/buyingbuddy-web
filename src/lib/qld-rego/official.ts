@@ -74,7 +74,7 @@ function parseResult(rego: string, html: string): QldRegoData | null {
   const lines = stripHtml(html);
   if (!lines.some((line) => line.toLowerCase() === "registration details")) return null;
 
-  return {
+  const data: QldRegoData = {
     rego: lineAfter(lines, "Registration number") ?? rego,
     vin: lineAfter(lines, "Vehicle Identification Number (VIN)"),
     description: lineAfter(lines, "Description"),
@@ -82,6 +82,9 @@ function parseResult(rego: string, html: string): QldRegoData | null {
     registrationStatus: lineAfter(lines, "Status"),
     expiry: lineAfter(lines, "Expiry"),
   };
+
+  if (!data.expiry) return null;
+  return data;
 }
 
 function looksLikeNoResult(html: string) {
