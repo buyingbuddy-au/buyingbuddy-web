@@ -186,6 +186,30 @@ const registrationDetailsCompleteHtml = `
   </html>
 `;
 
+const emptyResultTableHtml = `
+  <html>
+    <body>
+      <main>
+        <h1>Check registration status</h1>
+        <section id="vehicleSearchForm:resultPanel">
+          <h2>Search results</h2>
+          <table id="vehicleSearchForm:resultsTable">
+            <thead>
+              <tr>
+                <th>Registration number</th>
+                <th>Status</th>
+                <th>Expiry</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </body>
+  </html>
+`;
+
 test("qld official parser requires registration expiry", async () => {
   const envSnapshot = {
     REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
@@ -352,6 +376,40 @@ test("qld official parser maps upstream 503 to official_unavailable", async () =
     assert.ok(response.userMessage.length > 0);
     assert.equal(response.retryable, true);
     assert.equal(requests.length, 2, "upstream 503 result should fetch form and result pages once");
+  } finally {
+    compiled.cleanup();
+    globalThis.fetch = originalFetch;
+    restoreEnv(envSnapshot);
+  }
+});
+
+test("qld official parser detects empty result table as no_result", async () => {
+  const envSnapshot = {
+    REGO_CHECK_ENABLED: process.env.REGO_CHECK_ENABLED,
+    REGO_CHECK_MAX_PER_HOUR: process.env.REGO_CHECK_MAX_PER_HOUR,
+    REGO_CHECK_TIMEOUT_MS: process.env.REGO_CHECK_TIMEOUT_MS,
+  };
+  process.env.REGO_CHECK_ENABLED = "true";
+  process.env.REGO_CHECK_MAX_PER_HOUR = "99";
+  process.env.REGO_CHECK_TIMEOUT_MS = "5000";
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url: String(url), method: init.method ?? "GET" });
+    const html = requests.length === 1 ? searchFormHtml : emptyResultTableHtml;
+    return new Response(html, { status: 200, headers: { "content-type": "text/html" } });
+  };
+
+  const compiled = compileOfficialModule();
+  try {
+    const response = await compiled.module.runQldOfficialRegoCheck("123ABC");
+
+    assert.equal(response.ok, false);
+    assert.equal(response.status, "no_result");
+    assert.equal(response.error, "no_official_result");
+    assert.equal(response.retryable, false);
+    assert.equal(requests.length, 2, "empty result table should fetch form and result pages once");
   } finally {
     compiled.cleanup();
     globalThis.fetch = originalFetch;

@@ -97,7 +97,15 @@ function parseResult(rego: string, html: string): QldRegoData | null {
 
 function looksLikeNoResult(html: string) {
   const text = stripHtml(html).join(" ").toLowerCase();
+  const hasEmptyResultTable =
+    /<tbody\b[^>]*>\s*<\/tbody>/i.test(html) &&
+    text.includes("search results") &&
+    text.includes("registration number") &&
+    text.includes("status") &&
+    text.includes("expiry");
+
   return (
+    hasEmptyResultTable ||
     text.includes("could not") ||
     text.includes("not found") ||
     text.includes("no registration") ||

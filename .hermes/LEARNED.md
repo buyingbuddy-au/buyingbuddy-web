@@ -630,3 +630,8 @@ But there are now two structural caps approaching. First, the field-by-field cad
 - [DONE] Mapped upstream QLD Transport non-2xx result-page responses to retryable `official_unavailable` failures before parsing — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 42, 2026-05-11)
 - [NEXT] `src/lib/qld-rego/official.ts:98-106` (`looksLikeNoResult`) + `tests/qld-rego-parser.test.mjs` — Add fixture test named `qld official parser detects empty result table as no_result`; feed a result-page HTML body with the search/result shell but no `Registration details` heading and no explicit error banner, assert `ok: false`, `status: "no_result"`, `error: "no_official_result"`, `retryable: false`, and two fetch calls before extending `looksLikeNoResult()` if needed.
 
+## 2026-05-11 — Iteration 43 Phase 2
+
+- [DONE] Mapped empty QLD Transport result-table shells to stable `no_result` failures instead of parser failures — `src/lib/qld-rego/official.ts`, `tests/qld-rego-parser.test.mjs` (iter 43, 2026-05-11)
+- [NEXT] `src/lib/qld-rego/education.ts:75-86` + `tests/qld-rego-education.test.mjs` — Add unit test named `classifyQldRego parses zero-padded expiry dates`; freeze `Date.now` to 2027-01-15, classify CURRENT/PRIVATE with `expiry: "01/02/2027"`, assert `"watch"` (not `"stop"`), and use a temporary regex mutation RED guard if current code already passes.
+
