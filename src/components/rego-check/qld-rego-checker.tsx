@@ -115,7 +115,7 @@ export default function QldRegoChecker() {
         ok: false,
         status: "error",
         error: "network_error",
-        userMessage: "Network error. Try again, or leave your email and we’ll send the result.",
+        userMessage: "Network error. Try again, or leave your email for the free Seller Question Script and follow-up.",
         checkedAt: new Date().toISOString(),
         retryable: true,
       });
@@ -159,26 +159,26 @@ export default function QldRegoChecker() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-teal-700 shadow-sm ring-1 ring-teal-100">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              QLD-only beta
+              Queensland rego lookup
             </div>
             <h1 className="mt-4 text-4xl font-black tracking-[-0.07em] text-gray-900 sm:text-5xl">
               Check a QLD rego before you check the car.
             </h1>
             <p className="mt-4 text-base leading-7 text-gray-700 sm:text-lg">
-              Live QLD registration details, then plain-English prompts on what to ask next. Friendly teammate energy, not fear theatre.
+              Free QLD registration details, then plain-English prompts on what to ask next. No signup for the check — just the rego and a sensible next step.
             </p>
             <div className="mt-5 grid gap-3 text-sm text-gray-700 sm:grid-cols-3">
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
                 <Search className="mb-2 h-5 w-5 text-teal-600" />
-                Official QLD source lookup
+                Free, no signup
               </div>
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
                 <HelpCircle className="mb-2 h-5 w-5 text-teal-600" />
-                Explains private/commercial/dealer use
+                Shows private, business or dealer use
               </div>
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
                 <Sparkles className="mb-2 h-5 w-5 text-teal-600" />
-                Points you to the next smart question
+                Gives you the next question
               </div>
             </div>
           </div>
@@ -204,11 +204,11 @@ export default function QldRegoChecker() {
                 className="inline-flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl bg-teal-600 px-5 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
-                {loading ? "Checking" : "Run check"}
+                {loading ? "Checking" : "Check QLD rego"}
               </button>
             </div>
             <p className="mt-3 text-xs font-semibold text-gray-500">
-              QLD only for this MVP. Spaces are fine — we clean them up before checking.
+              Queensland plates only. Spaces are fine — we clean them up before checking.
             </p>
 
             {showInputError && error && !error.ok ? (
@@ -249,9 +249,9 @@ export default function QldRegoChecker() {
           <div className="flex gap-3">
             <Clock3 className="mt-1 h-6 w-6 shrink-0 text-amber-700" />
             <div>
-              <h2 className="text-2xl font-black tracking-[-0.04em] text-amber-950">The QLD site is having a moment.</h2>
+              <h2 className="text-2xl font-black tracking-[-0.03em] text-amber-950">The QLD lookup is temporarily unavailable.</h2>
               <p className="mt-2 text-sm leading-6 text-amber-900">
-                Government servers: mostly reliable, occasionally dramatic. Leave your email and we’ll send the result plus the free Seller Question Script.
+                Leave your email and we’ll send the free Seller Question Script, then follow up if we can recover the lookup result.
               </p>
             </div>
           </div>
@@ -267,7 +267,7 @@ export default function QldRegoChecker() {
               <Mail className="h-4 w-4" /> Send it to me
             </button>
           </div>
-          {captureSent ? <p className="mt-3 text-sm font-bold text-amber-950">Done — we’ll send the script and follow-up.</p> : null}
+          {captureSent ? <p className="mt-3 text-sm font-bold text-amber-950">Done — we’ll send the script and follow up.</p> : null}
           {captureError ? <p className="mt-3 text-sm font-bold text-red-700">{captureError}</p> : null}
         </div>
       ) : null}
@@ -277,22 +277,24 @@ export default function QldRegoChecker() {
           <ResultCard result={result} onCopy={copyQuestions} copied={copied} />
           <aside className="space-y-4">
             <div className="rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-700">Next smart layer</p>
-              <h3 className="mt-2 text-xl font-black text-gray-900">Current rego ≠ clean history.</h3>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-700">Next smart steps</p>
+              <h3 className="mt-2 text-xl font-black text-gray-900">Rego is only the first layer.</h3>
               <p className="mt-2 text-sm leading-6 text-gray-600">
-                This check tells you current QLD registration details. PPSR is where finance owing, stolen status, and write-off history get checked.
+                This result checks current QLD registration details. Before you send money, check the listing, run the PPSR, inspect the car, and keep the handover paperwork tidy.
               </p>
-              <Link href="/ppsr" className="mt-4 inline-flex min-h-[3rem] w-full items-center justify-center rounded-2xl bg-gray-900 px-4 text-sm font-black text-white hover:bg-gray-800">
-                Get PPSR report — $4.95
-              </Link>
             </div>
-            <div className="rounded-[1.5rem] border border-teal-200 bg-teal-50 p-5">
-              <p className="text-sm font-black text-teal-950">Want a human second opinion?</p>
-              <p className="mt-2 text-sm leading-6 text-teal-900">Send us the listing and this rego result. We’ll tell you what we’d ask before inspecting.</p>
-              <Link href="/contact" className="mt-4 inline-flex font-black text-teal-700 hover:text-teal-900">
-                Ask Buying Buddy →
+            {[
+              ["/check", "Check the listing — free", "Get a quick read on price, red flags, and seller questions."],
+              ["/ppsr", "Run PPSR — $4.95", "Check finance owing, stolen status, and written-off history before deposit."],
+              ["/inspect", "Inspect the car — free", "Use the checklist beside the car before you fall for the photos."],
+              ["/contract-pack", "Sort the paperwork — free", "Get the QLD contract, receipt, condition report, and transfer guide."],
+              ["/deal", "Open Deal Pack — $9.99", "Bundle PPSR, paperwork, and a guided handover record in one place."],
+            ].map(([href, title, copy]) => (
+              <Link key={href} href={href} className="block rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md">
+                <p className="text-sm font-black text-gray-900">{title}</p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">{copy}</p>
               </Link>
-            </div>
+            ))}
           </aside>
         </div>
       ) : null}

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Free QLD Rego Check | Buying Buddy",
     description:
-      "Live QLD rego details with buyer-side guidance on what to ask next. QLD-only beta.",
+      "Free Queensland rego lookup with buyer-side guidance on what to ask next before you inspect or send money.",
     url: "https://buyingbuddy.com.au/rego-check",
     siteName: "Buying Buddy",
     locale: "en_AU",

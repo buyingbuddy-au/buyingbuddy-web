@@ -76,7 +76,7 @@ async function parseRegoCheckRequest(request: Request): Promise<RegoCheckParseRe
     return {
       ok: false,
       error: "invalid_state",
-      userMessage: "This beta checks QLD regos only. Choose QLD or leave the state blank.",
+      userMessage: "This check currently supports QLD regos only. Choose QLD or leave the state blank.",
     };
   }
 
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
           ok: false,
           status: "not_qld",
           error: "qld_only",
-          userMessage: "This beta checks QLD regos only. We can still help manually if you send us the listing.",
+          userMessage: "This check currently supports QLD regos only. You can still use the listing check or contract pack for interstate cars.",
           checkedAt: new Date().toISOString(),
           retryable: false,
         },
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         ok: false,
         status: "error",
         error: "route_unhandled",
-        userMessage: "The rego checker had a technical snag. Leave your email and we’ll send the result.",
+        userMessage: "The rego checker had a technical snag. Try again, or use the free listing check while we follow up.",
         checkedAt: new Date().toISOString(),
         retryable: false,
       },

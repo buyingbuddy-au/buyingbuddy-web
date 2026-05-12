@@ -177,7 +177,7 @@ test("rego check rejects non-string state", async () => {
     assert.equal(payload.ok, false);
     assert.equal(payload.status, "input_error");
     assert.equal(payload.error, "invalid_state");
-    assert.equal(payload.userMessage, "This beta checks QLD regos only. Choose QLD or leave the state blank.");
+    assert.equal(payload.userMessage, "This check currently supports QLD regos only. Choose QLD or leave the state blank.");
     assert.equal(payload.retryable, false);
     assert.equal(compiled.getLookupCalls(), 0, "non-string state must not call the QLD lookup");
   } finally {

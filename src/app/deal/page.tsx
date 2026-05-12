@@ -128,7 +128,7 @@ function DealLandingPage() {
       <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         {/* Left — info */}
         <div className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Room</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Pack</p>
           <h1 className="mt-4 max-w-xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
             Document the handover properly. Both sides. One place.
           </h1>
@@ -157,7 +157,7 @@ function DealLandingPage() {
             <Handshake className="h-6 w-6" />
           </div>
           <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-gray-900">
-            {deals.length > 0 ? "Start another deal" : "Create your Deal Room"}
+            {deals.length > 0 ? "Start another Deal Pack" : "Create your Deal Pack"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
             Enter your email and the car&apos;s rego, then pay securely through Stripe to open your Deal Pack.
@@ -218,7 +218,7 @@ function DealLandingPage() {
       {/* Returning user — existing deals */}
       {(deals.length > 0 || loadingDeals) && (
         <section className="mt-8">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Your Deal Rooms</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Your Deal Packs</p>
           {loadingDeals ? (
             <div className="mt-4 flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-teal-600" />

@@ -3,8 +3,8 @@ import { ClipboardCheck, Camera, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Inspect Tool | Buying Buddy",
-  description: "Choose your inspection style: Quick Print Checklist or Full Interactive Report with photos.",
+  title: "Free Inspection Checklist | Buying Buddy",
+  description: "Choose a free inspection checklist: phone-guided checks or a quick printable version for the car.",
 };
 
 const MODES = [
@@ -35,13 +35,13 @@ export default function InspectLandingPage() {
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
       <section className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
-          Vehicle Inspection
+          Free Inspection Checklist
         </p>
         <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
           Check the car before you check out.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
-          Two ways to inspect. Pick the one that suits how you work.
+          Two free ways to inspect. Pick the one that suits how you work.
         </p>
       </section>
 

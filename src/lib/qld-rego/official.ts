@@ -212,13 +212,13 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
   }
 
   if (inFlight) {
-    return failure("busy", "worker_busy", "The checker is busy for a moment. Try again shortly, or leave your email and we’ll send it.", true, startedAt, {
+    return failure("busy", "worker_busy", "The checker is busy for a moment. Try again shortly, or leave your email for the free Seller Question Script.", true, startedAt, {
       rateLimitScope: "instance",
     });
   }
 
   if (!registerHit()) {
-    return failure("busy", "hourly_limit", "We’re pacing the free checks so the QLD source stays happy. Leave your email and we’ll send yours shortly.", true, startedAt, {
+    return failure("busy", "hourly_limit", "We’re pacing the free checks so the QLD source stays happy. Try again shortly, or leave your email for follow-up.", true, startedAt, {
       rateLimitScope: "instance",
     });
   }
@@ -273,7 +273,7 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
       return failure(
         "official_unavailable",
         `official_result_http_${resultPage.status}`,
-        "QLD Transport returned a temporary error before the result loaded. Leave your email and we’ll send the result when it clears.",
+        "QLD Transport returned a temporary error before the result loaded. Try again shortly, or leave your email and we’ll follow up.",
         true,
         startedAt,
       );
@@ -312,14 +312,14 @@ export async function runQldOfficialRegoCheck(input: string): Promise<QldRegoChe
     return response;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      return failure("timeout", "official_timeout", "The QLD site took too long. Leave your email and we’ll send the result once it comes through.", true, startedAt);
+      return failure("timeout", "official_timeout", "The QLD site took too long. Try again shortly, or leave your email and we’ll follow up.", true, startedAt);
     }
     const message = error instanceof Error ? error.message : String(error);
     if (/captcha|robot|blocked|access denied/i.test(message)) {
       return failure("blocked", "official_blocked", "The QLD site asked for manual verification. We’ll need to check this one manually.", true, startedAt);
     }
     console.error("[qld-rego] official lookup failed", error);
-    return failure("official_unavailable", "official_fetch_failed", "The QLD check hit a technical snag. Leave your email and we’ll send the result when it clears.", false, startedAt);
+    return failure("official_unavailable", "official_fetch_failed", "The QLD check hit a technical snag. Try again shortly, or leave your email and we’ll follow up.", false, startedAt);
   } finally {
     clearTimeout(timeout);
     inFlight = false;
