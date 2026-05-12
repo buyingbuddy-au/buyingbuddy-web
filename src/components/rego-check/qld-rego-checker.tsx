@@ -61,8 +61,13 @@ function copySellerQuestions(result?: QldRegoCheckSuccess | null) {
   return `Hey, before I come inspect ${rego}, can you send me:\n\n1. A photo of the VIN plate\n2. Current odometer photo\n3. Service history photos\n4. Whether there is any finance owing\n5. Whether it has ever been written off, repaired after accident damage, used for rideshare/delivery, or sold through auction?`;
 }
 
-export default function QldRegoChecker() {
-  const [rego, setRego] = useState("");
+type QldRegoCheckerProps = {
+  initialRego?: string;
+  autoRun?: boolean;
+};
+
+export default function QldRegoChecker({ initialRego = "", autoRun = false }: QldRegoCheckerProps) {
+  const [rego, setRego] = useState(() => normaliseQldRego(initialRego));
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [waitIndex, setWaitIndex] = useState(0);
@@ -72,6 +77,7 @@ export default function QldRegoChecker() {
   const [captureSent, setCaptureSent] = useState(false);
   const [captureError, setCaptureError] = useState("");
   const resultRef = useRef<HTMLDivElement | null>(null);
+  const autoRunStarted = useRef(false);
 
   const normalisedRego = useMemo(() => normaliseQldRego(rego), [rego]);
   const showFallback = Boolean(error && !error.ok && error.retryable);
@@ -89,8 +95,7 @@ export default function QldRegoChecker() {
     if (result) resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [result]);
 
-  async function runCheck(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function runLookup(regoToCheck: string) {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -102,7 +107,7 @@ export default function QldRegoChecker() {
       const response = await fetch("/api/rego/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rego: normalisedRego, state: "QLD" }),
+        body: JSON.stringify({ rego: regoToCheck, state: "QLD" }),
       });
       const data = (await response.json()) as QldRegoCheckResponse;
       if (data.ok) {
@@ -122,6 +127,19 @@ export default function QldRegoChecker() {
     } finally {
       setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    const initial = normaliseQldRego(initialRego);
+    if (!autoRun || autoRunStarted.current || initial.length < 3) return;
+    autoRunStarted.current = true;
+    setRego(initial);
+    void runLookup(initial);
+  }, [autoRun, initialRego]);
+
+  async function runCheck(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await runLookup(normalisedRego);
   }
 
   async function sendCapture() {

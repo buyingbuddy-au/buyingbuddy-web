@@ -25,6 +25,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RegoCheckPage() {
-  return <QldRegoChecker />;
+type RegoCheckPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function RegoCheckPage({ searchParams }: RegoCheckPageProps) {
+  const params = (await searchParams) ?? {};
+  const initialRego = first(params.rego) ?? first(params.plate) ?? "";
+  const start = first(params.start) ?? first(params.autocheck) ?? "";
+
+  return <QldRegoChecker initialRego={initialRego} autoRun={start === "1"} />;
 }
