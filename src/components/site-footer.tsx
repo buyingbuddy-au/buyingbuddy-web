@@ -14,7 +14,7 @@ export default function SiteFooter() {
           <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-500">
             <span className="rounded-full bg-teal-50 px-3 py-1 text-teal-700">Buyer-side help</span>
             <span className="rounded-full bg-gray-100 px-3 py-1">Self-serve</span>
-            <span className="rounded-full bg-gray-100 px-3 py-1">No dealer kickbacks</span>
+            <span className="rounded-full bg-gray-100 px-3 py-1">Check before deposit</span>
           </div>
         </div>
 
