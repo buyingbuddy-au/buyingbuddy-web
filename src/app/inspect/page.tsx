@@ -1,91 +1,83 @@
 import Link from "next/link";
-import { ClipboardCheck, Camera, ChevronRight } from "lucide-react";
+import { ChevronRight, ClipboardCheck, FileText, Printer, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Free Inspection Checklist | Buying Buddy",
-  description: "Choose a free inspection checklist: phone-guided checks or a quick printable version for the car.",
+  description:
+    "Use Buying Buddy's free 21-check inspection checklist beside the car, then print or save the same checklist as a compact PDF.",
 };
 
-const MODES = [
-  {
-    href: "/inspect/full",
-    icon: Camera,
-    title: "Full Inspection Report",
-    subtitle: "14 practical checks",
-    description: "Step through each checkpoint on your phone. Add notes, rate each item, get a risk score at the end. Best when you're standing next to the car.",
-    badge: "Recommended",
-    cta: "Start Full Inspection",
-    features: ["14 guided checkpoints", "Notes per item", "Risk rating at the end", "Sharable results", "Takes 10-15 minutes"],
-  },
-  {
-    href: "/inspect/print",
-    icon: ClipboardCheck,
-    title: "Quick Print Checklist",
-    subtitle: "Print it, tick it, done",
-    description: "A clean one-page checklist you can print at home or pull up on your phone. Old school but effective. Tick off each item as you go.",
-    badge: null,
-    cta: "Open Print Checklist",
-    features: ["One-page printable checklist", "14 practical checks", "Works offline once printed", "Takes 5 minutes", "Share or save as PDF"],
-  },
+const HIGHLIGHTS = [
+  "21 practical checks in one flow",
+  "Phone-first ratings and notes",
+  "Print or save as a compact two-page PDF",
+  "PPSR next step kept close before money changes hands",
 ] as const;
 
 export default function InspectLandingPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
-      <section className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
-          Free Inspection Checklist
-        </p>
-        <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
-          Check the car before you check out.
-        </h1>
-        <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
-          Two free ways to inspect. Pick the one that suits how you work.
-        </p>
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.16),transparent_32%),linear-gradient(135deg,#f8fafc,#ffffff_62%)] p-6 shadow-sm sm:p-10">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-teal-700">
+              <ClipboardCheck className="h-3.5 w-3.5" /> Free Inspection Checklist
+            </p>
+            <h1 className="mt-5 max-w-3xl text-3xl font-black tracking-[-0.06em] text-slate-950 sm:text-5xl">
+              One 21-check inspection flow. Phone-ready and printable.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+              Use one practical 21-check tool beside the car. Add ratings and notes as you go, then print or save a compact PDF record before money changes hands.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="grid gap-3">
+              {HIGHLIGHTS.map((highlight) => (
+                <div key={highlight} className="flex items-start gap-3 rounded-2xl bg-slate-50 p-3">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                  <span className="text-sm font-bold leading-5 text-slate-700">{highlight}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        {MODES.map((mode) => {
-          const Icon = mode.icon;
-          return (
-            <Link
-              key={mode.href}
-              href={mode.href}
-              className="group relative flex flex-col rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm transition hover:border-teal-200 hover:shadow-md sm:p-8"
-            >
-              {mode.badge && (
-                <span className="absolute -top-3 right-6 rounded-full bg-teal-600 px-3 py-1 text-xs font-bold text-white">
-                  {mode.badge}
-                </span>
-              )}
+      <section className="mt-8">
+        <Link
+          href="/inspect/full"
+          className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-6 shadow-xl shadow-slate-200/60 transition hover:-translate-y-0.5 hover:shadow-2xl sm:p-8 lg:flex-row lg:items-end lg:justify-between"
+        >
+          <div>
+            <div className="inline-flex self-start rounded-2xl bg-teal-300/15 p-4 text-teal-200">
+              <ClipboardCheck className="h-8 w-8" />
+            </div>
+            <h2 className="mt-5 text-2xl font-black tracking-[-0.05em] text-white sm:text-3xl">
+              Start the 21-check inspection
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+              Rate each item as pass, concern or fail. Notes auto-save locally on your device, and print mode compresses the full checklist into a buyer-friendly handover record.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold text-slate-200">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5">
+                <Printer className="h-3.5 w-3.5" /> Print / PDF
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5">
+                <FileText className="h-3.5 w-3.5" /> PPSR next step
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" /> 21 practical checks
+              </span>
+            </div>
+          </div>
 
-              <div className="inline-flex self-start rounded-2xl bg-teal-50 p-4 text-teal-600">
-                <Icon className="h-8 w-8" />
-              </div>
-
-              <h2 className="mt-5 text-2xl font-black tracking-[-0.05em] text-gray-900">
-                {mode.title}
-              </h2>
-              <p className="mt-1 text-sm font-bold text-teal-600">{mode.subtitle}</p>
-              <p className="mt-3 text-sm leading-7 text-gray-500">{mode.description}</p>
-
-              <ul className="mt-6 flex-1 grid gap-2">
-                {mode.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6 inline-flex items-center gap-2 text-sm font-black text-teal-600 group-hover:gap-3 transition-all">
-                {mode.cta}
-                <ChevronRight className="h-4 w-4" />
-              </div>
-            </Link>
-          );
-        })}
+          <div className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-teal-300 px-5 py-3 text-sm font-black text-slate-950 transition group-hover:gap-3 lg:mt-0">
+            Open checklist
+            <ChevronRight className="h-4 w-4" />
+          </div>
+        </Link>
       </section>
     </div>
   );
