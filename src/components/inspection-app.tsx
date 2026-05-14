@@ -348,7 +348,7 @@ export function InspectionApp() {
           </div>
         </section>
 
-        <section className="sticky top-14 z-20 -mx-4 border-b border-slate-200/10 bg-slate-950/92 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:top-16 lg:-mx-8 lg:px-8 print:static print:mx-0 print:border-0 print:bg-white print:px-0 print:py-3">
+        <section className="pointer-events-none sticky top-14 z-20 -mx-4 border-b border-slate-200/10 bg-slate-950/92 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:top-16 lg:-mx-8 lg:px-8 print:static print:mx-0 print:border-0 print:bg-white print:px-0 print:py-3">
           <div className="print-summary-strip grid gap-2 sm:grid-cols-4">
             <div className="print-card rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 print:border-slate-300 print:bg-white">
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400 print:text-slate-500">Progress</p>
@@ -374,7 +374,7 @@ export function InspectionApp() {
             </div>
           </div>
 
-          <div className="mt-3 min-h-[4.75rem] print:min-h-0">
+          <div className="pointer-events-none mt-3 min-h-[4.75rem] print:min-h-0">
             {verdict ? (
               <div className={`print-card rounded-2xl border px-4 py-3 ${verdict.border} ${verdict.bg} print:border-slate-300 print:bg-white`}>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -385,7 +385,7 @@ export function InspectionApp() {
             ) : (
               <div
                 aria-hidden="true"
-                className="screen-only rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 opacity-0"
+                className="pointer-events-none screen-only rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 opacity-0"
               >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm font-black text-slate-300">Verdict: Keep Checking</p>

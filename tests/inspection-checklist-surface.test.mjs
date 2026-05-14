@@ -89,8 +89,10 @@ test("inspection app note inputs expose an accessible label", () => {
 test("inspection app reserves verdict space so the sticky strip does not jump after first rating", () => {
   const source = read("src/components/inspection-app.tsx");
 
-  assert.match(source, /min-h-\[4\.75rem\]/);
+  assert.match(source, /className="pointer-events-none sticky top-14 z-20/);
+  assert.match(source, /className="pointer-events-none mt-3 min-h-\[4\.75rem\] print:min-h-0"/);
   assert.match(source, /aria-hidden="true"/);
+  assert.match(source, /pointer-events-none screen-only/);
   assert.match(source, /Complete a check to start the decision record/);
 });
 
