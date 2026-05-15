@@ -9,17 +9,17 @@ export const metadata = {
 
 const PRODUCTS = [
   {
-    name: "Free Tools",
+    name: "Free Rego & Listing Tools",
     price: "Free",
-    description: "Start here when a listing looks interesting but you are not ready to spend money yet.",
-    href: "/check",
-    buttonText: "Run Free Check",
+    description: "Start with the plate or listing when a car looks interesting but you are not ready to spend money yet.",
+    href: "/rego-check",
+    buttonText: "Start free",
     highlight: false,
     features: [
       "Listing sanity check",
       "Red flags and scam prompts",
       "Inspection checklist",
-      "QLD contract pack download",
+      "Private-sale contract PDF builder",
     ],
   },
   {
@@ -42,13 +42,13 @@ const PRODUCTS = [
     price: "$9.99",
     description: "For the car that passes the first sniff test and is worth chasing properly.",
     href: "/deal",
-    buttonText: "Open Deal Room",
+    buttonText: "Open Deal Pack",
     highlight: false,
     features: [
       "PPSR next-step guidance",
-      "QLD private-sale contract pack",
+      "Private-sale contract PDF",
       "Guided handover checklist",
-      "Deal Room record",
+      "Deal Pack record",
       "Buyer/seller detail capture",
     ],
   },
@@ -59,7 +59,7 @@ const COMPARISON = [
   { feature: "Inspection checklist", free: true, ppsr: false, deal: true },
   { feature: "Finance owing / encumbrance check", free: false, ppsr: true, deal: true },
   { feature: "Stolen and written-off status", free: false, ppsr: true, deal: true },
-  { feature: "QLD private-sale documents", free: true, ppsr: false, deal: true },
+  { feature: "Private-sale contract PDF", free: true, ppsr: false, deal: true },
   { feature: "Guided handover record", free: false, ppsr: false, deal: true },
 ] as const;
 

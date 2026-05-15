@@ -31,7 +31,7 @@ export default function ContactPage() {
           Got a question? Send it through.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-gray-500">
-          Keep it simple. If you need help with a check, a contract pack, or a buy decision, drop a note and I&apos;ll get back to you.
+          Keep it simple. If you need help with a check, a contract PDF, or a buy decision, drop a note and I&apos;ll get back to you.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 grid gap-4 rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-6">

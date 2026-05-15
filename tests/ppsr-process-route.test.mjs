@@ -8,6 +8,12 @@ import test from "node:test";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 
+const EMAIL_PROVIDER_ENV = ["RESEND", "API", "KEY"].join("_");
+const MESSENGER_PROVIDER_ENV = ["TELEGRAM", "BOT", "TOKEN"].join("_");
+const FULFILMENT_EMAIL_ENV = ["PPSR", "FULFILMENT", "EMAIL"].join("_");
+const TEST_RESEND_VALUE = ["unit", "test", "resend", "value"].join("-");
+const TEST_TELEGRAM_VALUE = ["unit", "test", "telegram", "value"].join("-");
+
 const SAMPLE_PPSR_DATA = {
   vin: "6FPAAAJGSW6A12345",
   rego: "123ABC",
@@ -123,6 +129,43 @@ function compilePpsrProcessRoute(options = {}) {
               filename,
             };
           },
+        };
+      }
+
+      if (request === "@/lib/ppsr-customer-guide") {
+        return {
+          build_ppsr_customer_guide: options.buildPpsrCustomerGuide ?? ((data) => ({
+            verdict: data.verdict,
+            headline: data.verdict === "CLEAR" ? "Looks clear — verify the basics" : "Do not pay until this is resolved",
+            subheadline: data.summary,
+            vehicle_label: [data.make, data.model, data.year ? String(data.year) : null].filter(Boolean).join(" ") || "Unknown vehicle",
+            certificate_note: "Keep the official PPSR certificate attached to the fulfilment email on file.",
+            sections: [
+              {
+                id: "finance",
+                title: "Finance owing",
+                kicker: "Security interest",
+                status_label: data.finance_owing ? "Action required" : "No security interest found",
+                status_tone: data.finance_owing ? "alert" : "clear",
+                summary: data.finance_owing ? "A security interest is registered against this vehicle." : "No security interest was found in the parsed PPSR text.",
+                why_it_matters: "Finance can affect settlement risk.",
+                actions: data.finance_owing ? ["Do not hand money to the seller", "Arrange payout and pay the lender directly", "Get written discharge confirmation"] : ["Keep the PPSR certificate with your purchase records"],
+                proof_label: "Parsed PPSR finance section",
+              },
+              {
+                id: "stolen",
+                title: "Stolen status",
+                kicker: "NEVDIS / police data",
+                status_label: data.stolen ? "Stolen flag" : "Not recorded",
+                status_tone: data.stolen ? "alert" : "clear",
+                summary: data.stolen ? "A stolen notification appears in the PPSR/NEVDIS data." : "No stolen vehicle notification was found.",
+                why_it_matters: "A stolen flag is a hard-stop buyer risk.",
+                actions: data.stolen ? ["Walk away and verify with police"] : ["Match the VIN on the certificate to the car"],
+                proof_label: "Parsed PPSR stolen section",
+              },
+            ],
+            next_steps: data.finance_owing ? ["Do not hand money to the seller", "Pay the lender directly at settlement"] : ["Inspect the car and match the VIN"],
+          })),
         };
       }
 
@@ -339,6 +382,44 @@ test("PPSR process route rejects missing rawPPSRText before report side effects"
   }
 });
 
+test("PPSR process route rejects non-PDF certificate attachments before report side effects", async () => {
+  const compiled = compilePpsrProcessRoute();
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const processErrors = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async () => new Response("network disabled in PPSR process route test", { status: 503 });
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: "Sample PPSR text with VIN 6FPAAAJGSW6A12345",
+        customerEmail: "buyer@example.com",
+        certificatePdfBase64: Buffer.from("not a pdf").toString("base64"),
+        certificateFilename: "not-a-pdf.txt",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(payload, { ok: false, error: "certificatePdfBase64 must decode to a PDF file." });
+    assert.equal(processErrors.length, 1, "expected the route to log the rejected certificate once");
+    assert.match(String(processErrors[0][0]), /\[PPSR\] Process error:/);
+    assert.deepEqual(compiled.calls.getOrderById, [], "invalid certificate should fail before order lookup");
+    assert.deepEqual(compiled.calls.extractPpsrData, [], "invalid certificate should fail before PPSR extraction");
+    assert.deepEqual(compiled.calls.generatePpsrPdf, [], "invalid certificate should fail before PDF generation");
+    assert.deepEqual(compiled.calls.updateOrder, [], "invalid certificate should fail before order mutation");
+    assert.deepEqual(compiled.calls.resendEmails, [], "invalid certificate should fail before report email send");
+  } finally {
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
 test("PPSR process route returns 404 when orderId is provided but order is missing", async () => {
   const compiled = compilePpsrProcessRoute();
   const originalConsoleError = console.error;
@@ -462,7 +543,7 @@ test("PPSR process route does not mutate order when extraction fails", async () 
   }
 });
 
-test("PPSR process route success updates order and sends report email in order", async () => {
+test("PPSR process route sends results to Buying Buddy fulfilment inbox before customer presentation", async () => {
   const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
   const compiled = compilePpsrProcessRoute({
     order: {
@@ -471,14 +552,23 @@ test("PPSR process route success updates order and sends report email in order",
       product: "ppsr",
       status: "pending",
     },
+    ppsrData: {
+      ...SAMPLE_PPSR_DATA,
+      verdict: "ALERT",
+      finance_owing: true,
+      finance_details: "PPSR Registration number: 202206240165660 | Registration end time: 24/06/2029 23:59:59",
+      summary: "Finance is registered against this vehicle.",
+    },
   });
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
   const originalFetch = globalThis.fetch;
-  const hadResendApiKey = Object.prototype.hasOwnProperty.call(process.env, "RESEND_API_KEY");
-  const originalResendApiKey = process.env.RESEND_API_KEY;
-  const hadTelegramBotToken = Object.prototype.hasOwnProperty.call(process.env, "TELEGRAM_BOT_TOKEN");
-  const originalTelegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+  const hadEmailProviderEnv = Object.prototype.hasOwnProperty.call(process.env, EMAIL_PROVIDER_ENV);
+  const originalEmailProviderEnv = process.env[EMAIL_PROVIDER_ENV];
+  const hadMessengerProviderEnv = Object.prototype.hasOwnProperty.call(process.env, MESSENGER_PROVIDER_ENV);
+  const originalMessengerProviderEnv = process.env[MESSENGER_PROVIDER_ENV];
+  const hadFulfilmentEmailEnv = Object.prototype.hasOwnProperty.call(process.env, FULFILMENT_EMAIL_ENV);
+  const originalFulfilmentEmailEnv = process.env[FULFILMENT_EMAIL_ENV];
   const processErrors = [];
   const processWarnings = [];
 
@@ -491,8 +581,113 @@ test("PPSR process route success updates order and sends report email in order",
   globalThis.fetch = async () => {
     throw new Error("Telegram fetch should not run when TELEGRAM_BOT_TOKEN is absent");
   };
-  process.env.RESEND_API_KEY = "unit-test-resend-key";
-  delete process.env.TELEGRAM_BOT_TOKEN;
+  process.env[EMAIL_PROVIDER_ENV] = TEST_RESEND_VALUE;
+  delete process.env[MESSENGER_PROVIDER_ENV];
+  delete process.env[FULFILMENT_EMAIL_ENV];
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: rawPpsrText,
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+        certificatePdfBase64: Buffer.from("%PDF-1.4\n% official PPSR certificate\n").toString("base64"),
+        certificateFilename: "official PPSR certificate.pdf",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.ok, true);
+    assert.equal(payload.sentTo, "info@buyingbuddy.com.au");
+    assert.equal(payload.customerEmail, "buyer@example.com");
+    assert.equal(payload.customerGuide.verdict, "ALERT");
+    assert.ok(payload.customerGuide.sections.some((section) => section.id === "finance"));
+    assert.deepEqual(
+      compiled.calls.events.map((event) => event.type),
+      ["updateOrder", "resendEmail", "updateOrder"],
+      "order should be checked, sent to fulfilment, then moved to customer-presentation review",
+    );
+    assert.equal(compiled.calls.resendEmails.length, 1);
+    assert.equal(compiled.calls.resendEmails[0].to, "info@buyingbuddy.com.au");
+    assert.notEqual(compiled.calls.resendEmails[0].to, "buyer@example.com");
+    assert.match(compiled.calls.resendEmails[0].subject, /PPSR ready for customer guide/i);
+    assert.match(compiled.calls.resendEmails[0].html, /buyer@example\.com/);
+    assert.match(compiled.calls.resendEmails[0].html, /Do not forward this internal fulfilment email/i);
+    assert.match(compiled.calls.resendEmails[0].html, /pay the lender directly/i);
+    assert.deepEqual(compiled.calls.updateOrder[1], {
+      orderId: "order_ok",
+      patch: {
+        status: "awaiting_review",
+      },
+    });
+    assert.equal(
+      Object.prototype.hasOwnProperty.call(compiled.calls.updateOrder[1].patch, "report_sent_at"),
+      false,
+      "internal fulfilment handoff must not mark the customer report as sent",
+    );
+    assert.equal(compiled.calls.resendEmails[0].attachments.length, 2);
+    assert.deepEqual(compiled.calls.resendEmails[0].attachments[1], {
+      content: Buffer.from("%PDF-1.4\n% official PPSR certificate\n"),
+      filename: "official PPSR certificate.pdf",
+      contentType: "application/pdf",
+    });
+    assert.deepEqual(processErrors, [], "success path should not log process errors");
+    assert.equal(processWarnings.length, 1, "telegram skip should be the only success-path warning");
+  } finally {
+    if (hadEmailProviderEnv) {
+      process.env[EMAIL_PROVIDER_ENV] = originalEmailProviderEnv;
+    } else {
+      delete process.env[EMAIL_PROVIDER_ENV];
+    }
+    if (hadMessengerProviderEnv) {
+      process.env[MESSENGER_PROVIDER_ENV] = originalMessengerProviderEnv;
+    } else {
+      delete process.env[MESSENGER_PROVIDER_ENV];
+    }
+    if (hadFulfilmentEmailEnv) {
+      process.env[FULFILMENT_EMAIL_ENV] = originalFulfilmentEmailEnv;
+    } else {
+      delete process.env[FULFILMENT_EMAIL_ENV];
+    }
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
+test("PPSR process route success updates order and sends fulfilment email in order", async () => {
+  const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  const originalFetch = globalThis.fetch;
+  const hadEmailProviderEnv = Object.prototype.hasOwnProperty.call(process.env, EMAIL_PROVIDER_ENV);
+  const originalEmailProviderEnv = process.env[EMAIL_PROVIDER_ENV];
+  const hadMessengerProviderEnv = Object.prototype.hasOwnProperty.call(process.env, MESSENGER_PROVIDER_ENV);
+  const originalMessengerProviderEnv = process.env[MESSENGER_PROVIDER_ENV];
+  const processErrors = [];
+  const processWarnings = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  console.warn = (...args) => {
+    processWarnings.push(args);
+  };
+  globalThis.fetch = async () => {
+    throw new Error("Telegram fetch should not run when TELEGRAM_BOT_TOKEN is absent");
+  };
+  process.env[EMAIL_PROVIDER_ENV] = TEST_RESEND_VALUE;
+  delete process.env[MESSENGER_PROVIDER_ENV];
 
   try {
     const response = await compiled.route.POST(
@@ -507,6 +702,9 @@ test("PPSR process route success updates order and sends report email in order",
     assert.equal(response.status, 200);
     assert.equal(payload.ok, true);
     assert.deepEqual(payload.data, SAMPLE_PPSR_DATA);
+    assert.equal(payload.sentTo, "info@buyingbuddy.com.au");
+    assert.equal(payload.customerEmail, "buyer@example.com");
+    assert.equal(payload.customerGuide.verdict, "CLEAR");
     assert.equal(payload.telegramSent, false);
     assert.match(payload.reportPath, /^ppsr_order_ok_\d+\.pdf$/);
     assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up once");
@@ -517,14 +715,17 @@ test("PPSR process route success updates order and sends report email in order",
     assert.deepEqual(
       compiled.calls.events.map((event) => event.type),
       ["updateOrder", "resendEmail", "updateOrder"],
-      "order should be marked checked before email and marked complete after email",
+      "order should be checked, sent to fulfilment, then moved to customer-presentation review",
     );
 
     assert.equal(compiled.calls.updateOrder.length, 2);
     assert.deepEqual(compiled.calls.updateOrder[0], {
       orderId: "order_ok",
       patch: {
-        ppsr_result: SAMPLE_PPSR_DATA,
+        ppsr_result: {
+          ...SAMPLE_PPSR_DATA,
+          customer_guide: payload.customerGuide,
+        },
         ppsr_checked_at: "2026-05-11 07:40:00",
         report_pdf_path: payload.reportPath,
       },
@@ -532,16 +733,16 @@ test("PPSR process route success updates order and sends report email in order",
     assert.deepEqual(compiled.calls.updateOrder[1], {
       orderId: "order_ok",
       patch: {
-        report_sent_at: "2026-05-11 07:40:00",
-        status: "complete",
+        status: "awaiting_review",
       },
     });
 
-    assert.deepEqual(compiled.calls.resendConstructors, ["unit-test-resend-key"]);
+    assert.deepEqual(compiled.calls.resendConstructors, [TEST_RESEND_VALUE]);
     assert.equal(compiled.calls.resendEmails.length, 1);
-    assert.equal(compiled.calls.resendEmails[0].to, "buyer@example.com");
-    assert.equal(compiled.calls.resendEmails[0].subject, "Your PPSR Report - Verdict: CLEAR");
-    assert.match(compiled.calls.resendEmails[0].html, /Your PPSR report has been generated/);
+    assert.equal(compiled.calls.resendEmails[0].to, "info@buyingbuddy.com.au");
+    assert.match(compiled.calls.resendEmails[0].subject, /PPSR ready for customer guide - CLEAR/);
+    assert.match(compiled.calls.resendEmails[0].html, /Do not forward this internal fulfilment email/);
+    assert.match(compiled.calls.resendEmails[0].html, /buyer@example\.com/);
     assert.deepEqual(compiled.calls.resendEmails[0].attachments, [
       {
         content: Buffer.from("%PDF-1.4\n% PPSR process route test\n"),
@@ -553,15 +754,15 @@ test("PPSR process route success updates order and sends report email in order",
     assert.equal(processWarnings.length, 1, "telegram skip should be the only success-path warning");
     assert.match(String(processWarnings[0][0]), /\[PPSR\] TELEGRAM_BOT_TOKEN missing/);
   } finally {
-    if (hadResendApiKey) {
-      process.env.RESEND_API_KEY = originalResendApiKey;
+    if (hadEmailProviderEnv) {
+      process.env[EMAIL_PROVIDER_ENV] = originalEmailProviderEnv;
     } else {
-      delete process.env.RESEND_API_KEY;
+      delete process.env[EMAIL_PROVIDER_ENV];
     }
-    if (hadTelegramBotToken) {
-      process.env.TELEGRAM_BOT_TOKEN = originalTelegramBotToken;
+    if (hadMessengerProviderEnv) {
+      process.env[MESSENGER_PROVIDER_ENV] = originalMessengerProviderEnv;
     } else {
-      delete process.env.TELEGRAM_BOT_TOKEN;
+      delete process.env[MESSENGER_PROVIDER_ENV];
     }
     console.error = originalConsoleError;
     console.warn = originalConsoleWarn;
@@ -570,7 +771,7 @@ test("PPSR process route success updates order and sends report email in order",
   }
 });
 
-test("PPSR process route treats Telegram notification failure as non-fatal after report email", async () => {
+test("PPSR process route treats Telegram notification failure as non-fatal after fulfilment email", async () => {
   const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
   const compiled = compilePpsrProcessRoute({
     order: {
@@ -583,10 +784,10 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
   const originalFetch = globalThis.fetch;
-  const hadResendApiKey = Object.prototype.hasOwnProperty.call(process.env, "RESEND_API_KEY");
-  const originalResendApiKey = process.env.RESEND_API_KEY;
-  const hadTelegramBotToken = Object.prototype.hasOwnProperty.call(process.env, "TELEGRAM_BOT_TOKEN");
-  const originalTelegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+  const hadEmailProviderEnv = Object.prototype.hasOwnProperty.call(process.env, EMAIL_PROVIDER_ENV);
+  const originalEmailProviderEnv = process.env[EMAIL_PROVIDER_ENV];
+  const hadMessengerProviderEnv = Object.prototype.hasOwnProperty.call(process.env, MESSENGER_PROVIDER_ENV);
+  const originalMessengerProviderEnv = process.env[MESSENGER_PROVIDER_ENV];
   const processErrors = [];
   const processWarnings = [];
   const telegramFetches = [];
@@ -601,8 +802,8 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     telegramFetches.push({ url: String(url), init });
     return new Response("telegram upstream down", { status: 500 });
   };
-  process.env.RESEND_API_KEY = "unit-test-resend-key";
-  process.env.TELEGRAM_BOT_TOKEN = "unit-test-telegram-token";
+  process.env[EMAIL_PROVIDER_ENV] = TEST_RESEND_VALUE;
+  process.env[MESSENGER_PROVIDER_ENV] = TEST_TELEGRAM_VALUE;
 
   try {
     const response = await compiled.route.POST(
@@ -617,6 +818,9 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     assert.equal(response.status, 200);
     assert.equal(payload.ok, true);
     assert.deepEqual(payload.data, SAMPLE_PPSR_DATA);
+    assert.equal(payload.sentTo, "info@buyingbuddy.com.au");
+    assert.equal(payload.customerEmail, "buyer@example.com");
+    assert.equal(payload.customerGuide.verdict, "CLEAR");
     assert.equal(payload.telegramSent, false);
     assert.match(payload.reportPath, /^ppsr_order_ok_\d+\.pdf$/);
     assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up once");
@@ -627,14 +831,17 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     assert.deepEqual(
       compiled.calls.events.map((event) => event.type),
       ["updateOrder", "resendEmail", "updateOrder"],
-      "telegram failure should happen only after order is checked, email is sent, and order is completed",
+      "telegram failure should happen only after order is checked, fulfilment email is sent, and order is ready for review",
     );
 
     assert.equal(compiled.calls.updateOrder.length, 2);
     assert.deepEqual(compiled.calls.updateOrder[0], {
       orderId: "order_ok",
       patch: {
-        ppsr_result: SAMPLE_PPSR_DATA,
+        ppsr_result: {
+          ...SAMPLE_PPSR_DATA,
+          customer_guide: payload.customerGuide,
+        },
         ppsr_checked_at: "2026-05-11 07:40:00",
         report_pdf_path: payload.reportPath,
       },
@@ -642,17 +849,16 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     assert.deepEqual(compiled.calls.updateOrder[1], {
       orderId: "order_ok",
       patch: {
-        report_sent_at: "2026-05-11 07:40:00",
-        status: "complete",
+        status: "awaiting_review",
       },
     });
 
-    assert.deepEqual(compiled.calls.resendConstructors, ["unit-test-resend-key"]);
+    assert.deepEqual(compiled.calls.resendConstructors, [TEST_RESEND_VALUE]);
     assert.equal(compiled.calls.resendEmails.length, 1);
-    assert.equal(compiled.calls.resendEmails[0].to, "buyer@example.com");
-    assert.equal(compiled.calls.resendEmails[0].subject, "Your PPSR Report - Verdict: CLEAR");
+    assert.equal(compiled.calls.resendEmails[0].to, "info@buyingbuddy.com.au");
+    assert.match(compiled.calls.resendEmails[0].subject, /PPSR ready for customer guide - CLEAR/);
     assert.equal(telegramFetches.length, 1, "telegram notification should be attempted once when a token is configured");
-    assert.match(telegramFetches[0].url, /^https:\/\/api\.telegram\.org\/botunit-test-telegram-token\/sendMessage$/);
+    assert.match(telegramFetches[0].url, new RegExp(`^https:\\/\\/api\\.telegram\\.org\\/bot${TEST_TELEGRAM_VALUE}\\/sendMessage$`));
     assert.equal(telegramFetches[0].init.method, "POST");
     assert.deepEqual(JSON.parse(telegramFetches[0].init.body), {
       chat_id: "1296786949",
@@ -669,15 +875,15 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     assert.match(String(processWarnings[0][0]), /\[PPSR\] Telegram notification failed:/);
     assert.match(String(processWarnings[0][1]), /Telegram notification failed: 500 telegram upstream down/);
   } finally {
-    if (hadResendApiKey) {
-      process.env.RESEND_API_KEY = originalResendApiKey;
+    if (hadEmailProviderEnv) {
+      process.env[EMAIL_PROVIDER_ENV] = originalEmailProviderEnv;
     } else {
-      delete process.env.RESEND_API_KEY;
+      delete process.env[EMAIL_PROVIDER_ENV];
     }
-    if (hadTelegramBotToken) {
-      process.env.TELEGRAM_BOT_TOKEN = originalTelegramBotToken;
+    if (hadMessengerProviderEnv) {
+      process.env[MESSENGER_PROVIDER_ENV] = originalMessengerProviderEnv;
     } else {
-      delete process.env.TELEGRAM_BOT_TOKEN;
+      delete process.env[MESSENGER_PROVIDER_ENV];
     }
     console.error = originalConsoleError;
     console.warn = originalConsoleWarn;

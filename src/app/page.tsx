@@ -26,7 +26,7 @@ const NEXT_STEPS = [
   },
   {
     title: "Then inspect + paperwork",
-    copy: "Use the checklist and QLD handover pack only when the car is still in the game.",
+    copy: "Use the checklist and contract PDF builder only when the car is still in the game.",
     icon: ClipboardCheck,
   },
 ] as const;
@@ -53,10 +53,10 @@ const SUPPORT_TOOLS = [
     icon: ClipboardCheck,
   },
   {
-    title: "QLD handover pack",
-    copy: "Contract, receipt, condition report, and transfer guide.",
+    title: "Email-ready contract PDF",
+    copy: "Build one polished private-sale contract, then email it as a single PDF.",
     href: "/contract-pack",
-    cta: "Get paperwork",
+    cta: "Build contract",
     icon: FileText,
   },
 ] as const;
@@ -228,7 +228,7 @@ export default function HomePage() {
               <FileText className="h-6 w-6 shrink-0 text-teal-700" aria-hidden="true" />
               <div>
                 <h3 className="text-base font-black tracking-[-0.02em] text-gray-950 sm:mt-4 sm:text-lg">$9.99 Deal Pack</h3>
-                <p className="mt-1 text-xs leading-5 text-gray-600 sm:mt-2 sm:text-sm sm:leading-6">PPSR + handover.</p>
+                <p className="mt-1 text-xs leading-5 text-gray-600 sm:mt-2 sm:text-sm sm:leading-6">PPSR + contract + record.</p>
               </div>
             </Link>
           </div>
@@ -244,7 +244,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="max-w-lg text-sm leading-6 text-gray-600">
-            The listing, inspection, and paperwork tools sit underneath the rego-to-PPSR flow so the page does not feel like five equal offers at once.
+            The listing, inspection, and contract tools sit underneath the rego-to-PPSR flow. Deal Pack keeps the sale together when the car survives the checks.
           </p>
         </div>
 

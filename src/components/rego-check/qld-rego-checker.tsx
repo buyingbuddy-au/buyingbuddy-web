@@ -16,6 +16,7 @@ import {
   Sparkles,
   XCircle,
 } from "lucide-react";
+import { buyingBuddyEvents, trackBuyingBuddyEvent } from "@/lib/analytics-events";
 import { normaliseQldRego } from "@/lib/qld-rego/normalise";
 import type { QldRegoCheckResponse, QldRegoCheckSuccess } from "@/lib/qld-rego/types";
 
@@ -103,6 +104,11 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
     setCaptureError("");
     setWaitIndex(0);
 
+    trackBuyingBuddyEvent(buyingBuddyEvents.regoCheckStarted, {
+      state: "QLD",
+      regoLength: regoToCheck.length,
+    });
+
     try {
       const response = await fetch("/api/rego/check", {
         method: "POST",
@@ -111,11 +117,27 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
       });
       const data = (await response.json()) as QldRegoCheckResponse;
       if (data.ok) {
+        trackBuyingBuddyEvent(buyingBuddyEvents.regoCheckSuccess, {
+          state: "QLD",
+          classification: data.classification,
+          cached: Boolean(data.cached),
+          durationMs: data.durationMs ?? 0,
+        });
         setResult(data);
       } else {
+        trackBuyingBuddyEvent(buyingBuddyEvents.regoCheckFailed, {
+          state: "QLD",
+          status: data.status,
+          retryable: data.retryable,
+        });
         setError(data);
       }
     } catch {
+      trackBuyingBuddyEvent(buyingBuddyEvents.regoCheckFailed, {
+        state: "QLD",
+        status: "network_error",
+        retryable: true,
+      });
       setError({
         ok: false,
         status: "error",
@@ -156,6 +178,10 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
         setCaptureError(data.error ?? "Could not save that email. Try again.");
         return;
       }
+      trackBuyingBuddyEvent(buyingBuddyEvents.regoLeadCaptured, {
+        state: "QLD",
+        reason: error?.ok === false ? error.status : "unknown",
+      });
       setCaptureSent(true);
     } catch {
       setCaptureError("Could not save that email. Try again.");
@@ -164,6 +190,10 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
 
   async function copyQuestions() {
     await navigator.clipboard.writeText(copySellerQuestions(result));
+    trackBuyingBuddyEvent(buyingBuddyEvents.sellerQuestionsCopied, {
+      state: "QLD",
+      classification: result?.classification ?? "none",
+    });
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   }

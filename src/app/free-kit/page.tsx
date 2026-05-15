@@ -40,7 +40,7 @@ export default function FreeKitPage() {
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-12">
       <section className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">
-          Free Download
+          Free buyer kit
         </p>
         <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
           The Used Car Buyer&apos;s Protection Kit.
@@ -80,7 +80,7 @@ export default function FreeKitPage() {
             Get the Kit — Free
           </p>
           <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">
-            Drop your email. Download instantly.
+            Drop your email. Get the kit instantly.
           </h2>
           <p className="mt-3 text-sm leading-6 text-gray-500">
             No spam. One email with your download link. That&apos;s it.

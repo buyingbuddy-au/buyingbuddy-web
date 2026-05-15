@@ -9,11 +9,11 @@ export function patchPdfKitFontPaths() {
   patched = true;
 
   const originalReadFileSync = fs.readFileSync.bind(fs);
-  const require = createRequire(import.meta.url);
+  const requireFromThisFile = createRequire(__filename);
 
   let dataDirectory: string | null = null;
   try {
-    const packageJsonPath = require.resolve("pdfkit/package.json");
+    const packageJsonPath = requireFromThisFile.resolve("pdfkit/package.json");
     dataDirectory = path.join(path.dirname(packageJsonPath), "js", "data");
   } catch {
     const fallbackDirectory = path.join(process.cwd(), "node_modules", "pdfkit", "js", "data");
