@@ -62,10 +62,10 @@ export default function RootLayout({
       <head>
         <StructuredData />
       </head>
-      <body className={`${inter.className} bg-white text-gray-900 antialiased`}>
-        <div className="flex min-h-screen flex-col bg-white">
+      <body className={`${inter.className} min-h-dvh overflow-x-clip bg-white text-gray-900 antialiased`}>
+        <div className="flex min-h-dvh flex-col overflow-x-clip bg-white">
           <AppHeader />
-          <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+          <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
           <SiteFooter />
           <BottomNav />
         </div>

@@ -24,7 +24,48 @@ export const resend = {
 };
 
 const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
+const DEFAULT_REPLY_TO = "info@buyingbuddy.com.au";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BRAND_TEAL = "#0D9488";
+
+type ResendEmailInput = Parameters<Resend["emails"]["send"]>[0];
+
+function html_to_text(html: string) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<\/h[1-6]>/gi, "\n\n")
+    .replace(/<li[^>]*>/gi, "- ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function get_reply_to() {
+  const configured = process.env.RESEND_REPLY_TO?.trim();
+  return configured && EMAIL_RE.test(configured) ? configured : DEFAULT_REPLY_TO;
+}
+
+async function send_email(input: ResendEmailInput) {
+  const response = await get_resend().emails.send({
+    ...input,
+    replyTo: get_reply_to(),
+  });
+
+  if (response.error) {
+    throw new Error(`Failed to send email: ${response.error.message}`);
+  }
+}
 
 function base_styles() {
   return `
@@ -126,11 +167,14 @@ export async function send_free_check_email({
     <a href="https://buyingbuddy.com.au" class="cta">Want the full picture? Get a PPSR Report for $4.95</a>
   </div>`;
 
-  await get_resend().emails.send({
+  const html = email_html(content);
+
+  await send_email({
     from: FROM,
     to: email,
     subject: "Your Free Listing Check — Buying Buddy",
-    html: email_html(content),
+    html,
+    text: html_to_text(html),
   });
 }
 
@@ -167,11 +211,14 @@ export async function send_ppsr_confirmation_email({
     <a href="https://buyingbuddy.com.au" class="cta">Visit Buying Buddy</a>
   </div>`;
 
-  await get_resend().emails.send({
+  const html = email_html(content);
+
+  await send_email({
     from: FROM,
     to: email,
     subject: "Your PPSR Report is Being Prepared",
-    html: email_html(content),
+    html,
+    text: html_to_text(html),
   });
 }
 
@@ -229,11 +276,14 @@ export async function send_order_report_email({
     <a href="https://buyingbuddy.com.au" class="cta">Visit Buying Buddy</a>
   </div>`;
 
-  await get_resend().emails.send({
+  const html = email_html(content);
+
+  await send_email({
     from: FROM,
     to: email,
     subject: `Your ${label} — Buying Buddy`,
-    html: email_html(content),
+    html,
+    text: html_to_text(html),
     attachments: [
       {
         content: report_buffer,
@@ -272,11 +322,14 @@ export async function send_deal_room_buyer_email({
     <a href="${deal_url}" class="cta">Open Deal Room</a>
   </div>`;
 
-  await get_resend().emails.send({
+  const html = email_html(content);
+
+  await send_email({
     from: FROM,
     to: buyer_email,
     subject: `Your Deal Room is Ready - ${deal_id}`,
-    html: email_html(content),
+    html,
+    text: html_to_text(html),
   });
 }
 
@@ -316,11 +369,14 @@ export async function send_deal_summary_email({
     <a href="${deal_url}" class="cta">Open Deal Room</a>
   </div>`;
 
-  await get_resend().emails.send({
+  const html = email_html(content);
+
+  await send_email({
     from: FROM,
     to: [buyer_email, seller_email],
     subject: `Deal Record Finalised - ${deal_id}`,
-    html: email_html(content),
+    html,
+    text: html_to_text(html),
     attachments: [
       {
         content: report_buffer,

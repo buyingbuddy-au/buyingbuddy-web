@@ -62,6 +62,36 @@ function get_ppsr_fulfilment_email(): string {
   return DEFAULT_PPSR_FULFILMENT_EMAIL;
 }
 
+function get_resend_reply_to(): string {
+  const configured = process.env.RESEND_REPLY_TO?.trim();
+  if (configured && EMAIL_RE.test(configured)) {
+    return configured;
+  }
+
+  return DEFAULT_PPSR_FULFILMENT_EMAIL;
+}
+
+function html_to_text(html: string): string {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<\/h[1-6]>/gi, "\n\n")
+    .replace(/<li[^>]*>/gi, "- ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function safe_attachment_filename(filename: string | null, fallback: string): string {
   const cleaned = (filename ?? "")
     .replace(/[/\\]/g, "-")
@@ -344,8 +374,10 @@ async function send_ppsr_fulfilment_email({
     response = await resend.emails.send({
       from: "Buying Buddy <info@buyingbuddy.com.au>",
       to: fulfilment_email,
+      replyTo: get_resend_reply_to(),
       subject: `PPSR ready for customer guide - ${data.verdict}${order_id ? ` - ${order_id}` : ""}`,
       html,
+      text: html_to_text(html),
       attachments,
     });
   } catch (error) {
@@ -448,14 +480,6 @@ export async function POST(req: NextRequest) {
     const filename = build_report_filename(order?.id ?? order_id);
     const report = await generate_ppsr_pdf(data, filename);
 
-    if (order) {
-      await update_order(order.id, {
-        ppsr_result: serialise_ppsr_result(data, customer_guide),
-        ppsr_checked_at: to_sqlite_datetime(),
-        report_pdf_path: report.filename,
-      });
-    }
-
     await send_ppsr_fulfilment_email({
       fulfilment_email,
       customer_email: resolved_email,
@@ -468,6 +492,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (order) {
+      await update_order(order.id, {
+        ppsr_result: serialise_ppsr_result(data, customer_guide),
+        ppsr_checked_at: to_sqlite_datetime(),
+        report_pdf_path: report.filename,
+      });
       await update_order(order.id, {
         status: resolve_next_status_after_fulfilment(order),
       });

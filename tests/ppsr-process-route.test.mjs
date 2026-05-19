@@ -11,6 +11,7 @@ const ts = require("typescript");
 const EMAIL_PROVIDER_ENV = ["RESEND", "API", "KEY"].join("_");
 const MESSENGER_PROVIDER_ENV = ["TELEGRAM", "BOT", "TOKEN"].join("_");
 const FULFILMENT_EMAIL_ENV = ["PPSR", "FULFILMENT", "EMAIL"].join("_");
+const REPLY_TO_ENV = ["RESEND", "REPLY", "TO"].join("_");
 const TEST_RESEND_VALUE = ["unit", "test", "resend", "value"].join("-");
 const TEST_TELEGRAM_VALUE = ["unit", "test", "telegram", "value"].join("-");
 
@@ -72,6 +73,9 @@ function compilePpsrProcessRoute(options = {}) {
           send: async (input) => {
             calls.resendEmails.push(input);
             calls.events.push({ type: "resendEmail", input });
+            if (options.resendSend) {
+              return options.resendSend(input, calls);
+            }
             return { data: { id: "email_test_ppsr_process" }, error: null };
           },
         };
@@ -201,6 +205,13 @@ function makePpsrProcessRequest(body) {
       "x-admin-password": "test-admin-password",
     },
   });
+}
+
+function expectedReplyTo() {
+  const configured = process.env[REPLY_TO_ENV]?.trim();
+  return configured && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configured)
+    ? configured
+    : "info@buyingbuddy.com.au";
 }
 
 test("PPSR process route rejects non-string customerEmail before report side effects", async () => {
@@ -543,6 +554,132 @@ test("PPSR process route does not mutate order when extraction fails", async () 
   }
 });
 
+test("PPSR process route does not leave order half-marked when fulfilment email send fails", async () => {
+  const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+    resendSend: async () => {
+      throw new Error("resend outage");
+    },
+  });
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const hadEmailProviderEnv = Object.prototype.hasOwnProperty.call(process.env, EMAIL_PROVIDER_ENV);
+  const originalEmailProviderEnv = process.env[EMAIL_PROVIDER_ENV];
+  const processErrors = [];
+  const telegramFetches = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async (url, init) => {
+    telegramFetches.push({ url: String(url), init });
+    return new Response("telegram should not run after fulfilment email failure", { status: 500 });
+  };
+  process.env[EMAIL_PROVIDER_ENV] = TEST_RESEND_VALUE;
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: rawPpsrText,
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.match(payload.error, /Failed to send PPSR fulfilment email: resend outage/);
+    assert.deepEqual(compiled.calls.getOrderById, ["order_ok"], "valid orderId should be looked up once");
+    assert.deepEqual(compiled.calls.extractPpsrData, [rawPpsrText]);
+    assert.equal(compiled.calls.generatePpsrPdf.length, 1);
+    assert.deepEqual(
+      compiled.calls.events.map((event) => event.type),
+      ["resendEmail"],
+      "fulfilment email failure must not mark the order checked or ready for review",
+    );
+    assert.equal(compiled.calls.resendEmails.length, 1, "fulfilment email should be attempted once");
+    assert.deepEqual(compiled.calls.updateOrder, [], "fulfilment email failure must not leave order half-marked");
+    assert.deepEqual(telegramFetches, [], "telegram notification must not run after fulfilment email failure");
+    assert.equal(processErrors.length, 1, "route should log the failed fulfilment email once");
+  } finally {
+    if (hadEmailProviderEnv) {
+      process.env[EMAIL_PROVIDER_ENV] = originalEmailProviderEnv;
+    } else {
+      delete process.env[EMAIL_PROVIDER_ENV];
+    }
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
+test("PPSR process route treats returned Resend errors as failed fulfilment before order mutation", async () => {
+  const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
+  const compiled = compilePpsrProcessRoute({
+    order: {
+      id: "order_ok",
+      customer_email: "buyer@example.com",
+      product: "ppsr",
+      status: "pending",
+    },
+    resendSend: async () => ({ data: null, error: { message: "resend api rejected" } }),
+  });
+  const originalConsoleError = console.error;
+  const originalFetch = globalThis.fetch;
+  const hadEmailProviderEnv = Object.prototype.hasOwnProperty.call(process.env, EMAIL_PROVIDER_ENV);
+  const originalEmailProviderEnv = process.env[EMAIL_PROVIDER_ENV];
+  const processErrors = [];
+  const telegramFetches = [];
+
+  console.error = (...args) => {
+    processErrors.push(args);
+  };
+  globalThis.fetch = async (url, init) => {
+    telegramFetches.push({ url: String(url), init });
+    return new Response("telegram should not run after returned fulfilment email error", { status: 500 });
+  };
+  process.env[EMAIL_PROVIDER_ENV] = TEST_RESEND_VALUE;
+
+  try {
+    const response = await compiled.route.POST(
+      makePpsrProcessRequest({
+        rawPPSRText: rawPpsrText,
+        customerEmail: "buyer@example.com",
+        orderId: "order_ok",
+      }),
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.ok, false);
+    assert.match(payload.error, /Failed to send PPSR fulfilment email: resend api rejected/);
+    assert.deepEqual(
+      compiled.calls.events.map((event) => event.type),
+      ["resendEmail"],
+      "returned Resend errors must stop before order mutation",
+    );
+    assert.deepEqual(compiled.calls.updateOrder, []);
+    assert.deepEqual(telegramFetches, []);
+    assert.equal(processErrors.length, 1, "route should log the failed returned Resend error once");
+  } finally {
+    if (hadEmailProviderEnv) {
+      process.env[EMAIL_PROVIDER_ENV] = originalEmailProviderEnv;
+    } else {
+      delete process.env[EMAIL_PROVIDER_ENV];
+    }
+    console.error = originalConsoleError;
+    globalThis.fetch = originalFetch;
+    compiled.cleanup();
+  }
+});
+
 test("PPSR process route sends results to Buying Buddy fulfilment inbox before customer presentation", async () => {
   const rawPpsrText = "Sample PPSR text with VIN 6FPAAAJGSW6A12345";
   const compiled = compilePpsrProcessRoute({
@@ -605,8 +742,8 @@ test("PPSR process route sends results to Buying Buddy fulfilment inbox before c
     assert.ok(payload.customerGuide.sections.some((section) => section.id === "finance"));
     assert.deepEqual(
       compiled.calls.events.map((event) => event.type),
-      ["updateOrder", "resendEmail", "updateOrder"],
-      "order should be checked, sent to fulfilment, then moved to customer-presentation review",
+      ["resendEmail", "updateOrder", "updateOrder"],
+      "fulfilment email should succeed before the order is marked checked and moved to review",
     );
     assert.equal(compiled.calls.resendEmails.length, 1);
     assert.equal(compiled.calls.resendEmails[0].to, "info@buyingbuddy.com.au");
@@ -615,6 +752,10 @@ test("PPSR process route sends results to Buying Buddy fulfilment inbox before c
     assert.match(compiled.calls.resendEmails[0].html, /buyer@example\.com/);
     assert.match(compiled.calls.resendEmails[0].html, /Do not forward this internal fulfilment email/i);
     assert.match(compiled.calls.resendEmails[0].html, /pay the lender directly/i);
+    assert.equal(compiled.calls.resendEmails[0].replyTo, expectedReplyTo());
+    assert.match(compiled.calls.resendEmails[0].text, /Do not forward this internal fulfilment email/i);
+    assert.match(compiled.calls.resendEmails[0].text, /buyer@example\.com/);
+    assert.doesNotMatch(compiled.calls.resendEmails[0].text, /<[^>]+>/);
     assert.deepEqual(compiled.calls.updateOrder[1], {
       orderId: "order_ok",
       patch: {
@@ -714,8 +855,8 @@ test("PPSR process route success updates order and sends fulfilment email in ord
     assert.equal(compiled.calls.generatePpsrPdf[0].filename, payload.reportPath);
     assert.deepEqual(
       compiled.calls.events.map((event) => event.type),
-      ["updateOrder", "resendEmail", "updateOrder"],
-      "order should be checked, sent to fulfilment, then moved to customer-presentation review",
+      ["resendEmail", "updateOrder", "updateOrder"],
+      "fulfilment email should succeed before the order is marked checked and moved to review",
     );
 
     assert.equal(compiled.calls.updateOrder.length, 2);
@@ -743,6 +884,10 @@ test("PPSR process route success updates order and sends fulfilment email in ord
     assert.match(compiled.calls.resendEmails[0].subject, /PPSR ready for customer guide - CLEAR/);
     assert.match(compiled.calls.resendEmails[0].html, /Do not forward this internal fulfilment email/);
     assert.match(compiled.calls.resendEmails[0].html, /buyer@example\.com/);
+    assert.equal(compiled.calls.resendEmails[0].replyTo, expectedReplyTo());
+    assert.match(compiled.calls.resendEmails[0].text, /Do not forward this internal fulfilment email/);
+    assert.match(compiled.calls.resendEmails[0].text, /buyer@example\.com/);
+    assert.doesNotMatch(compiled.calls.resendEmails[0].text, /<[^>]+>/);
     assert.deepEqual(compiled.calls.resendEmails[0].attachments, [
       {
         content: Buffer.from("%PDF-1.4\n% PPSR process route test\n"),
@@ -830,8 +975,8 @@ test("PPSR process route treats Telegram notification failure as non-fatal after
     assert.equal(compiled.calls.generatePpsrPdf[0].filename, payload.reportPath);
     assert.deepEqual(
       compiled.calls.events.map((event) => event.type),
-      ["updateOrder", "resendEmail", "updateOrder"],
-      "telegram failure should happen only after order is checked, fulfilment email is sent, and order is ready for review",
+      ["resendEmail", "updateOrder", "updateOrder"],
+      "telegram failure should happen only after fulfilment email succeeds, the order is marked checked, and the order is ready for review",
     );
 
     assert.equal(compiled.calls.updateOrder.length, 2);

@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
-import { create_checkout_session, is_paid_product } from "@/lib/stripe";
+import { create_checkout_session, get_configured_stripe_mode, is_paid_product } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
 function is_valid_email(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+const PUBLIC_CHECKOUT_PRODUCTS = new Set(["ppsr", "deal_room"]);
+
+function is_public_checkout_product(product: string) {
+  return PUBLIC_CHECKOUT_PRODUCTS.has(product);
+}
+
+function is_explicit_test_checkout_enabled() {
+  return [process.env.STRIPE_TEST_BYPASS, process.env.CHECKOUT_SMOKE_TEST]
+    .some((value) => value?.trim().toLowerCase() === "true");
 }
 
 function resolve_base_url(request: Request) {
@@ -40,7 +51,7 @@ export async function POST(request: Request) {
     const product = body.product?.trim() ?? "";
     const vehicle_identifier = body.vehicle_identifier?.trim() ?? "";
 
-    if (!is_paid_product(product)) {
+    if (!is_paid_product(product) || !is_public_checkout_product(product)) {
       return NextResponse.json(
         { ok: false, error: "Unsupported product type." },
         { status: 400 },
@@ -86,6 +97,19 @@ export async function POST(request: Request) {
       }
     }
 
+    const stripe_mode = get_configured_stripe_mode();
+
+    if (is_explicit_test_checkout_enabled() && stripe_mode !== "test") {
+      return NextResponse.json(
+        {
+          ok: false,
+          mode: stripe_mode,
+          error: "Stripe test checkout is enabled, but configured Stripe keys are not in test mode.",
+        },
+        { status: 500 },
+      );
+    }
+
     const session = await create_checkout_session({
       base_url: resolve_base_url(request),
       customer_email,
@@ -102,6 +126,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      mode: stripe_mode,
       session_id: session.id,
       checkout_url: session.url,
     });

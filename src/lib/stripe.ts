@@ -30,12 +30,36 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
 
 let stripe_client: Stripe | null = null;
 
+export type StripeKeyMode = "live" | "test" | "unknown";
+
+export function get_stripe_key_mode(key: string | null | undefined): StripeKeyMode {
+  const trimmed = key?.trim() ?? "";
+  if (trimmed.startsWith("sk_live_") || trimmed.startsWith("pk_live_")) return "live";
+  if (trimmed.startsWith("sk_test_") || trimmed.startsWith("pk_test_")) return "test";
+  return "unknown";
+}
+
+export function get_configured_stripe_mode(): StripeKeyMode {
+  const secret_mode = get_stripe_key_mode(process.env.STRIPE_SECRET_KEY);
+  const publishable_mode = get_stripe_key_mode(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
+  if (secret_mode !== "unknown" && publishable_mode !== "unknown" && secret_mode !== publishable_mode) {
+    throw new Error(
+      `Stripe key mode mismatch: STRIPE_SECRET_KEY is ${secret_mode} but NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is ${publishable_mode}. Refusing to create checkout sessions.`,
+    );
+  }
+
+  return secret_mode !== "unknown" ? secret_mode : publishable_mode;
+}
+
 export function get_stripe() {
   const secret_key = process.env.STRIPE_SECRET_KEY?.trim();
 
   if (!secret_key) {
     throw new Error("STRIPE_SECRET_KEY is not configured.");
   }
+
+  get_configured_stripe_mode();
 
   if (!stripe_client) {
     stripe_client = new Stripe(secret_key);

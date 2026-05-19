@@ -16,6 +16,7 @@ function compileCheckoutRoute(options = {}) {
   const tsc = join(process.cwd(), "node_modules", ".bin", "tsc");
   const checkoutSessions = [];
   const isPaidProduct = options.isPaidProduct ?? ((product) => KNOWN_PAID_PRODUCTS.has(product));
+  const stripeMode = options.stripeMode ?? "test";
 
   writeFileSync(
     tsconfigPath,
@@ -61,6 +62,7 @@ function compileCheckoutRoute(options = {}) {
       if (request === "@/lib/stripe") {
         return {
           is_paid_product: isPaidProduct,
+          get_configured_stripe_mode: () => stripeMode,
           create_checkout_session: async (input) => {
             checkoutSessions.push(input);
             return { id: "cs_test_checkout_whitelist", url: "https://checkout.stripe.test/session" };
@@ -102,6 +104,30 @@ function makeCheckoutRequest(body) {
   });
 }
 
+async function withEnv(updates, fn) {
+  const originals = new Map();
+  for (const [key, value] of Object.entries(updates)) {
+    originals.set(key, Object.prototype.hasOwnProperty.call(process.env, key) ? process.env[key] : undefined);
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+
+  try {
+    return await fn();
+  } finally {
+    for (const [key, value] of originals.entries()) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
+}
+
 test("checkout API rejects unknown product slugs before creating a Stripe session", async () => {
   const compiled = compileCheckoutRoute();
 
@@ -129,6 +155,35 @@ test("checkout API rejects unknown product slugs before creating a Stripe sessio
   }
 });
 
+test("checkout API rejects hidden legacy products from the public checkout route", async () => {
+  const compiled = compileCheckoutRoute();
+
+  try {
+    for (const product of ["dealer_review", "full_pack"]) {
+      const response = await compiled.route.POST(
+        makeCheckoutRequest({
+          product,
+          email: "buyer@example.com",
+          customer_name: "Buyer Example",
+          listing_url: "https://example.com/listing/123",
+        }),
+      );
+      const payload = await response.json();
+
+      assert.equal(response.status, 400, `${product} should not be publicly check-outable`);
+      assert.deepEqual(payload, { ok: false, error: "Unsupported product type." });
+    }
+
+    assert.equal(
+      compiled.getCheckoutSessions().length,
+      0,
+      "hidden legacy products must not create public checkout sessions",
+    );
+  } finally {
+    compiled.cleanup();
+  }
+});
+
 test("checkout API allows launch paid product slugs", async () => {
   const compiled = compileCheckoutRoute();
 
@@ -148,6 +203,7 @@ test("checkout API allows launch paid product slugs", async () => {
       assert.equal(payload.ok, true);
       assert.equal(payload.session_id, "cs_test_checkout_whitelist");
       assert.equal(payload.checkout_url, "https://checkout.stripe.test/session");
+      assert.equal(payload.mode, "test");
     }
 
     assert.deepEqual(
@@ -158,4 +214,34 @@ test("checkout API allows launch paid product slugs", async () => {
   } finally {
     compiled.cleanup();
   }
+});
+
+test("checkout API blocks explicit test checkout mode when Stripe is configured live", async () => {
+  await withEnv({ STRIPE_TEST_BYPASS: "true", CHECKOUT_SMOKE_TEST: undefined }, async () => {
+    const compiled = compileCheckoutRoute({ stripeMode: "live" });
+
+    try {
+      const response = await compiled.route.POST(
+        makeCheckoutRequest({
+          product: "ppsr",
+          email: "buyer@example.com",
+          customer_name: "Buyer Example",
+          vehicle_identifier: "123ABC",
+        }),
+      );
+      const payload = await response.json();
+
+      assert.equal(response.status, 500);
+      assert.equal(payload.ok, false);
+      assert.equal(payload.mode, "live");
+      assert.match(payload.error, /configured Stripe keys are not in test mode/);
+      assert.equal(
+        compiled.getCheckoutSessions().length,
+        0,
+        "explicit test checkout must fail before creating a live Stripe session",
+      );
+    } finally {
+      compiled.cleanup();
+    }
+  });
 });

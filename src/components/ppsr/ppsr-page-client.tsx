@@ -145,7 +145,7 @@ export default function PpsrPageClient() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-12">
+    <div className="mx-auto w-full max-w-6xl overflow-x-clip px-4 pb-12 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-12">
       {/* ── Test-mode banner ── */}
       {IS_TEST_MODE && (
         <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-bold text-amber-800">
@@ -155,7 +155,7 @@ export default function PpsrPageClient() {
       )}
 
       {/* ── Mobile: form first, value prop second ── */}
-      <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+      <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-start">
         {/* ── Value prop panel (appears second on mobile, first on desktop) ── */}
         <div className="order-2 rounded-[2rem] border border-gray-200 bg-gray-50 p-5 shadow-sm sm:p-8 lg:order-1">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">
@@ -209,7 +209,7 @@ export default function PpsrPageClient() {
         {/* ── Form panel (appears first on mobile) ── */}
         <form
           onSubmit={handleSubmit}
-          className="order-1 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-8 lg:order-2"
+          className="order-1 min-w-0 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-8 lg:order-2"
         >
           <div className="mb-5 flex items-center gap-2">
             <FileSearch
@@ -222,7 +222,7 @@ export default function PpsrPageClient() {
           </div>
 
           {/* VIN / Rego */}
-          <label className="grid gap-1.5" htmlFor="ppsr-identifier">
+          <label className="grid min-w-0 gap-1.5" htmlFor="ppsr-identifier">
             <span className="text-sm font-bold text-gray-900">
               VIN or Rego
             </span>
@@ -235,7 +235,7 @@ export default function PpsrPageClient() {
               }
               placeholder="e.g. ABC123 or JM0DK2W7601234567"
               autoComplete="off"
-              className="rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-base uppercase text-gray-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10"
+              className="w-full min-w-0 rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-base uppercase text-gray-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10"
             />
             <span className="text-xs text-gray-400">
               VIN is on the compliance plate or driver&apos;s door jamb
@@ -243,7 +243,7 @@ export default function PpsrPageClient() {
           </label>
 
           {/* Email */}
-          <label className="mt-4 grid gap-1.5" htmlFor="ppsr-email">
+          <label className="mt-4 grid min-w-0 gap-1.5" htmlFor="ppsr-email">
             <span className="text-sm font-bold text-gray-900">
               Your email
             </span>
@@ -255,7 +255,7 @@ export default function PpsrPageClient() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
-              className="rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10"
+              className="w-full min-w-0 rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10"
             />
             <span className="text-xs text-gray-400">
               We send the report here. No spam, ever.

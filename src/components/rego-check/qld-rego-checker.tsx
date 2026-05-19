@@ -201,10 +201,10 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
   const currentWait = WAIT_CARDS[waitIndex];
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8" id="qld-rego-check">
+    <section className="mx-auto w-full max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 lg:px-8" id="qld-rego-check">
       <div className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-white p-5 shadow-sm sm:p-8 lg:p-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,1.05fr)] lg:items-start">
-          <div>
+        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+          <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-teal-700 shadow-sm ring-1 ring-teal-100">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Queensland rego lookup
@@ -231,11 +231,11 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
             </div>
           </div>
 
-          <form onSubmit={runCheck} className="rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+          <form onSubmit={runCheck} className="min-w-0 rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
             <label htmlFor="rego" className="text-sm font-black uppercase tracking-[0.16em] text-gray-500">
               QLD rego
             </label>
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-3 flex min-w-0 flex-col gap-3 sm:flex-row">
               <input
                 id="rego"
                 value={rego}
@@ -244,12 +244,12 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
                 inputMode="text"
                 autoCapitalize="characters"
                 maxLength={7}
-                className="min-h-[3.5rem] flex-1 rounded-2xl border border-gray-300 px-4 text-xl font-black uppercase tracking-[0.12em] outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+                className="min-h-[3.5rem] w-full min-w-0 flex-1 rounded-2xl border border-gray-300 px-4 text-xl font-black uppercase tracking-[0.12em] outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl bg-teal-600 px-5 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex min-h-[3.5rem] w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 px-5 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:shrink-0"
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
                 {loading ? "Checking" : "Check QLD rego"}
@@ -303,15 +303,15 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
               </p>
             </div>
           </div>
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row">
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               type="email"
-              className="min-h-[3.25rem] flex-1 rounded-2xl border border-amber-200 bg-white px-4 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+              className="min-h-[3.25rem] w-full min-w-0 flex-1 rounded-2xl border border-amber-200 bg-white px-4 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
             />
-            <button type="button" onClick={sendCapture} className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-amber-600 px-5 text-sm font-black text-white hover:bg-amber-700">
+            <button type="button" onClick={sendCapture} className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-2xl bg-amber-600 px-5 text-sm font-black text-white hover:bg-amber-700 sm:w-auto sm:shrink-0">
               <Mail className="h-4 w-4" /> Send it to me
             </button>
           </div>
@@ -321,7 +321,7 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
       ) : null}
 
       {result ? (
-        <div ref={resultRef} className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div ref={resultRef} className="mt-6 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <ResultCard result={result} onCopy={copyQuestions} copied={copied} />
           <aside className="space-y-4">
             <div className="rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm">

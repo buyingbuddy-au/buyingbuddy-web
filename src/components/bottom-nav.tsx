@@ -31,8 +31,8 @@ export default function BottomNav() {
   if (pathname === "/inspect/full") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden">
-      <div className="grid grid-cols-5">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 w-full max-w-full overflow-x-clip border-t border-gray-200 bg-white pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden">
+      <div className="grid w-full grid-cols-5">
         {NAV_ITEMS.map((item) => {
           const active = isActiveRoute(pathname, item.href);
           const Icon = item.icon;

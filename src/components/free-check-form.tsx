@@ -276,7 +276,7 @@ export default function FreeCheckForm() {
   /* ── Results View ── */
   if (result) {
     return (
-      <div ref={resultsRef} className="mx-auto w-full max-w-3xl px-4 pb-12 pt-4 sm:px-6">
+      <div ref={resultsRef} className="mx-auto w-full max-w-3xl overflow-x-clip px-4 pb-12 pt-4 sm:px-6">
         {/* Section 1: Quick Verdict */}
         <section className={`rounded-2xl border p-5 shadow-sm sm:p-6 ${verdictBadge?.bg}`}>
           <div className="flex items-start justify-between gap-3">
@@ -456,7 +456,7 @@ export default function FreeCheckForm() {
 
   /* ── Form View ── */
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-12 pt-4 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl overflow-x-clip px-4 pb-12 pt-4 sm:px-6">
       <section className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm sm:p-8">
         <div className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-teal-700">
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -472,14 +472,14 @@ export default function FreeCheckForm() {
 
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
           {/* Listing URL */}
-          <label className="grid gap-1.5">
+          <label className="grid min-w-0 gap-1.5">
             <span className="text-sm font-bold text-gray-900">Listing URL</span>
             <input
               type="url"
               value={listingUrl}
               onChange={(e) => { setListingUrl(e.target.value); setError(""); }}
               placeholder="Facebook Marketplace, Carsales, or Gumtree link"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+              className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
             />
           </label>
 
@@ -491,28 +491,28 @@ export default function FreeCheckForm() {
           </div>
 
           {/* Make / Model / Year */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <label className="grid gap-1.5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Make</span>
               <input
                 type="text"
                 value={make}
                 onChange={(e) => setMake(e.target.value)}
                 placeholder="Hyundai"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Model</span>
               <input
                 type="text"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
                 placeholder="Kona"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Year</span>
               <input
                 type="number"
@@ -520,14 +520,14 @@ export default function FreeCheckForm() {
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 placeholder="2019"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
           </div>
 
           {/* Km / Rego / Price */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <label className="grid gap-1.5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Kilometres</span>
               <input
                 type="text"
@@ -535,20 +535,20 @@ export default function FreeCheckForm() {
                 value={km}
                 onChange={(e) => setKm(formatKm(e.target.value))}
                 placeholder="85,000"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Rego</span>
               <input
                 type="text"
                 value={rego}
                 onChange={(e) => setRego(e.target.value.toUpperCase())}
                 placeholder="ABC123"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base uppercase text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base uppercase text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Asking Price</span>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -558,26 +558,26 @@ export default function FreeCheckForm() {
                   value={askingPrice}
                   onChange={(e) => setAskingPrice(formatKm(e.target.value))}
                   placeholder="19,000"
-                  className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-8 pr-4 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                  className="w-full min-w-0 rounded-xl border border-gray-200 bg-white py-3 pl-8 pr-4 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
                 />
               </div>
             </label>
           </div>
 
           {/* Transmission / Email */}
-          <div className="grid grid-cols-2 gap-3">
-            <label className="grid gap-1.5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">Transmission</span>
               <select
                 value={transmission}
                 onChange={(e) => setTransmission(e.target.value)}
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               >
                 <option value="Automatic">Automatic</option>
                 <option value="Manual">Manual</option>
               </select>
             </label>
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-bold text-gray-900">
                 Email {requiresEmail ? "(required)" : "(optional)"}
               </span>
@@ -588,7 +588,7 @@ export default function FreeCheckForm() {
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 placeholder="you@example.com"
                 autoComplete="email"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 sm:text-sm"
               />
             </label>
           </div>

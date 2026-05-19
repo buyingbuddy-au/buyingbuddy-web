@@ -4,7 +4,8 @@ import { Check, CheckCircle2, X } from "lucide-react";
 export const metadata = {
   title: "Pricing",
   description:
-    "Simple buyer-side used-car help: free tools, $4.95 PPSR reports, and a $9.99 Deal Pack for private car buyers."
+    "Simple buyer-side used-car help: free tools, $4.95 PPSR reports, and a $9.99 Deal Pack for private car buyers.",
+  alternates: { canonical: "https://buyingbuddy.com.au/pricing" },
 };
 
 const PRODUCTS = [
@@ -120,22 +121,22 @@ export default function PricingPage() {
         <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Compare</p>
         <h2 className="mt-3 text-2xl font-black tracking-[-0.05em] text-gray-900">What&apos;s included</h2>
 
-        <div className="mt-6 overflow-x-auto rounded-[1.75rem] border border-gray-200 bg-white shadow-sm">
-          <table className="w-full min-w-[520px] text-sm">
+        <div className="mt-6 overflow-hidden rounded-[1.75rem] border border-gray-200 bg-white shadow-sm">
+          <table className="w-full table-fixed text-xs sm:table-auto sm:text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="p-4 text-left font-bold text-gray-900">Feature</th>
-                <th className="p-4 text-center font-bold text-gray-500">Free</th>
-                <th className="p-4 text-center font-bold text-teal-700">PPSR</th>
-                <th className="p-4 text-center font-bold text-gray-500">Deal Pack</th>
+                <th className="w-[46%] p-2 text-left font-bold text-gray-900 sm:w-auto sm:p-4">Feature</th>
+                <th className="p-2 text-center font-bold text-gray-500 sm:p-4">Free</th>
+                <th className="p-2 text-center font-bold text-teal-700 sm:p-4">PPSR</th>
+                <th className="p-2 text-center font-bold text-gray-500 sm:p-4">Deal Pack</th>
               </tr>
             </thead>
             <tbody>
               {COMPARISON.map((row) => (
                 <tr key={row.feature} className="border-b border-gray-50 last:border-none">
-                  <td className="p-4 text-gray-700">{row.feature}</td>
+                  <td className="break-words p-2 leading-5 text-gray-700 sm:p-4">{row.feature}</td>
                   {[row.free, row.ppsr, row.deal].map((value, index) => (
-                    <td key={index} className="p-4 text-center">
+                    <td key={index} className="p-2 text-center sm:p-4">
                       {value ? (
                         <Check className="mx-auto h-4 w-4 text-teal-600" aria-hidden="true" />
                       ) : (

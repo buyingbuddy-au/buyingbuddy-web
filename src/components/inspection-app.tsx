@@ -260,7 +260,7 @@ export function InspectionApp() {
   }
 
   return (
-    <div className="inspection-print-root min-h-screen bg-slate-950 pb-24 text-slate-950 print:min-h-0 print:bg-white print:pb-0">
+    <div className="inspection-print-root min-h-dvh overflow-x-clip bg-slate-950 pb-24 text-slate-950 print:min-h-0 print:bg-white print:pb-0">
       <style>{`
         @media print {
           @page { size: A4; margin: 10mm; }
@@ -284,7 +284,7 @@ export function InspectionApp() {
         }
       `}</style>
 
-      <div className="print-shell mx-auto w-full max-w-6xl px-4 pb-10 pt-4 sm:px-6 lg:px-8 lg:pt-8">
+      <div className="print-shell mx-auto w-full max-w-6xl overflow-x-clip px-4 pb-10 pt-4 sm:px-6 lg:px-8 lg:pt-8">
         <nav className="screen-only mb-4 flex items-center justify-between gap-3">
           <Link
             href="/inspect"
@@ -303,9 +303,9 @@ export function InspectionApp() {
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-100 print:hidden">
                 <ClipboardCheck className="h-3.5 w-3.5" /> Inspection Checklist
               </div>
-              <h1 className="mt-4 max-w-3xl text-3xl font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-5xl print:mt-0 print:text-2xl print:text-slate-950">
+              <h2 className="mt-4 max-w-3xl text-3xl font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-5xl print:mt-0 print:text-2xl print:text-slate-950">
                 21 checks, one buyer-side decision record.
-              </h1>
+              </h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base print:mt-1 print:text-xs print:leading-5 print:text-slate-600">
                 Use it beside the car on your phone, then print or save the same completed checklist as a compact two-page PDF decision record.
               </p>
@@ -396,17 +396,17 @@ export function InspectionApp() {
           </div>
         </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[17rem_1fr] print:mt-3 print:block">
-          <aside className="screen-only self-start rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 text-slate-300 shadow-xl shadow-black/20 lg:sticky lg:top-40">
-            <div className="flex items-center gap-2 text-sm font-black text-white">
+        <div className="mt-6 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] print:mt-3 print:block">
+          <aside className="screen-only w-full max-w-full min-w-0 self-start overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 text-slate-300 shadow-xl shadow-black/20 lg:sticky lg:top-40">
+            <div className="flex min-w-0 items-center gap-2 text-sm font-black text-white">
               <Gauge className="h-4 w-4 text-teal-300" /> Section status
             </div>
-            <div className="mt-4 grid gap-3">
+            <div className="mt-4 grid min-w-0 gap-3">
               {SECTIONS.map((section) => {
                 const sectionProgress = getSectionProgress(section, state);
                 return (
-                  <a key={section.title} href={`#${getSectionAnchorId(section)}`} className="block rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:bg-white/[0.06]">
-                    <div className="flex items-center justify-between gap-2">
+                  <a key={section.title} href={`#${getSectionAnchorId(section)}`} className="block min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:bg-white/[0.06]">
+                    <div className="flex min-w-0 items-center justify-between gap-2">
                       <span className="text-sm font-bold text-slate-100">{section.title}</span>
                       <span className="text-xs font-bold text-slate-400">{sectionProgress.complete}/{sectionProgress.total}</span>
                     </div>
@@ -423,14 +423,14 @@ export function InspectionApp() {
             </div>
           </aside>
 
-          <main className="print-section-grid grid gap-4">
+          <main className="print-section-grid grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
             {SECTIONS.map((section) => {
               const tally = getSectionTally(section, state);
               return (
                 <section
                   id={getSectionAnchorId(section)}
                   key={section.title}
-                  className="print-card print-section rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3 shadow-sm sm:p-4 print:break-inside-avoid"
+                  className="print-card print-section w-full max-w-full min-w-0 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3 shadow-sm sm:p-4 print:break-inside-avoid"
                 >
                   <div className="mb-3 flex items-start justify-between gap-4">
                     <div>
@@ -447,15 +447,15 @@ export function InspectionApp() {
                     </span>
                   </div>
 
-                  <div className="grid gap-2 print:block">
+                  <div className="grid min-w-0 gap-2 print:block">
                     {section.items.map((item, itemIndex) => {
                       const itemState = state[item.id];
                       const isNoteOpen = expandedNotes.has(item.id);
                       const absoluteIndex = ALL_ITEMS.findIndex((candidate) => candidate.id === item.id) + 1;
 
                       return (
-                        <div key={item.id} className={`print-row rounded-2xl border px-3 py-3 transition-colors print:rounded-none print:border-0 print:px-0 ${ratingTone(itemState.rating)}`}>
-                          <div className="flex items-center gap-3">
+                        <div key={item.id} className={`print-row min-w-0 rounded-2xl border px-3 py-3 transition-colors print:rounded-none print:border-0 print:px-0 ${ratingTone(itemState.rating)}`}>
+                          <div className="flex min-w-0 items-center gap-3">
                             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white print:h-5 print:w-5 print:rounded-sm print:border print:border-slate-400 print:bg-white print:text-[10px] print:text-slate-950">
                               <span className="screen-only">{absoluteIndex}</span>
                               <span className="hidden print:inline">{printRatingGlyph(itemState.rating)}</span>
