@@ -42,23 +42,26 @@ test.describe('BuyingBuddy Checkout Flow', () => {
     expect(postData.vehicle_identifier).toBe("123ABC");
   });
 
-  test('Deal Room direct checkout flow', async ({ page }) => {
-    await page.goto('http://localhost:3000/deal');
+  test('PDF direct checkout flow', async ({ page }) => {
+    await page.goto('http://localhost:3000/pdf');
     
-    // Wait for the Create Deal Room form
-    const email = `deal-test-${Date.now()}@buyingbuddy.local`;
-    await page.fill('input[name="buyer_email"]', email);
+    // Wait for the Create PDF form
+    const email = `pdf-test-${Date.now()}@buyingbuddy.local`;
+    await page.fill('input#deal-email', email);
+    await page.fill('input#deal-rego', '123ABC');
     
-    // Click Create & Pay
-    const createButton = page.locator('button:has-text("Create Deal Room & Pay")');
+    // Click Open PDF & Pay
+    const createButton = page.locator('button:has-text("Open PDF")');
     await expect(createButton).toBeVisible();
     
-    const requestPromise = page.waitForRequest(req => req.url().includes('/api/deal/create') && req.method() === 'POST');
+    const requestPromise = page.waitForRequest(req => req.url().includes('/api/stripe/checkout') && req.method() === 'POST');
     await createButton.click();
     
     const request = await requestPromise;
     const postData = JSON.parse(request.postData() || "{}");
     
-    expect(postData.buyer_email).toBe(email);
+    expect(postData.email).toBe(email);
+    expect(postData.product).toBe("pdf");
+    expect(postData.vehicle_identifier).toBe("123ABC");
   });
 });

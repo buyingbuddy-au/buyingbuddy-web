@@ -173,11 +173,11 @@ export async function run_free_check({
   // Build verdict
   let verdict: string;
   if (has_real_data && car_name && scraped.price) {
-    verdict = `This ${car_name} is listed at ${scraped.price} on ${platform}.${scraped.location ? ` Located in ${scraped.location}.` : ""} Before making any offer, run a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the Deal Pack ($9.99) to handle the QLD paperwork and handover steps.`;
+    verdict = `This ${car_name} is listed at ${scraped.price} on ${platform}.${scraped.location ? ` Located in ${scraped.location}.` : ""} Before making any offer, run a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the PDF ($9.99) to handle the QLD paperwork and handover steps.`;
   } else if (has_real_data && scraped.title) {
-    verdict = `This listing on ${platform} is for "${scraped.title.slice(0, 60)}".${scraped.price ? ` Listed at ${scraped.price}.` : ""} We recommend a PPSR check ($4.95) as a minimum before any private purchase. If the PPSR is clean, use the Deal Pack ($9.99) for the QLD paperwork and handover steps.`;
+    verdict = `This listing on ${platform} is for "${scraped.title.slice(0, 60)}".${scraped.price ? ` Listed at ${scraped.price}.` : ""} We recommend a PPSR check ($4.95) as a minimum before any private purchase. If the PPSR is clean, use the PDF ($9.99) for the QLD paperwork and handover steps.`;
   } else {
-    verdict = `This listing is from ${platform !== "Unknown" ? platform : "an unrecognised platform"}. Before making any offer, we strongly recommend running a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the Deal Pack ($9.99) for the QLD paperwork and handover steps.`;
+    verdict = `This listing is from ${platform !== "Unknown" ? platform : "an unrecognised platform"}. Before making any offer, we strongly recommend running a PPSR check ($4.95) to check for finance owing, stolen vehicle status, and write-off history. If it still looks worth chasing, use the PDF ($9.99) for the QLD paperwork and handover steps.`;
   }
 
   return {

@@ -20,6 +20,7 @@ const PRODUCT_TYPES: Array<ProductType | "all"> = [
   "ppsr",
   "dealer_review",
   "full_pack",
+  "pdf",
   "deal_room",
 ];
 

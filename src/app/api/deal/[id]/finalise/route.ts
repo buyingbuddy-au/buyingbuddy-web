@@ -44,7 +44,7 @@ export async function POST(
         error:
           error instanceof Error
             ? error.message
-            : "Unable to finalise Deal Room.",
+            : "Unable to finalise PDF.",
       },
       { status: 400 },
     );

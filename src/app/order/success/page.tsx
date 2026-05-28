@@ -12,7 +12,7 @@ export default async function OrderSuccessPage({
   const session_id = params.session_id ?? "";
   const order = session_id ? await get_order_by_stripe_session_id(session_id) : null;
   const is_ppsr = order?.product === "ppsr";
-  const is_deal_pack = order?.product === "deal_room";
+  const is_pdf = order?.product === "pdf" || order?.product === "deal_room";
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-10 sm:px-6 lg:px-8">
@@ -24,16 +24,16 @@ export default async function OrderSuccessPage({
         <h1 className="mt-6 text-3xl font-black tracking-[-0.05em] text-gray-900">
           {is_ppsr
             ? "Your PPSR report is being prepared"
-            : is_deal_pack
-            ? "Your Deal Pack is ready to start"
+            : is_pdf
+            ? "Your PDF is ready to start"
             : "Your order is confirmed"}
         </h1>
 
         <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-gray-500">
           {is_ppsr
             ? "Your PPSR report is being prepared. You'll receive it by email same business day, usually within 2 hours."
-            : is_deal_pack
-            ? "Payment confirmed. Use the Deal Room and QLD paperwork steps to keep the handover tidy."
+            : is_pdf
+            ? "Payment confirmed. Use the PDF and QLD paperwork steps to keep the handover tidy."
             : "Payment confirmed. Your order is in the queue and will be processed shortly."}
         </p>
 

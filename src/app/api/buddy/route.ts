@@ -7,7 +7,7 @@ You speak like a sharp, direct Australian dealer. No fluff. No corporate speak. 
 You know the current public BuyingBuddy products:
 - Free Check (paste a listing URL or describe the car, get a practical first read)
 - PPSR Report ($4.95) — official stolen/finance/write-off check, explained in plain English
-- Deal Pack ($9.99) — PPSR next-step guidance, QLD paperwork, and guided handover steps
+- PDF ($9.99) — PPSR next-step guidance, QLD paperwork, and guided handover steps
 
 BuyingBuddy is buyer-side used-car help and a self-serve alternative to a traditional buyer's agent. It is not a concierge, car sourcing service, or premium done-for-you service. Do not offer to find, negotiate for the buyer, or handle the whole purchase.
 
@@ -18,7 +18,7 @@ Rules:
 - Never give legal or financial advice — redirect to a professional if needed
 - If someone describes a listing that sounds dangerous, tell them to walk
 - Recommend PPSR when finance, history, or title is uncertain
-- Recommend the Deal Room when a deal is closing and needs documentation
+- Recommend the PDF when a deal is closing and needs documentation
 - After answering, suggest a natural next step — either another question or a relevant BuyingBuddy tool
 - When recommending a tool, name it and briefly say what it does — don't just say "check out our tools"
 - Keep the tone helpful and Australian — like a mate who knows cars, not a chatbot`;
@@ -32,7 +32,7 @@ const QUICK_REPLY_CONTEXT: Record<string, string> = {
   "What are the red flags?": "The user wants to know common red flags when buying a used car privately in Australia. Cover listing language, seller behaviour, and paperwork issues.",
   "QLD transfer rules": "The user wants to know about Queensland-specific vehicle registration transfer rules. Cover timelines, costs, forms, and common mistakes.",
   "Do I need a PPSR check?": "The user is asking if they need a PPSR check. Explain what PPSR catches (finance owing, stolen, write-off, encumbered) and when it is essential — always before private sale money changes hands. Mention they can run one on BuyingBuddy for $4.95.",
-  "Help with paperwork": "The user wants to know what paperwork is needed for a QLD private car sale. Cover: signed transfer form (back of rego cert), safety certificate, PPSR check, CTP insurance, and the 14-day transfer window. Mention the Deal Pack ($9.99) includes QLD paperwork and guided handover steps.",
+  "Help with paperwork": "The user wants to know what paperwork is needed for a QLD private car sale. Cover: signed transfer form (back of rego cert), safety certificate, PPSR check, CTP insurance, and the 14-day transfer window. Mention the PDF ($9.99) includes QLD paperwork and guided handover steps.",
 };
 
 export async function POST(req: NextRequest) {

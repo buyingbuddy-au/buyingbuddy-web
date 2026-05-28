@@ -160,7 +160,7 @@ function DealDemoInner() {
   function handleShare() {
     const url = window.location.href;
     if (navigator.share) {
-      void navigator.share({ title: "BuyingBuddy Test Deal Room", url });
+      void navigator.share({ title: "BuyingBuddy Test PDF", url });
     } else {
       void navigator.clipboard.writeText(url);
       alert("Link copied!");
@@ -171,7 +171,7 @@ function DealDemoInner() {
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Room · Test Mode</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">PDF · Test Mode</p>
           <p className="mt-1 truncate text-sm text-gray-500">Temporary no-pay demo room</p>
         </div>
         <button onClick={handleShare} className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-teal-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-teal-700">
@@ -199,9 +199,9 @@ function DealDemoInner() {
         <div className="mt-4 rounded-[2rem] bg-teal-600 p-6 text-center text-white">
           <FileText className="mx-auto h-8 w-8" />
           <p className="mt-3 text-xl font-black">Test Deal Finalised</p>
-          <p className="mt-2 text-sm text-teal-100">You’ve tested the full Deal Room flow successfully.</p>
-          <Link href="/deal" className="mt-5 inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-6 text-sm font-bold text-white transition hover:bg-white/20">
-            Back to Deal Room home
+          <p className="mt-2 text-sm text-teal-100">You’ve tested the full PDF flow successfully.</p>
+          <Link href="/pdf" className="mt-5 inline-flex min-h-[3rem] items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-6 text-sm font-bold text-white transition hover:bg-white/20">
+            Back to PDF home
           </Link>
         </div>
       )}

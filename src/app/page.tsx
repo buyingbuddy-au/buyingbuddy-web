@@ -222,12 +222,12 @@ export default function HomePage() {
               </div>
             </Link>
             <Link
-              href="/deal"
+              href="/pdf"
               className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-3 transition hover:-translate-y-0.5 hover:shadow-md sm:block sm:rounded-[1.5rem] sm:p-5"
             >
               <FileText className="h-6 w-6 shrink-0 text-teal-700" aria-hidden="true" />
               <div>
-                <h3 className="text-base font-black tracking-[-0.02em] text-gray-950 sm:mt-4 sm:text-lg">$9.99 Deal Pack</h3>
+                <h3 className="text-base font-black tracking-[-0.02em] text-gray-950 sm:mt-4 sm:text-lg">$9.99 PDF</h3>
                 <p className="mt-1 text-xs leading-5 text-gray-600 sm:mt-2 sm:text-sm sm:leading-6">PPSR + contract + record.</p>
               </div>
             </Link>
@@ -244,7 +244,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="max-w-lg text-sm leading-6 text-gray-600">
-            The listing, inspection, and contract tools sit underneath the rego-to-PPSR flow. Deal Pack keeps the sale together when the car survives the checks.
+            The listing, inspection, and contract tools sit underneath the rego-to-PPSR flow. PDF keeps the sale together when the car survives the checks.
           </p>
         </div>
 

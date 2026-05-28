@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -14,6 +15,11 @@ import {
   DollarSign,
   Ban,
 } from "lucide-react";
+import {
+  buildUrlWithoutSensitiveHandoffParams,
+  hasSensitiveHandoffParams,
+  readFunnelHandoffParams,
+} from "@/lib/funnel-context";
 
 /* ── Test-mode detection (build-time inlined) ── */
 const IS_TEST_MODE =
@@ -100,6 +106,8 @@ const GUIDE_NEXT_STEPS = [
 ] as const;
 
 export default function PpsrPageClient() {
+  const searchParams = useSearchParams();
+  const prefillApplied = useRef(false);
   const [vehicleIdentifier, setVehicleIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [activeGuideStep, setActiveGuideStep] = useState(0);
@@ -107,6 +115,27 @@ export default function PpsrPageClient() {
   const [loading, setLoading] = useState(false);
   const activeGuide = GUIDE_PREVIEW[activeGuideStep];
   const ActiveGuideIcon = activeGuide.icon;
+
+  useEffect(() => {
+    if (prefillApplied.current) return;
+    prefillApplied.current = true;
+
+    const context = readFunnelHandoffParams(searchParams);
+    if (context.identifier) {
+      setVehicleIdentifier(context.identifier);
+    }
+    if (context.email) {
+      setEmail(context.email);
+    }
+
+    if (hasSensitiveHandoffParams(searchParams)) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        buildUrlWithoutSensitiveHandoffParams(window.location.href),
+      );
+    }
+  }, [searchParams]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -224,7 +253,7 @@ export default function PpsrPageClient() {
           {/* VIN / Rego */}
           <label className="grid min-w-0 gap-1.5" htmlFor="ppsr-identifier">
             <span className="text-sm font-bold text-gray-900">
-              VIN or Rego
+              VIN (best) or QLD rego
             </span>
             <input
               id="ppsr-identifier"
@@ -237,8 +266,8 @@ export default function PpsrPageClient() {
               autoComplete="off"
               className="w-full min-w-0 rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-base uppercase text-gray-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10"
             />
-            <span className="text-xs text-gray-400">
-              VIN is on the compliance plate or driver&apos;s door jamb
+            <span className="text-xs text-gray-500">
+              VIN is best if you have it. QLD rego still works to start — we’ll confirm the VIN before fulfilment if needed.
             </span>
           </label>
 

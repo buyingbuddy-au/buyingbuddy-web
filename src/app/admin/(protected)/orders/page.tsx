@@ -21,7 +21,8 @@ const PRODUCT_OPTIONS = [
   { label: "PPSR Report", value: "ppsr" },
   { label: "Legacy Review", value: "dealer_review" },
   { label: "Legacy Pack", value: "full_pack" },
-  { label: "Deal Pack", value: "deal_room" },
+  { label: "PDF", value: "pdf" },
+  { label: "Legacy PDF Alias", value: "deal_room" },
 ] as const;
 
 export default async function AdminOrdersPage({

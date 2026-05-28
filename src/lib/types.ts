@@ -10,6 +10,7 @@ export type ProductType =
   | "ppsr"
   | "dealer_review"
   | "full_pack"
+  | "pdf"
   | "deal_room";
 
 export type PaidProductType = Exclude<ProductType, "free_check">;

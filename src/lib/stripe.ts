@@ -20,10 +20,16 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
     description: "Legacy product retained for existing order compatibility.",
     price_cents: 999,
   },
+  pdf: {
+    product: "pdf",
+    name: "PDF",
+    description: "PPSR next-step guidance, QLD paperwork, and guided handover record.",
+    price_cents: 999,
+  },
   deal_room: {
     product: "deal_room",
-    name: "Deal Pack",
-    description: "PPSR next-step guidance, QLD paperwork, and guided handover steps.",
+    name: "Legacy PDF alias",
+    description: "Legacy checkout slug retained for existing order compatibility.",
     price_cents: 999,
   },
 };
@@ -76,6 +82,14 @@ export function is_paid_product(product: string): product is PaidProductType {
   return product in PRODUCT_DEFINITIONS;
 }
 
+function is_pdf_product(product: PaidProductType) {
+  return product === "pdf" || product === "deal_room";
+}
+
+export function normalise_public_product(product: PaidProductType): PaidProductType {
+  return product === "deal_room" ? "pdf" : product;
+}
+
 export async function create_checkout_session({
   base_url,
   customer_email,
@@ -94,18 +108,20 @@ export async function create_checkout_session({
   vehicle_identifier?: string | null;
 }) {
   const stripe = get_stripe();
-  const definition = get_product_definition(product);
+  const normalized_product = normalise_public_product(product);
+  const definition = get_product_definition(normalized_product);
+  const pdf_product = is_pdf_product(normalized_product);
 
   return stripe.checkout.sessions.create({
     mode: "payment",
     customer_email,
     success_url:
-      product === "deal_room" && deal_id
-        ? `${base_url}/deal/${deal_id}`
+      pdf_product && deal_id
+        ? `${base_url}/pdf/${deal_id}`
         : `${base_url}/order/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:
-      product === "deal_room"
-        ? `${base_url}/deal?checkout=cancelled`
+      pdf_product
+        ? `${base_url}/pdf?checkout=cancelled`
         : `${base_url}/?checkout=cancelled`,
     line_items: [
       {
@@ -121,22 +137,22 @@ export async function create_checkout_session({
       },
     ],
     metadata: {
-      buyer_email: product === "deal_room" ? customer_email : "",
+      buyer_email: pdf_product ? customer_email : "",
       customer_email,
       customer_name: customer_name ?? "",
       deal_id: deal_id ?? "",
       listing_url: listing_url ?? "",
-      product,
+      product: normalized_product,
       vehicle_identifier: vehicle_identifier?.trim() ?? "",
     },
     payment_intent_data: {
       metadata: {
-        buyer_email: product === "deal_room" ? customer_email : "",
+        buyer_email: pdf_product ? customer_email : "",
         customer_email,
         customer_name: customer_name ?? "",
         deal_id: deal_id ?? "",
         listing_url: listing_url ?? "",
-        product,
+        product: normalized_product,
         vehicle_identifier: vehicle_identifier?.trim() ?? "",
       },
     },

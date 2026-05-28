@@ -4,6 +4,7 @@ export const metadata = {
   title: "Free Listing Check | Buying Buddy",
   description:
     "Paste a car listing URL or enter make, model, and year for a fast buyer-side red-flag check.",
+  alternates: { canonical: "https://buyingbuddy.com.au/check" },
 };
 
 export default function CheckPage() {

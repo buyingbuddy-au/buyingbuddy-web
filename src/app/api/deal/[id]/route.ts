@@ -12,7 +12,7 @@ export async function GET(
 
   if (!deal) {
     return NextResponse.json(
-      { ok: false, error: "Deal Room not found." },
+      { ok: false, error: "PDF not found." },
       { status: 404 },
     );
   }

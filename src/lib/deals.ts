@@ -265,7 +265,7 @@ export async function finalise_deal_record({
     ...deal,
     finalised_at: to_sqlite_datetime(),
   });
-  const deal_url = `${base_url}/deal/${deal.id}`;
+  const deal_url = `${base_url}/pdf/${deal.id}`;
 
   await send_deal_summary_email({
     buyer_email: deal.buyer_email,
@@ -311,6 +311,6 @@ export async function find_or_create_deal(email: string, rego: string): Promise<
     buyer_email: email,
     vehicle_rego: rego.toUpperCase(),
   });
-  if (!deal) throw new Error("Could not create deal room.");
+  if (!deal) throw new Error("Could not create PDF.");
   return deal;
 }

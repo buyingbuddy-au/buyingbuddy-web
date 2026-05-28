@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Free Inspection Checklist | Buying Buddy",
   description:
     "Use Buying Buddy's free 21-check inspection checklist beside the car, then print or save the same checklist as a compact PDF.",
+  alternates: { canonical: "https://buyingbuddy.com.au/inspect" },
 };
 
 const HIGHLIGHTS = [

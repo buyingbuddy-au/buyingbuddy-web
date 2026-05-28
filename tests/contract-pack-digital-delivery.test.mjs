@@ -183,7 +183,8 @@ test("contract pack surface is digital-email-first and does not expose ZIP langu
   assert.match(page, /You.?re in control/i);
   assert.match(page, /easier to live with walking away than dealing with problems/i);
   assert.match(publicSurface, /Email my contract PDF/i);
-  assert.match(publicSurface, /Deal Pack|Deal Room/i);
+  assert.match(publicSurface, /PDF workspace/i);
+  assert.doesNotMatch(publicSurface, /Deal Pack|Deal Room/i);
   assert.doesNotMatch(publicSurface, /\.zip|application\/zip|BuyingBuddy_QLD_Handover_Pack|Download Pack|4 PDFs|ZIP/i);
 });
 
@@ -198,8 +199,15 @@ test("contract PDF generator creates a single professional PDF from digital fiel
     assert.equal(buffer.subarray(0, 4).toString("utf8"), "%PDF");
 
     const latin = buffer.toString("latin1");
+    const pageMatches = latin.match(/\/Type \/Page(?!s)/g) ?? [];
+    assert.equal(pageMatches.length, 2, "Customer contract should stay close to the 2-page editable reference template");
     assert.match(latin, /Buying Buddy/);
-    assert.match(latin, /Private Sale Contract/);
+    assert.match(latin, /PRIVATE VEHICLE SALE CONTRACT|Private Vehicle Sale Contract/);
+    assert.match(latin, /\/AcroForm/);
+    assert.match(latin, /\/T \(seller_full_name\)/);
+    assert.match(latin, /\/T \(buyer_full_name\)/);
+    assert.match(latin, /\/T \(vehicle_vin\)/);
+    assert.match(latin, /\/T \(special_conditions\)/);
     assert.doesNotMatch(latin, /BuyingBuddy_QLD_Handover_Pack|\.zip|application\/zip/i);
   } finally {
     compiled.cleanup();
@@ -252,7 +260,8 @@ test("contract send route emails one PDF attachment and captures the lead", asyn
     assert.equal(buyerEmail.to, "buyer@example.com");
     assert.match(buyerEmail.subject, /private sale contract/i);
     assert.match(buyerEmail.html, /You.?re in control/i);
-    assert.match(buyerEmail.html, /Deal Pack/i);
+    assert.match(buyerEmail.html, /PDF workspace/i);
+    assert.doesNotMatch(buyerEmail.html, /Deal Pack|Deal Room/i);
     assert.equal(buyerEmail.attachments.length, 1);
     assert.equal(buyerEmail.attachments[0].filename, "buying-buddy-private-sale-contract.pdf");
     assert.ok(Buffer.isBuffer(buyerEmail.attachments[0].content));

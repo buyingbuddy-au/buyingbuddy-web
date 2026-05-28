@@ -27,7 +27,7 @@ Use these for technical background, then check against canon:
 
 - `BUILD_SPEC.md`
 - `ENGINE_SPEC.md`
-- `DEAL_ROOM_SPEC.md`
+- `SALE_PDF_SPEC.md`
 - `DIRECTORY_ARCHITECTURE.md`
 - `docs/audits/2026-04-phase-1/drift-register.md`
 
@@ -39,7 +39,7 @@ These locations may contain useful history but are not truth by default:
 - `C:\Users\jrl-j\OpenClaw_Archive`
 - `C:\Users\jrl-j\.openclaw`
 - Hermes mission folders under `.openclaw\workspace\codex_missions`
-- Claude CLI history
+- Retired AI-agent history
 - Codex history
 - Repo `handover` archive files
 - Repo `docs/archive`
@@ -56,7 +56,7 @@ Before archive material can influence product or implementation:
 
 ## Known Archive Notes
 
-- Old OpenClaw/Hermes/Claude context includes useful audit and Stripe findings.
+- Old OpenClaw and Hermes context includes useful audit and Stripe findings.
 - Old context also includes stale pricing, public AI buddy ideas, Pullenvale buyer-agent SEO, PPI service scope, and historical secret-looking values.
 - Treat historical secret-looking values as compromised until Jordan confirms rotation or safety.
 - Do not copy old product copy into public pages without checking `docs/BUYING_BUDDY_CENTRE_OF_TRUTH.md`.

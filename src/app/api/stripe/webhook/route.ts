@@ -4,7 +4,7 @@ import { get_stripe } from "@/lib/stripe";
 import { create_deal_from_checkout_session } from "@/lib/deals";
 import { create_order_from_checkout_session } from "@/lib/engine";
 import {
-  send_deal_room_buyer_email,
+  send_pdf_buyer_email,
   send_ppsr_confirmation_email,
 } from "@/lib/email";
 import { Resend } from "resend";
@@ -43,7 +43,7 @@ async function send_telegram_ppsr_notification({
   }
 }
 
-async function send_telegram_deal_room_notification({
+async function send_telegram_pdf_notification({
   buyer_email,
   deal_id,
   deal_url,
@@ -55,7 +55,7 @@ async function send_telegram_deal_room_notification({
   const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
 
   if (!token) {
-    console.warn("[BuyingBuddy] TELEGRAM_BOT_TOKEN missing. Deal Room notification skipped.");
+    console.warn("[BuyingBuddy] TELEGRAM_BOT_TOKEN missing. PDF notification skipped.");
     return;
   }
 
@@ -65,7 +65,7 @@ async function send_telegram_deal_room_notification({
     body: JSON.stringify({
       chat_id: "1296786949",
       text:
-        `NEW DEAL ROOM\nDeal ID: ${deal_id}\nBuyer: ${buyer_email}\nRoom: ${deal_url}`,
+        `NEW PDF ORDER\nPDF ID: ${deal_id}\nBuyer: ${buyer_email}\nLink: ${deal_url}`,
     }),
   });
 
@@ -124,22 +124,22 @@ export async function POST(request: Request) {
       try {
         const session_product = session.metadata?.product?.trim() ?? "";
 
-        if (session_product === "deal_room") {
+        if (session_product === "pdf" || session_product === "deal_room") {
           const deal = await create_deal_from_checkout_session(session);
           const buyer_email = deal.buyer_email?.trim() ?? "";
-          const deal_url = `${resolve_public_base_url()}/deal/${deal.id}`;
+          const deal_url = `${resolve_public_base_url()}/pdf/${deal.id}`;
 
           if (!buyer_email) {
-            throw new Error("Stripe Deal Room session is missing buyer email.");
+            throw new Error("Stripe PDF session is missing buyer email.");
           }
 
-          await send_deal_room_buyer_email({
+          await send_pdf_buyer_email({
             buyer_email,
             deal_id: deal.id,
             deal_url,
           });
 
-          await send_telegram_deal_room_notification({
+          await send_telegram_pdf_notification({
             buyer_email,
             deal_id: deal.id,
             deal_url,
@@ -149,15 +149,15 @@ export async function POST(request: Request) {
           await resend.emails.send({
             from: "Buying Buddy <info@buyingbuddy.com.au>",
             to: "info@buyingbuddy.com.au",
-            subject: "NEW DEAL ROOM PAID",
-            html: `<h2>New Deal Room Created</h2>
-                   <p><strong>Deal ID:</strong> ${deal.id}</p>
+            subject: "NEW PDF PAID",
+            html: `<h2>New PDF Created</h2>
+                   <p><strong>PDF ID:</strong> ${deal.id}</p>
                    <p><strong>Buyer Email:</strong> ${buyer_email}</p>
-                   <p><strong>Room Link:</strong> <a href="${deal_url}">${deal_url}</a></p>`,
+                   <p><strong>PDF Link:</strong> <a href="${deal_url}">${deal_url}</a></p>`,
           });
 
           console.info(
-            `[BuyingBuddy] NEW DEAL ROOM SAVED: Deal ID: ${deal.id}, Buyer: ${buyer_email}`,
+            `[BuyingBuddy] NEW PDF SAVED: Deal ID: ${deal.id}, Buyer: ${buyer_email}`,
           );
           return NextResponse.json({ ok: true, received: true });
         }

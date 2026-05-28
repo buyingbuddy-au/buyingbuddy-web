@@ -28,6 +28,7 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: { canonical: `https://buyingbuddy.com.au/blog/${post.slug}` },
   };
 }
 

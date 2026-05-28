@@ -12,7 +12,7 @@ export type VehicleReport = {
   fair_price_range: string;
   red_flags: string[];
   verdict: string;
-  source: "claude" | "openai" | "gemini" | "fallback";
+  source: "openai" | "gemini" | "fallback";
 };
 
 const reportCache = new Map<string, VehicleReport>();
@@ -158,55 +158,6 @@ function buildPrompt(input: VehicleBriefInput) {
     `Reply as JSON only with keys: known_issues, what_to_check, fair_price_range, red_flags, verdict.`,
     `Rules: known_issues 3-5 short strings, what_to_check exactly 3 short strings, red_flags 3-5 short strings, verdict one sentence, under 300 words total, practical and direct, be honest if uncertain on pricing.`
   ].join(" ");
-}
-
-async function generateWithClaude(input: VehicleBriefInput): Promise<VehicleReport | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
-
-  const response = await fetchWithTimeout("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 512,
-      messages: [
-        {
-          role: "user",
-          content: buildPrompt(input),
-        },
-      ],
-      system: "You output concise, valid JSON only. No markdown, no code fences, just the raw JSON object.",
-    }),
-  }, 8000);
-
-  if (!response.ok) throw new Error(`Claude request failed: ${response.status}`);
-
-  const data = (await response.json()) as {
-    content?: Array<{ type: string; text?: string }>;
-  };
-  const content = data.content?.find((b) => b.type === "text")?.text;
-  if (!content) throw new Error("Claude returned an empty response.");
-
-  const parsed = parseJsonObject(content);
-  return {
-    known_issues: sanitiseArray(parsed.known_issues, []),
-    what_to_check: sanitiseArray(parsed.what_to_check, []),
-    fair_price_range:
-      typeof parsed.fair_price_range === "string" && parsed.fair_price_range.trim()
-        ? parsed.fair_price_range.trim()
-        : "Price varies by condition; compare several recent QLD private sales before you jump.",
-    red_flags: sanitiseArray(parsed.red_flags, []),
-    verdict:
-      typeof parsed.verdict === "string" && parsed.verdict.trim()
-        ? parsed.verdict.trim()
-        : `Worth considering if the ${input.make} ${input.model} has clean history, drives properly, and the numbers make sense.`,
-    source: "claude",
-  };
 }
 
 async function generateWithOpenAI(input: VehicleBriefInput): Promise<VehicleReport | null> {
@@ -412,8 +363,8 @@ export async function generateVehicleReport(input: VehicleBriefInput): Promise<V
 
   let report: VehicleReport | null = null;
 
-  // Try Claude Sonnet first, then OpenRouter, OpenAI, Gemini, then fallback
-  const providers = [generateWithClaude, generateWithOpenRouter, generateWithOpenAI, generateWithGemini];
+  // Try active configured providers first, then deterministic fallback.
+  const providers = [generateWithOpenRouter, generateWithOpenAI, generateWithGemini];
   for (const provider of providers) {
     if (report) break;
     try {

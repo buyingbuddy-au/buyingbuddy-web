@@ -1,6 +1,8 @@
 export const metadata = {
   title: "Privacy Policy",
-  description: "How Buying Buddy handles contact details and form submissions.",
+  description:
+    "How Buying Buddy handles contact details, rego/PPSR enquiries, contract form submissions, support messages, and buyer-side service records.",
+  alternates: { canonical: "https://buyingbuddy.com.au/privacy" },
 };
 
 export default function PrivacyPage() {

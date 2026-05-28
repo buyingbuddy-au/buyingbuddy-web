@@ -1,12 +1,12 @@
-# Claude Architect Plan - Buying Buddy Web - 2026-05-06
+# Retired Agent Architect Plan - Buying Buddy Web - 2026-05-06
 
 Status: DRAFT / Level 1 planning artifact.
 Owner: Jordan Lansbury.
-Prepared by: Claude Code via Hermes orchestration.
-Claude session: 9b131160-a25a-4d8e-9fc2-460c86dc55d7.
+Prepared by: retired external coding agent via Hermes orchestration.
+Retired agent session: 9b131160-a25a-4d8e-9fc2-460c86dc55d7.
 Mode: read-only architecture/planning pass. No repo code edits, deploys, env changes, Stripe/Supabase/DNS changes, pushes, or customer emails were performed.
 
-Primary inputs read by Claude:
+Primary inputs read by the retired external agent:
 
 - AGENTS.md
 - docs/BUYING_BUDDY_CENTRE_OF_TRUTH.md
@@ -21,7 +21,7 @@ Primary inputs read by Claude:
 
 Continue from this repo. Do not rebuild.
 
-Claude's judgement: the repo is a working MVP/beta, and the remaining work is mostly hardening, gating, schema/env verification, and production drift cleanup. Rebuilding would throw away working PPSR fulfilment, Deal Room PDF generation, contract-pack ZIP generation, Stripe checkout scaffolding, and useful content.
+Retired agent judgement: the repo is a working MVP/beta, and the remaining work is mostly hardening, gating, schema/env verification, and production drift cleanup. Rebuilding would throw away working PPSR fulfilment, Deal Room PDF generation, contract-pack ZIP generation, Stripe checkout scaffolding, and useful content.
 
 Current blockers are operational and launch-safety related:
 
@@ -84,7 +84,7 @@ Jordan needs to decide whether link-only Deal Room access is acceptable for MVP.
 Option 1: keep link-only for friends-and-family beta with explicit warning that anyone with the link can edit.
 Option 2: implement separate buyer/seller magic/token links before public launch.
 
-Claude recommends Option 1 for a very small MVP/beta only, and Option 2 before paid acquisition.
+The retired agent recommended Option 1 for a very small MVP/beta only, and Option 2 before paid acquisition.
 
 Also in this phase:
 
@@ -117,7 +117,7 @@ After deploy:
 
 ## 4. Agent/workstream topology
 
-Claude as head planner/architect:
+Retired external agent as planner/architect:
 
 - Read-only architecture, planning, review, acceptance criteria.
 - Reviews implementation plans and PR summaries.
@@ -130,7 +130,7 @@ Hermes:
 - Maintains command-center docs and runbooks.
 - Must ask Jordan before any Level 3 external action.
 
-Implementation agent, e.g. Codex or a dedicated Claude Code session:
+Implementation agent, e.g. Codex or a dedicated external coding-agent session:
 
 - Performs code/doc changes in small approved branches.
 - One phase per branch where possible.
@@ -406,4 +406,4 @@ Then ask Jordan for one decision:
 - branch current local main into a launch-hardening branch,
 - or hold/rework before pushing.
 
-Claude's reasoning: until the +15 commit state is resolved, every new branch or deploy action risks either redoing already-fixed work or accidentally pushing unverified production changes.
+Retired agent reasoning: until the +15 commit state is resolved, every new branch or deploy action risks either redoing already-fixed work or accidentally pushing unverified production changes.

@@ -48,11 +48,11 @@ export default function StructuredData() {
           },
           {
             "@type": "Offer",
-            name: "Deal Pack",
+            name: "PDF",
             price: "9.99",
             priceCurrency: "AUD",
             description:
-              "PPSR, QLD contract pack, and guided handover steps for private car sales.",
+              "PPSR next-step guidance, QLD paperwork, and guided handover steps for private car sales.",
           },
         ],
       },

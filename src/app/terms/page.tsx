@@ -1,6 +1,8 @@
 export const metadata = {
   title: "Terms",
-  description: "Buying Buddy terms of use for reports, tools, and site content.",
+  description:
+    "Buying Buddy terms for used-car buyer tools, QLD rego checks, PPSR guidance, private-sale paperwork, reports, and website content.",
+  alternates: { canonical: "https://buyingbuddy.com.au/terms" },
 };
 
 export default function TermsPage() {

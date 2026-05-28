@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import PpsrPageClient from "@/components/ppsr/ppsr-page-client";
 
 export const metadata: Metadata = {
@@ -20,5 +21,9 @@ export const metadata: Metadata = {
 };
 
 export default function PpsrPage() {
-  return <PpsrPageClient />;
+  return (
+    <Suspense fallback={null}>
+      <PpsrPageClient />
+    </Suspense>
+  );
 }

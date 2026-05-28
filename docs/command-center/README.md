@@ -4,7 +4,7 @@
 **Owner:** Jordan Lansbury  
 **Last verified:** 2026-05-05  
 
-This is the operational starting point for Buying Buddy. It controls how Codex, Claude CLI, Hermes, OpenClaw, and future agents work with the repo, Vercel, Supabase, Stripe, Resend, DNS, email, and archive context.
+This is the operational starting point for Buying Buddy. It controls how Codex, Hermes, OpenClaw reference archives, and future agents work with the repo, Vercel, Supabase, Stripe, Resend, DNS, email, and archive context.
 
 Product truth still lives in `docs/BUYING_BUDDY_CENTRE_OF_TRUTH.md`. This command center does not rewrite product scope. It keeps work coordinated.
 
@@ -29,7 +29,7 @@ Do not claim the public site is fixed until `docs/command-center/release-state.m
 - `platform-status.md` - Vercel, GitHub, Supabase, Stripe, Resend, DNS, email, Telegram, SiteGround.
 - `agents.md` - what agents can and cannot do.
 - `email-ops.md` - transactional email and customer mailbox rules.
-- `context-map.md` - canon vs archive, including old OpenClaw/Hermes/Claude context.
+- `context-map.md` - canon vs archive, including old OpenClaw/Hermes reference context.
 - `decision-log.md` - dated operational decisions.
 - `open-questions.md` - unresolved decisions only.
 

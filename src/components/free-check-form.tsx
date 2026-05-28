@@ -408,31 +408,34 @@ export default function FreeCheckForm() {
 
         {/* Section 4: Next Steps */}
         <section className="mt-6">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">Next steps</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">Best next step</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[1.25fr_1fr]">
             <Link
               href={`/ppsr${rego.trim() ? `?rego=${encodeURIComponent(rego.trim().toUpperCase())}` : ""}`}
-              className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98]"
+              className="flex min-h-[5.25rem] flex-col justify-center gap-1 rounded-2xl border border-teal-700 bg-teal-700 p-4 text-white shadow-sm transition hover:bg-teal-800 hover:shadow-md active:scale-[0.98]"
             >
-              <Shield className="h-6 w-6 text-teal-600" />
-              <span className="text-sm font-bold text-gray-900">Run PPSR Check</span>
-              <span className="text-xs text-gray-500">$4.95</span>
+              <span className="inline-flex items-center gap-2 text-base font-black">
+                <Shield className="h-5 w-5 text-teal-100" /> Run PPSR Check
+              </span>
+              <span className="text-sm text-teal-50">$4.95 — finance, stolen and write-off check before deposit.</span>
             </Link>
             <Link
               href="/inspect/full"
-              className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98]"
+              className="flex min-h-[5.25rem] flex-col justify-center gap-1 rounded-2xl border border-gray-200 bg-white p-4 text-gray-900 shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98]"
             >
-              <ClipboardCheck className="h-6 w-6 text-teal-600" />
-              <span className="text-sm font-bold text-gray-900">Inspection Checklist</span>
-              <span className="text-xs text-gray-500">Free</span>
+              <span className="inline-flex items-center gap-2 text-sm font-black">
+                <ClipboardCheck className="h-5 w-5 text-teal-600" /> Inspect the car
+              </span>
+              <span className="text-xs leading-5 text-gray-500">Free checklist beside the car.</span>
             </Link>
             <Link
-              href={`/deal${rego.trim() ? `?rego=${encodeURIComponent(rego.trim().toUpperCase())}` : ""}`}
-              className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98]"
+              href={`/pdf${rego.trim() ? `?rego=${encodeURIComponent(rego.trim().toUpperCase())}` : ""}`}
+              className="flex min-h-[4.5rem] flex-col justify-center gap-1 rounded-2xl border border-gray-200 bg-white p-4 text-gray-900 shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98] sm:col-span-2"
             >
-              <Handshake className="h-6 w-6 text-teal-600" />
-              <span className="text-sm font-bold text-gray-900">Open Deal Pack</span>
-              <span className="text-xs text-gray-500">$9.99</span>
+              <span className="inline-flex items-center gap-2 text-sm font-black">
+                <Handshake className="h-5 w-5 text-teal-600" /> Generate PDF — $9.99
+              </span>
+              <span className="text-xs leading-5 text-gray-500">Use it when the car survives PPSR and inspection.</span>
             </Link>
           </div>
         </section>
@@ -624,7 +627,7 @@ export default function FreeCheckForm() {
           {[
             { icon: FileSearch, title: "Quick verdict", copy: "Price context, red flags, and whether the listing is worth your time." },
             { icon: Wrench, title: "Known issues", copy: "Common problems specific to this exact make, model, and year." },
-            { icon: Shield, title: "Next steps", copy: "Links to PPSR check, inspection checklist, and deal room." },
+            { icon: Shield, title: "Next steps", copy: "Links to PPSR check, inspection checklist, and PDF." },
           ].map((item) => (
             <div key={item.title} className="flex gap-3">
               <div className="shrink-0 rounded-lg bg-teal-50 p-2 text-teal-600">

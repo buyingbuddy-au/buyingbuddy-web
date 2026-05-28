@@ -34,6 +34,6 @@ Only unresolved operational questions belong here.
 
 ## Agents
 
-- Should Claude CLI and OpenClaw have write access to this repo, or read/draft only?
+- Should retired OpenClaw archive material remain read/draft-only unless promoted through command-center docs?
 - Should Hermes missions stay outside this repo unless promoted through the context map?
 - Should a future JordanOS index include DealPilot and Buying Buddy, or stay separate until Buying Buddy is stable?

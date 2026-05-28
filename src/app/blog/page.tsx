@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Blog — Buying Buddy",
   description:
     "Used car buying guides, PPSR explainers, scam warnings, and practical Buying Buddy articles.",
+  alternates: { canonical: "https://buyingbuddy.com.au/blog" },
 };
 
 export default function BlogIndexPage() {

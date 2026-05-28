@@ -4,7 +4,7 @@
 **Owner:** Jordan Lansbury  
 **Last verified:** 2026-05-05  
 
-This file controls how Codex, Claude CLI, Hermes, OpenClaw, and future agents work on Buying Buddy.
+This file controls how Codex, Hermes, OpenClaw reference archives, and future agents work on Buying Buddy.
 
 ## Mandatory Read Order
 
@@ -56,12 +56,6 @@ Level 3 always requires explicit Jordan approval in the current thread.
 - Primary repo agent.
 - Owns command-center maintenance, code edits, verification, and structured plans.
 - Must report when Browser Use, Vercel, Supabase, Stripe, or email access is blocked.
-
-### Claude CLI
-
-- Useful for secondary code review, copy critique, and implementation support.
-- Must read command-center docs before touching Buying Buddy.
-- Must not use old memories as truth unless promoted through `context-map.md`.
 
 ### Hermes
 

@@ -4,7 +4,7 @@ import { Check, CheckCircle2, X } from "lucide-react";
 export const metadata = {
   title: "Pricing",
   description:
-    "Simple buyer-side used-car help: free tools, $4.95 PPSR reports, and a $9.99 Deal Pack for private car buyers.",
+    "Simple buyer-side used-car help: free tools, $4.95 PPSR reports, and a $9.99 PDF for private car buyers.",
   alternates: { canonical: "https://buyingbuddy.com.au/pricing" },
 };
 
@@ -39,17 +39,17 @@ const PRODUCTS = [
     ],
   },
   {
-    name: "Deal Pack",
+    name: "PDF",
     price: "$9.99",
     description: "For the car that passes the first sniff test and is worth chasing properly.",
-    href: "/deal",
-    buttonText: "Open Deal Pack",
+    href: "/pdf",
+    buttonText: "Generate PDF",
     highlight: false,
     features: [
       "PPSR next-step guidance",
       "Private-sale contract PDF",
       "Guided handover checklist",
-      "Deal Pack record",
+      "PDF record",
       "Buyer/seller detail capture",
     ],
   },
@@ -128,7 +128,7 @@ export default function PricingPage() {
                 <th className="w-[46%] p-2 text-left font-bold text-gray-900 sm:w-auto sm:p-4">Feature</th>
                 <th className="p-2 text-center font-bold text-gray-500 sm:p-4">Free</th>
                 <th className="p-2 text-center font-bold text-teal-700 sm:p-4">PPSR</th>
-                <th className="p-2 text-center font-bold text-gray-500 sm:p-4">Deal Pack</th>
+                <th className="p-2 text-center font-bold text-gray-500 sm:p-4">PDF</th>
               </tr>
             </thead>
             <tbody>

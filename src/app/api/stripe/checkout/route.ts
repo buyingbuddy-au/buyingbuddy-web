@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { create_checkout_session, get_configured_stripe_mode, is_paid_product } from "@/lib/stripe";
+import { create_checkout_session, get_configured_stripe_mode, is_paid_product, normalise_public_product } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -7,7 +7,7 @@ function is_valid_email(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-const PUBLIC_CHECKOUT_PRODUCTS = new Set(["ppsr", "deal_room"]);
+const PUBLIC_CHECKOUT_PRODUCTS = new Set(["ppsr", "pdf"]);
 
 function is_public_checkout_product(product: string) {
   return PUBLIC_CHECKOUT_PRODUCTS.has(product);
@@ -48,7 +48,8 @@ export async function POST(request: Request) {
     const customer_email = body.email?.trim() ?? "";
     const customer_name = body.customer_name?.trim() ?? null;
     const listing_url = body.listing_url?.trim() || body.url?.trim() || "";
-    const product = body.product?.trim() ?? "";
+    const requested_product = body.product?.trim() ?? "";
+    const product = is_paid_product(requested_product) ? normalise_public_product(requested_product) : requested_product;
     const vehicle_identifier = body.vehicle_identifier?.trim() ?? "";
 
     if (!is_paid_product(product) || !is_public_checkout_product(product)) {
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (product === "ppsr" || product === "deal_room") {
+    if (product === "ppsr" || product === "pdf") {
       if (!vehicle_identifier) {
         return NextResponse.json(
           { ok: false, error: "Enter the rego or VIN you want checked." },
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
       base_url: resolve_base_url(request),
       customer_email,
       customer_name,
-      deal_id: product === "deal_room" ? `deal_${crypto.randomUUID().slice(0, 12)}` : null,
+      deal_id: product === "pdf" ? `deal_${crypto.randomUUID().slice(0, 12)}` : null,
       listing_url,
       product,
       vehicle_identifier,

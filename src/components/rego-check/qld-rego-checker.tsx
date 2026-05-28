@@ -17,6 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { buyingBuddyEvents, trackBuyingBuddyEvent } from "@/lib/analytics-events";
+import { buildPpsrHandoffHref } from "@/lib/funnel-context";
 import { normaliseQldRego } from "@/lib/qld-rego/normalise";
 import type { QldRegoCheckResponse, QldRegoCheckSuccess } from "@/lib/qld-rego/types";
 
@@ -199,6 +200,13 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
   }
 
   const currentWait = WAIT_CARDS[waitIndex];
+  const ppsrHandoffHref = result
+    ? buildPpsrHandoffHref({
+        rego: result.data.rego || normalisedRego,
+        vin: result.data.vin,
+        source: "rego_result",
+      })
+    : "/ppsr";
 
   return (
     <section className="mx-auto w-full max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 lg:px-8" id="qld-rego-check">
@@ -331,18 +339,30 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
                 This result checks current QLD registration details. Before you send money, check the listing, run the PPSR, inspect the car, and keep the handover paperwork tidy.
               </p>
             </div>
-            {[
-              ["/check", "Check the listing — free", "Get a quick read on price, red flags, and seller questions."],
-              ["/ppsr", "Run PPSR — $4.95", "Check finance owing, stolen status, and written-off history before deposit."],
-              ["/inspect", "Inspect the car — free", "Use the checklist beside the car before you fall for the photos."],
-              ["/contract-pack", "Sort the paperwork — free", "Get the QLD contract, receipt, condition report, and transfer guide."],
-              ["/deal", "Open Deal Pack — $9.99", "Bundle PPSR, paperwork, and a guided handover record in one place."],
-            ].map(([href, title, copy]) => (
-              <Link key={href} href={href} className="block rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md">
-                <p className="text-sm font-black text-gray-900">{title}</p>
-                <p className="mt-1 text-sm leading-6 text-gray-600">{copy}</p>
-              </Link>
-            ))}
+            <Link
+              href={ppsrHandoffHref}
+              className="block rounded-[1.5rem] border border-teal-700 bg-teal-700 p-5 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-md"
+            >
+              <p className="text-base font-black">Run PPSR — $4.95</p>
+              <p className="mt-1 text-sm leading-6 text-teal-50">
+                Check finance owing, stolen status, and written-off history before deposit.
+              </p>
+            </Link>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {[
+                ["/inspect", "Inspect the car", "Use the checklist beside the car before you fall for the photos."],
+                ["/pdf", "Generate PDF — $9.99", "Keep PPSR, paperwork, seller messages, and handover notes together."],
+              ].map(([href, title, copy]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="block rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md"
+                >
+                  <p className="text-sm font-black text-gray-900">{title}</p>
+                  <p className="mt-1 text-sm leading-6 text-gray-600">{copy}</p>
+                </Link>
+              ))}
+            </div>
           </aside>
         </div>
       ) : null}
