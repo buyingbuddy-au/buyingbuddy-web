@@ -7,7 +7,7 @@ function is_valid_email(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-const PUBLIC_CHECKOUT_PRODUCTS = new Set(["ppsr", "pdf"]);
+const PUBLIC_CHECKOUT_PRODUCTS = new Set(["ppsr", "deal_room"]);
 
 function is_public_checkout_product(product: string) {
   return PUBLIC_CHECKOUT_PRODUCTS.has(product);
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (product === "ppsr" || product === "pdf") {
+    if (product === "ppsr" || product === "deal_room") {
       if (!vehicle_identifier) {
         return NextResponse.json(
           { ok: false, error: "Enter the rego or VIN you want checked." },
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       base_url: resolve_base_url(request),
       customer_email,
       customer_name,
-      deal_id: product === "pdf" ? `deal_${crypto.randomUUID().slice(0, 12)}` : null,
+      deal_id: product === "deal_room" ? `deal_${crypto.randomUUID().slice(0, 12)}` : null,
       listing_url,
       product,
       vehicle_identifier,

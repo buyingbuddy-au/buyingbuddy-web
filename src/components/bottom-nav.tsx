@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: "/rego-check", label: "Rego", icon: BadgeCheck },
   { href: "/ppsr", label: "PPSR", icon: Shield },
   { href: "/inspect", label: "Inspect", icon: ClipboardCheck },
-  { href: "/pdf", label: "PDF", icon: FileText },
+  { href: "/deal", label: "Deal Room", icon: FileText },
 ] as const;
 
 function isActiveRoute(pathname: string, href: string) {

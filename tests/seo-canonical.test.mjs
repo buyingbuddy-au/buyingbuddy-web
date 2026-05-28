@@ -10,7 +10,7 @@ const canonicalPages = [
   ["src/app/inspect/full/page.tsx", "https://buyingbuddy.com.au/inspect/full"],
   ["src/app/contract-pack/page.tsx", "https://buyingbuddy.com.au/contract-pack"],
   ["src/app/blog/page.tsx", "https://buyingbuddy.com.au/blog"],
-  ["src/app/pdf/page.tsx", "https://buyingbuddy.com.au/pdf"],
+  ["src/app/deal/page.tsx", "https://buyingbuddy.com.au/deal"],
   ["src/app/pricing/page.tsx", "https://buyingbuddy.com.au/pricing"],
   ["src/app/contact/page.tsx", "https://buyingbuddy.com.au/contact"],
   ["src/app/privacy/page.tsx", "https://buyingbuddy.com.au/privacy"],
@@ -27,8 +27,8 @@ test("core public pages declare explicit self-canonical metadata", () => {
   }
 });
 
-test("client-heavy PDF and contact pages use server wrappers so metadata can render", () => {
-  for (const path of ["src/app/pdf/page.tsx", "src/app/contact/page.tsx"]) {
+test("client-heavy Deal Room and contact pages use server wrappers so metadata can render", () => {
+  for (const path of ["src/app/deal/page.tsx", "src/app/contact/page.tsx"]) {
     const source = read(path);
 
     assert.doesNotMatch(source, /^"use client";/, `${path} must stay a server component for metadata`);
@@ -44,12 +44,12 @@ test("blog article metadata emits per-post canonicals", () => {
 });
 
 test("client-heavy product pages still expose a crawlable server-rendered H1", () => {
-  const pdfPage = read("src/app/pdf/page.tsx");
+  const dealPage = read("src/app/deal/page.tsx");
   const pdfClient = read("src/components/deal/deal-landing-page-client.tsx");
   const inspectionPage = read("src/app/inspect/full/page.tsx");
   const inspectionClient = read("src/components/inspection-app.tsx");
 
-  assert.match(pdfPage, /<h1[^>]*>PDF for private used-car handovers<\/h1>/);
+  assert.match(dealPage, /<h1[^>]*>Deal Room for private used-car handovers<\/h1>/);
   assert.doesNotMatch(pdfClient, /<h1\b/);
   assert.match(inspectionPage, /<h1[^>]*>Full 21-check used-car inspection checklist<\/h1>/);
   assert.doesNotMatch(inspectionClient, /<h1\b/);

@@ -351,7 +351,7 @@ export default function QldRegoChecker({ initialRego = "", autoRun = false }: Ql
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               {[
                 ["/inspect", "Inspect the car", "Use the checklist beside the car before you fall for the photos."],
-                ["/pdf", "Generate PDF — $9.99", "Keep PPSR, paperwork, seller messages, and handover notes together."],
+                ["/deal", "Open Deal Room — $9.99", "Keep PPSR, paperwork, seller messages, and handover notes together."],
               ].map(([href, title, copy]) => (
                 <Link
                   key={href}

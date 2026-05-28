@@ -231,10 +231,10 @@ export function ContractBuilderForm() {
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link
-            href="/pdf"
+            href="/deal"
             className="inline-flex min-h-[3rem] items-center justify-center rounded-2xl bg-teal-600 px-5 text-sm font-black text-white transition hover:bg-teal-700"
           >
-            Open a PDF
+            Open a Deal Room
           </Link>
           <Link
             href="/inspect/full"
@@ -244,7 +244,7 @@ export function ContractBuilderForm() {
           </Link>
         </div>
         <p className="mt-4 text-xs leading-5 text-slate-500">
-          PDF is where the listing, inspection, PPSR, seller messages and paperwork stay together before you sign.
+          Deal Room is where the listing, inspection, PPSR, seller messages and paperwork stay together before you sign.
         </p>
       </div>
     );
@@ -341,13 +341,13 @@ export function ContractBuilderForm() {
           <Mail className="h-4 w-4" aria-hidden="true" />
           {status === "sending" ? "Emailing contract PDF…" : "Email my contract PDF"}
         </button>
-        <Link href="/pdf" className="inline-flex min-h-[3.25rem] items-center justify-center rounded-2xl border border-slate-200 px-6 text-sm font-black text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
-          See PDF first
+        <Link href="/deal" className="inline-flex min-h-[3.25rem] items-center justify-center rounded-2xl border border-slate-200 px-6 text-sm font-black text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+          See Deal Room first
         </Link>
       </div>
 
       <p className="mt-4 text-xs leading-5 text-slate-500">
-        We email one PDF to the address above. The PDF is the next step if you want the full sale-control workspace before signing.
+        We email one PDF to the address above. Deal Room is the next step if you want the full sale-control workspace before signing.
       </p>
     </form>
   );

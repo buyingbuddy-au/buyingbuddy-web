@@ -10,7 +10,7 @@ const DESKTOP_NAV_LINKS = [
   { href: "/check", label: "Listing Check" },
   { href: "/inspect", label: "Inspect" },
   { href: "/contract-pack", label: "Contract" },
-  { href: "/pdf", label: "PDF" },
+  { href: "/deal", label: "Deal Room" },
   { href: "/blog", label: "Guides" },
 ] as const;
 

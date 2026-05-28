@@ -14,13 +14,15 @@ const PUBLIC_SURFACE_FILES = [
   "src/components/bottom-nav.tsx",
 ];
 
-const CUSTOMER_PDF_SURFACES = [
+const CUSTOMER_DEAL_ROOM_SURFACES = [
   "src/app/page.tsx",
   "src/app/pricing/page.tsx",
   "src/app/ppsr/page.tsx",
-  "src/app/pdf/page.tsx",
+  "src/app/deal/page.tsx",
   "src/app/deal/[id]/page.tsx",
   "src/app/deal/demo/page.tsx",
+  "src/app/api/deal/[id]/route.ts",
+  "src/app/api/deal/[id]/seller/route.ts",
   "src/app/order/success/page.tsx",
   "src/components/app-header.tsx",
   "src/components/bottom-nav.tsx",
@@ -43,11 +45,11 @@ test("public surface consistently names the new digital contract PDF instead of 
   assert.doesNotMatch(combined, /handover pack|contract pack download|QLD contract pack download|Download Free Kit/i);
 });
 
-test("homepage support tools funnel contract users into the PDF after the free paperwork", () => {
+test("homepage support tools funnel contract users into Deal Room after the free paperwork", () => {
   const home = read("src/app/page.tsx");
 
   assert.match(home, /Email-ready contract PDF/i);
-  assert.match(home, /PDF keeps the sale together|Generate PDF/i);
+  assert.match(home, /Deal Room keeps the sale together|Open Deal Room/i);
   assert.doesNotMatch(home, /five equal offers/i);
 });
 
@@ -56,36 +58,37 @@ test("pricing keeps product names aligned with public navigation", () => {
 
   assert.match(pricing, /Free Rego & Listing Tools/i);
   assert.match(pricing, /Private-sale contract PDF/i);
-  assert.match(pricing, /Generate PDF/);
-  assert.match(pricing, /href: "\/pdf"/);
-  assert.doesNotMatch(pricing, /Open Deal Room|Deal Room record|Deal Pack|contract pack/i);
+  assert.match(pricing, /Open Deal Room/);
+  assert.match(pricing, /href: "\/deal"/);
+  assert.match(pricing, /Deal Room record/i);
+  assert.doesNotMatch(pricing, /Generate PDF|Deal Pack|contract pack/i);
 });
 
-test("customer handoff surfaces consistently call the paid handover product PDF", () => {
-  const offenders = CUSTOMER_PDF_SURFACES.flatMap((path) => {
+test("customer handoff surfaces consistently call the paid handover product Deal Room", () => {
+  const offenders = CUSTOMER_DEAL_ROOM_SURFACES.flatMap((path) => {
     const lines = read(path).split("\n");
     return lines
       .map((line, index) => ({ path, line: index + 1, text: line }))
-      .filter(({ text }) => /Deal Room|Deal Pack|deal room|deal pack/i.test(text));
+      .filter(({ text }) => /Deal Pack|deal pack|paid handover product PDF|Open PDF|Create (?:your |a )?PDF|Start another PDF|Your PDFs|PDF not found|PDF home|BuyingBuddy (?:Test )?PDF|PDF · Test Mode/i.test(text));
   });
 
   assert.deepEqual(offenders, []);
 });
 
-test("PDF is the public paid handover route and legacy deal URLs redirect", () => {
+test("Deal Room is the public paid handover route and legacy PDF URLs redirect", () => {
   const nextConfig = read("next.config.ts");
   const sitemap = read("src/app/sitemap.ts");
   const header = read("src/components/app-header.tsx");
   const bottomNav = read("src/components/bottom-nav.tsx");
 
-  assert.match(nextConfig, /source: "\/deal"/);
-  assert.match(nextConfig, /destination: "\/pdf"/);
-  assert.match(nextConfig, /source: "\/deal\/:path\*"/);
-  assert.match(nextConfig, /destination: "\/pdf\/:path\*"/);
-  assert.match(sitemap, /`\$\{BASE\}\/pdf`/);
-  assert.doesNotMatch(sitemap, /`\$\{BASE\}\/deal`/);
-  assert.match(header, /href: "\/pdf", label: "PDF"/);
-  assert.match(bottomNav, /href: "\/pdf", label: "PDF"/);
+  assert.match(nextConfig, /source: "\/pdf"/);
+  assert.match(nextConfig, /destination: "\/deal"/);
+  assert.match(nextConfig, /source: "\/pdf\/:path\*"/);
+  assert.match(nextConfig, /destination: "\/deal\/:path\*"/);
+  assert.match(sitemap, /`\$\{BASE\}\/deal`/);
+  assert.doesNotMatch(sitemap, /`\$\{BASE\}\/pdf`/);
+  assert.match(header, /href: "\/deal", label: "Deal Room"/);
+  assert.match(bottomNav, /href: "\/deal", label: "Deal Room"/);
 });
 
 test("PPSR page previews the finance-hit customer guide as a buyer action room", () => {

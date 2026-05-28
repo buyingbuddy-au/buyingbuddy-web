@@ -281,6 +281,6 @@ export function build_ppsr_customer_guide(data: PPSRExtractedData): PPSRCustomer
     deal_pack_prompt:
       data.verdict === "CLEAR"
         ? "If you are still interested in the car, the next useful step is inspection + paperwork so the clean PPSR does not become a messy handover."
-        : "If you keep negotiating, use the PDF workspace to document settlement, payout steps, and handover instead of relying on seller promises.",
+        : "If you keep negotiating, use the Deal Room workspace to document settlement, payout steps, and handover instead of relying on seller promises.",
   };
 }

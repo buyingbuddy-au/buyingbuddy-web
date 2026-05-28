@@ -429,11 +429,11 @@ export default function FreeCheckForm() {
               <span className="text-xs leading-5 text-gray-500">Free checklist beside the car.</span>
             </Link>
             <Link
-              href={`/pdf${rego.trim() ? `?rego=${encodeURIComponent(rego.trim().toUpperCase())}` : ""}`}
+              href={`/deal${rego.trim() ? `?rego=${encodeURIComponent(rego.trim().toUpperCase())}` : ""}`}
               className="flex min-h-[4.5rem] flex-col justify-center gap-1 rounded-2xl border border-gray-200 bg-white p-4 text-gray-900 shadow-sm transition hover:border-teal-200 hover:shadow-md active:scale-[0.98] sm:col-span-2"
             >
               <span className="inline-flex items-center gap-2 text-sm font-black">
-                <Handshake className="h-5 w-5 text-teal-600" /> Generate PDF — $9.99
+                <Handshake className="h-5 w-5 text-teal-600" /> Open Deal Room — $9.99
               </span>
               <span className="text-xs leading-5 text-gray-500">Use it when the car survives PPSR and inspection.</span>
             </Link>

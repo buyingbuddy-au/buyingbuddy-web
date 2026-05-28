@@ -183,8 +183,8 @@ test("contract pack surface is digital-email-first and does not expose ZIP langu
   assert.match(page, /You.?re in control/i);
   assert.match(page, /easier to live with walking away than dealing with problems/i);
   assert.match(publicSurface, /Email my contract PDF/i);
-  assert.match(publicSurface, /PDF workspace/i);
-  assert.doesNotMatch(publicSurface, /Deal Pack|Deal Room/i);
+  assert.match(publicSurface, /Deal Room workspace/i);
+  assert.doesNotMatch(publicSurface, /Deal Pack/i);
   assert.doesNotMatch(publicSurface, /\.zip|application\/zip|BuyingBuddy_QLD_Handover_Pack|Download Pack|4 PDFs|ZIP/i);
 });
 
@@ -260,8 +260,8 @@ test("contract send route emails one PDF attachment and captures the lead", asyn
     assert.equal(buyerEmail.to, "buyer@example.com");
     assert.match(buyerEmail.subject, /private sale contract/i);
     assert.match(buyerEmail.html, /You.?re in control/i);
-    assert.match(buyerEmail.html, /PDF workspace/i);
-    assert.doesNotMatch(buyerEmail.html, /Deal Pack|Deal Room/i);
+    assert.match(buyerEmail.html, /Deal Room workspace/i);
+    assert.doesNotMatch(buyerEmail.html, /Deal Pack/i);
     assert.equal(buyerEmail.attachments.length, 1);
     assert.equal(buyerEmail.attachments[0].filename, "buying-buddy-private-sale-contract.pdf");
     assert.ok(Buffer.isBuffer(buyerEmail.attachments[0].content));

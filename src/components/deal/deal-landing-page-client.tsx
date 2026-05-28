@@ -17,7 +17,7 @@ import {
 import type { DealListItem, DealStatus } from "@/lib/types";
 
 const FEATURES = [
-  { icon: Users, title: "PDF workspace", description: "Both buyer and seller fill in their details in one place." },
+  { icon: Users, title: "Deal Room workspace", description: "Both buyer and seller fill in their details in one place." },
   { icon: FileText, title: "Timestamped record", description: "Everything is recorded with dates. Useful if anything goes sideways." },
   { icon: Lock, title: "Document uploads", description: "Licence, rego papers, safety cert — all uploaded and stored." },
   { icon: Shield, title: "Sale Summary PDF", description: "When both sides complete, get a professional PDF record document." },
@@ -98,7 +98,7 @@ function DealLandingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim(),
-          product: "pdf",
+          product: "deal_room",
           vehicle_identifier: rego.trim(),
         }),
       });
@@ -128,13 +128,13 @@ function DealLandingPage() {
       <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-start">
         {/* Left — info */}
         <div className="rounded-[2rem] border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">PDF</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Room</p>
           <h2 className="mt-4 max-w-xl text-3xl font-black tracking-[-0.06em] text-gray-900 sm:text-5xl">
             Document the handover properly. Both sides. One place.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
             A shared digital workspace where buyer and seller record the deal details,
-            upload documents, and get a timestamped PDF record when it&apos;s done.
+            upload documents, and get a timestamped Deal Room record when it&apos;s done.
           </p>
 
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -157,10 +157,10 @@ function DealLandingPage() {
             <Handshake className="h-6 w-6" />
           </div>
           <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-gray-900">
-            {deals.length > 0 ? "Start another PDF" : "Create your PDF"}
+            {deals.length > 0 ? "Start another Deal Room" : "Create your Deal Room"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Enter your email and the car&apos;s rego, then pay securely through Stripe to open your PDF.
+            Enter your email and the car&apos;s rego, then pay securely through Stripe to open your Deal Room.
           </p>
 
           <form onSubmit={handleCreateDeal} className="mt-6 grid gap-4">
@@ -204,13 +204,13 @@ function DealLandingPage() {
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" /> Opening checkout...</>
               ) : (
-                "Open PDF — $9.99"
+                "Open Deal Room — $9.99"
               )}
             </button>
           </form>
 
           <div className="mt-6 rounded-2xl bg-gray-50 px-4 py-3 text-xs leading-5 text-gray-500">
-            This PDF record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
+            This Deal Room record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
           </div>
         </div>
       </section>
@@ -218,7 +218,7 @@ function DealLandingPage() {
       {/* Returning user — existing deals */}
       {(deals.length > 0 || loadingDeals) && (
         <section className="mt-8">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Your PDFs</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Your Deal Rooms</p>
           {loadingDeals ? (
             <div className="mt-4 flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
@@ -230,7 +230,7 @@ function DealLandingPage() {
                 return (
                   <Link
                     key={deal.id}
-                    href={`/pdf/${deal.id}`}
+                    href={`/deal/${deal.id}`}
                     className="group flex items-center gap-3 rounded-[1.75rem] border border-gray-200 bg-gray-50 p-4 shadow-sm transition active:scale-[0.98] hover:border-teal-200 hover:bg-white hover:shadow-md"
                   >
                     <div className="inline-flex shrink-0 rounded-[1.25rem] bg-teal-50 p-3 text-teal-600">

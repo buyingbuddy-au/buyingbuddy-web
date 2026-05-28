@@ -14,7 +14,7 @@ const CONTRACT_STEPS = [
   },
   {
     title: "Control the sale",
-    body: "Use the PDF with your inspection notes, PPSR and PDF so pressure does not replace process.",
+    body: "Use the PDF with your inspection notes, PPSR and Deal Room so pressure does not replace process.",
   },
 ] as const;
 
@@ -102,16 +102,16 @@ export default function ContractPackPage() {
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-700">Next control layer</p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-slate-950">Before you sign, open a PDF.</h2>
+            <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-slate-950">Before you sign, open Deal Room.</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-700">
-              The contract records the terms. The PDF workspace keeps the listing, inspection notes, PPSR, seller messages and next steps together so the sale stays controlled.
+              The contract records the terms. The Deal Room workspace keeps the listing, inspection notes, PPSR, seller messages and next steps together so the sale stays controlled.
             </p>
           </div>
           <Link
-            href="/pdf"
+            href="/deal"
             className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-teal-600 px-6 text-sm font-black text-white transition hover:bg-teal-700"
           >
-            Open PDF <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            Open Deal Room <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </section>

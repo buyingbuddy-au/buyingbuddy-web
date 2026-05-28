@@ -48,7 +48,7 @@ export default function StructuredData() {
           },
           {
             "@type": "Offer",
-            name: "PDF",
+            name: "Deal Room",
             price: "9.99",
             priceCurrency: "AUD",
             description:

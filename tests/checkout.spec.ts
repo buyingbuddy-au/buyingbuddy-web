@@ -42,16 +42,16 @@ test.describe('BuyingBuddy Checkout Flow', () => {
     expect(postData.vehicle_identifier).toBe("123ABC");
   });
 
-  test('PDF direct checkout flow', async ({ page }) => {
-    await page.goto('http://localhost:3000/pdf');
+  test('Deal Room direct checkout flow', async ({ page }) => {
+    await page.goto('http://localhost:3000/deal');
     
-    // Wait for the Create PDF form
-    const email = `pdf-test-${Date.now()}@buyingbuddy.local`;
+    // Wait for the Create Deal Room form
+    const email = `deal-room-test-${Date.now()}@buyingbuddy.local`;
     await page.fill('input#deal-email', email);
     await page.fill('input#deal-rego', '123ABC');
     
-    // Click Open PDF & Pay
-    const createButton = page.locator('button:has-text("Open PDF")');
+    // Click Open Deal Room & Pay
+    const createButton = page.locator('button:has-text("Open Deal Room")');
     await expect(createButton).toBeVisible();
     
     const requestPromise = page.waitForRequest(req => req.url().includes('/api/stripe/checkout') && req.method() === 'POST');
@@ -61,7 +61,7 @@ test.describe('BuyingBuddy Checkout Flow', () => {
     const postData = JSON.parse(request.postData() || "{}");
     
     expect(postData.email).toBe(email);
-    expect(postData.product).toBe("pdf");
+    expect(postData.product).toBe("deal_room");
     expect(postData.vehicle_identifier).toBe("123ABC");
   });
 });

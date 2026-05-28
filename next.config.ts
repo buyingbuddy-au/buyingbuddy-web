@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/free-checklist", destination: "/free-kit", permanent: true },
-      { source: "/deal", destination: "/pdf", permanent: true },
-      { source: "/deal/:path*", destination: "/pdf/:path*", permanent: true },
+      { source: "/pdf", destination: "/deal", permanent: true },
+      { source: "/pdf/:path*", destination: "/deal/:path*", permanent: true },
       { source: "/second-opinion", destination: "/check", permanent: true },
       { source: "/about", destination: "/", permanent: false },
       { source: "/how-it-works", destination: "/", permanent: false },

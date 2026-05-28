@@ -22,14 +22,14 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
   },
   pdf: {
     product: "pdf",
-    name: "PDF",
-    description: "PPSR next-step guidance, QLD paperwork, and guided handover record.",
+    name: "Legacy PDF alias",
+    description: "Legacy checkout slug retained for older Deal Room orders.",
     price_cents: 999,
   },
   deal_room: {
     product: "deal_room",
-    name: "Legacy PDF alias",
-    description: "Legacy checkout slug retained for existing order compatibility.",
+    name: "Deal Room",
+    description: "PPSR next-step guidance, QLD paperwork, and guided handover record.",
     price_cents: 999,
   },
 };
@@ -82,12 +82,31 @@ export function is_paid_product(product: string): product is PaidProductType {
   return product in PRODUCT_DEFINITIONS;
 }
 
-function is_pdf_product(product: PaidProductType) {
+const STRIPE_AUD_TEST_MINIMUM_CENTS = 50;
+
+function is_deal_room_product(product: PaidProductType) {
   return product === "pdf" || product === "deal_room";
 }
 
 export function normalise_public_product(product: PaidProductType): PaidProductType {
-  return product === "deal_room" ? "pdf" : product;
+  return product === "pdf" ? "deal_room" : product;
+}
+
+export function get_checkout_test_price_override_cents(stripe_mode = get_configured_stripe_mode()) {
+  const raw = process.env.CHECKOUT_TEST_PRICE_CENTS?.trim();
+  if (!raw || stripe_mode !== "test") return null;
+  if (!/^\d+$/.test(raw)) return null;
+
+  const cents = Number(raw);
+  if (!Number.isSafeInteger(cents) || cents < STRIPE_AUD_TEST_MINIMUM_CENTS) return null;
+  return cents;
+}
+
+export function get_effective_product_price_cents(
+  definition: ProductDefinition,
+  stripe_mode = get_configured_stripe_mode(),
+) {
+  return get_checkout_test_price_override_cents(stripe_mode) ?? definition.price_cents;
 }
 
 export async function create_checkout_session({
@@ -108,27 +127,29 @@ export async function create_checkout_session({
   vehicle_identifier?: string | null;
 }) {
   const stripe = get_stripe();
+  const stripe_mode = get_configured_stripe_mode();
   const normalized_product = normalise_public_product(product);
   const definition = get_product_definition(normalized_product);
-  const pdf_product = is_pdf_product(normalized_product);
+  const deal_room_product = is_deal_room_product(normalized_product);
+  const price_cents = get_effective_product_price_cents(definition, stripe_mode);
 
   return stripe.checkout.sessions.create({
     mode: "payment",
     customer_email,
     success_url:
-      pdf_product && deal_id
-        ? `${base_url}/pdf/${deal_id}`
+      deal_room_product && deal_id
+        ? `${base_url}/deal/${deal_id}`
         : `${base_url}/order/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:
-      pdf_product
-        ? `${base_url}/pdf?checkout=cancelled`
+      deal_room_product
+        ? `${base_url}/deal?checkout=cancelled`
         : `${base_url}/?checkout=cancelled`,
     line_items: [
       {
         quantity: 1,
         price_data: {
           currency: "aud",
-          unit_amount: definition.price_cents,
+          unit_amount: price_cents,
           product_data: {
             name: definition.name,
             description: definition.description,
@@ -137,22 +158,24 @@ export async function create_checkout_session({
       },
     ],
     metadata: {
-      buyer_email: pdf_product ? customer_email : "",
+      buyer_email: deal_room_product ? customer_email : "",
       customer_email,
       customer_name: customer_name ?? "",
       deal_id: deal_id ?? "",
       listing_url: listing_url ?? "",
       product: normalized_product,
+      checkout_test_price_cents: price_cents !== definition.price_cents ? String(price_cents) : "",
       vehicle_identifier: vehicle_identifier?.trim() ?? "",
     },
     payment_intent_data: {
       metadata: {
-        buyer_email: pdf_product ? customer_email : "",
+        buyer_email: deal_room_product ? customer_email : "",
         customer_email,
         customer_name: customer_name ?? "",
         deal_id: deal_id ?? "",
         listing_url: listing_url ?? "",
         product: normalized_product,
+        checkout_test_price_cents: price_cents !== definition.price_cents ? String(price_cents) : "",
         vehicle_identifier: vehicle_identifier?.trim() ?? "",
       },
     },

@@ -29,7 +29,7 @@ export async function PATCH(
 
     if (!deal) {
       return NextResponse.json(
-        { ok: false, error: "PDF not found." },
+        { ok: false, error: "Deal Room not found." },
         { status: 404 },
       );
     }

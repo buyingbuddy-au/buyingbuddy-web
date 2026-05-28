@@ -240,8 +240,8 @@ export async function send_order_report_email({
     ppsr: "PPSR Report",
     dealer_review: "Hidden Quick Review",
     full_pack: "Legacy Pack",
-    pdf: "PDF",
-    deal_room: "Legacy PDF Alias",
+    pdf: "Legacy PDF Alias",
+    deal_room: "Deal Room",
   };
 
   const product_descriptions: Record<ProductType, string> = {
@@ -249,8 +249,8 @@ export async function send_order_report_email({
     ppsr: "Official PPSR (Personal Properties Securities Register) check — confirms whether there's any finance owing, if the car has been reported stolen, or if it's a write-off.",
     dealer_review: "A post-purchase listing review retained as a hidden support product.",
     full_pack: "A legacy package retained for existing order compatibility.",
-    pdf: "PPSR next-step guidance, QLD paperwork, and guided handover steps for private vehicle sales.",
-    deal_room: "Legacy checkout slug retained for older PDF orders.",
+    pdf: "Legacy checkout slug retained for older PDF orders.",
+    deal_room: "PPSR next-step guidance, QLD paperwork, and guided handover steps for private vehicle sales.",
   };
 
   const label = product_labels[product] ?? "Vehicle Report";
@@ -307,10 +307,10 @@ export async function send_pdf_buyer_email({
   const content = `
   <div class="header">
     <h1>Buying Buddy</h1>
-    <p>Your PDF is ready</p>
+    <p>Your Deal Room is ready</p>
   </div>
   <div class="body">
-    <p style="font-size:15px; color:#374151;">Your shared PDF workspace is live.</p>
+    <p style="font-size:15px; color:#374151;">Your shared Deal Room workspace is live.</p>
 
     <div class="vehicle-card">
       <p><strong>Deal ID:</strong> ${deal_id}</p>
@@ -321,7 +321,7 @@ export async function send_pdf_buyer_email({
       This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
     </div>
 
-    <a href="${deal_url}" class="cta">Open PDF</a>
+    <a href="${deal_url}" class="cta">Open Deal Room</a>
   </div>`;
 
   const html = email_html(content);
@@ -329,7 +329,7 @@ export async function send_pdf_buyer_email({
   await send_email({
     from: FROM,
     to: buyer_email,
-    subject: `Your PDF is Ready - ${deal_id}`,
+    subject: `Your Deal Room is Ready - ${deal_id}`,
     html,
     text: html_to_text(html),
   });
@@ -356,11 +356,11 @@ export async function send_deal_summary_email({
     <p>Your Deal Record summary is attached</p>
   </div>
   <div class="body">
-    <p style="font-size:15px; color:#374151;">The PDF has been finalised.</p>
+    <p style="font-size:15px; color:#374151;">The Deal Room has been finalised.</p>
 
     <div class="vehicle-card">
       <p><strong>Deal ID:</strong> ${deal_id}</p>
-      <p><strong>PDF:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
+      <p><strong>Deal Room:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
       <p><strong>Attached:</strong> Deal Record PDF summary</p>
     </div>
 
@@ -368,7 +368,7 @@ export async function send_deal_summary_email({
       This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
     </div>
 
-    <a href="${deal_url}" class="cta">Open PDF</a>
+    <a href="${deal_url}" class="cta">Open Deal Room</a>
   </div>`;
 
   const html = email_html(content);

@@ -278,7 +278,7 @@ export default function PdfWorkspacePage() {
       const res = await fetch(`/api/deal/${dealId}/finalise`, { method: "POST" });
       const data = (await res.json()) as { ok?: boolean; error?: string };
       if (data.ok) {
-        showToast("PDF finalised! PDF sent to both parties.");
+        showToast("Deal Room finalised! PDF sent to both parties.");
         void fetchDeal();
       } else {
         setError(data.error ?? "Could not finalise.");
@@ -300,7 +300,7 @@ export default function PdfWorkspacePage() {
   function handleShare() {
     const url = window.location.href;
     if (navigator.share) {
-      void navigator.share({ title: "BuyingBuddy PDF", url });
+      void navigator.share({ title: "BuyingBuddy Deal Room", url });
     } else {
       void navigator.clipboard.writeText(url);
       showToast("Link copied!");
@@ -328,9 +328,9 @@ export default function PdfWorkspacePage() {
   if (!deal) {
     return (
       <div className="mx-auto max-w-2xl px-4 pt-16 text-center">
-        <h1 className="text-3xl font-black text-gray-900">PDF not found</h1>
-        <Link href="/pdf" className="mt-6 inline-flex rounded-2xl bg-teal-600 px-6 py-3 text-sm font-bold text-white">
-          Create a PDF
+        <h1 className="text-3xl font-black text-gray-900">Deal Room not found</h1>
+        <Link href="/deal" className="mt-6 inline-flex rounded-2xl bg-teal-600 px-6 py-3 text-sm font-bold text-white">
+          Create a Deal Room
         </Link>
       </div>
     );
@@ -344,7 +344,7 @@ export default function PdfWorkspacePage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">PDF</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-600">Deal Room</p>
           <p className="mt-1 truncate text-sm text-gray-500" title={deal.id}>
             {vehicleRego ? <span className="font-mono font-bold text-gray-900">{vehicleRego}</span> : null}
             {vehicleRego ? " · " : ""}ID: {deal.id.slice(0, 8)}…
@@ -373,7 +373,7 @@ export default function PdfWorkspacePage() {
           <StatusItem done={Boolean(deal.agreed_price)} label={`Price: ${deal.agreed_price ? `$${deal.agreed_price}` : "pending"}`} />
           <StatusItem done={Boolean(deal.seller_confirmed_price)} label="Seller confirmed price" />
           <StatusItem done={deal.seller_safety_cert_uploaded} label="Safety certificate" />
-          <StatusItem done={isFinalised} label={isFinalised ? "PDF finalised" : "PDF summary pending"} />
+          <StatusItem done={isFinalised} label={isFinalised ? "Deal Room finalised" : "Sale summary pending"} />
         </div>
       </section>
 
@@ -404,7 +404,7 @@ export default function PdfWorkspacePage() {
       {isFinalised && (
         <div className="mt-4 rounded-[2rem] bg-teal-600 p-6 text-center text-white">
           <FileText className="mx-auto h-8 w-8" />
-          <p className="mt-3 text-xl font-black">PDF record Finalised</p>
+          <p className="mt-3 text-xl font-black">Deal Room finalised</p>
           <p className="mt-2 text-sm text-teal-100">The Sale Summary PDF has been emailed to both parties.</p>
           <Link
             href="/"
@@ -583,13 +583,13 @@ export default function PdfWorkspacePage() {
           <p className="text-xl font-black text-gray-900">Both sides are complete</p>
           <p className="mt-2 text-sm text-gray-500">Finalise the deal to generate the Sale Summary PDF and email it to both parties.</p>
           <button onClick={() => void finaliseDeal()} disabled={saveState === "saving"} className="mt-4 inline-flex min-h-[3.5rem] items-center justify-center rounded-2xl bg-teal-600 px-8 text-base font-black text-white hover:bg-teal-700 active:scale-[0.98] disabled:opacity-60">
-            {saveState === "saving" ? "Finalising..." : "Finalise & Send PDF"}
+            {saveState === "saving" ? "Finalising..." : "Finalise Deal Room & Send PDF"}
           </button>
         </section>
       )}
 
       <p className="mt-6 text-center text-xs text-gray-400">
-        This PDF record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
+        This Deal Room record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
       </p>
     </div>
   );

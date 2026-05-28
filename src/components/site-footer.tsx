@@ -26,8 +26,8 @@ export default function SiteFooter() {
             <Link href="/rego-check" className="font-semibold text-gray-700 transition hover:text-teal-600">
               QLD Rego Check
             </Link>
-            <Link href="/pdf" className="font-semibold text-gray-700 transition hover:text-teal-600">
-              PDF
+            <Link href="/deal" className="font-semibold text-gray-700 transition hover:text-teal-600">
+              Deal Room
             </Link>
             <Link href="/blog" className="font-semibold text-gray-700 transition hover:text-teal-600">
               Guides

@@ -63,7 +63,7 @@ function compileCheckoutRoute(options = {}) {
         return {
           is_paid_product: isPaidProduct,
           get_configured_stripe_mode: () => stripeMode,
-          normalise_public_product: (product) => (product === "deal_room" ? "pdf" : product),
+          normalise_public_product: (product) => (product === "pdf" ? "deal_room" : product),
           create_checkout_session: async (input) => {
             checkoutSessions.push(input);
             return { id: "cs_test_checkout_whitelist", url: "https://checkout.stripe.test/session" };
@@ -189,7 +189,7 @@ test("checkout API allows launch paid product slugs", async () => {
   const compiled = compileCheckoutRoute();
 
   try {
-    for (const product of ["ppsr", "pdf"]) {
+    for (const product of ["ppsr", "deal_room"]) {
       const response = await compiled.route.POST(
         makeCheckoutRequest({
           product,
@@ -209,7 +209,7 @@ test("checkout API allows launch paid product slugs", async () => {
 
     assert.deepEqual(
       compiled.getCheckoutSessions().map((session) => session.product),
-      ["ppsr", "pdf"],
+      ["ppsr", "deal_room"],
       "launch paid products should reach checkout session creation in order",
     );
   } finally {
@@ -217,14 +217,14 @@ test("checkout API allows launch paid product slugs", async () => {
   }
 });
 
-test("checkout API accepts legacy deal_room requests as the PDF product", async () => {
+test("checkout API accepts legacy pdf requests as the Deal Room product", async () => {
   const compiled = compileCheckoutRoute();
 
   try {
     const response = await compiled.route.POST(
       makeCheckoutRequest({
-        product: "deal_room",
-        email: "legacy-deal-room@example.com",
+        product: "pdf",
+        email: "legacy-pdf@example.com",
         customer_name: "Buyer Example",
         vehicle_identifier: "123ABC",
       }),
@@ -235,8 +235,8 @@ test("checkout API accepts legacy deal_room requests as the PDF product", async 
     assert.equal(payload.ok, true);
     assert.deepEqual(
       compiled.getCheckoutSessions().map((session) => session.product),
-      ["pdf"],
-      "legacy public deal_room requests should be normalized before Stripe session creation",
+      ["deal_room"],
+      "legacy public pdf requests should be normalized before Stripe session creation",
     );
   } finally {
     compiled.cleanup();

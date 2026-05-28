@@ -453,7 +453,7 @@ export function contractPackEmailSubject(input: Partial<ContractPackInput>) {
 export function contractPackBuyerEmailHtml(input: Partial<ContractPackInput>) {
   const data = normaliseContractPackInput(input);
   const vehicle = vehicleLabel(data);
-  const dealUrl = "https://buyingbuddy.com.au/pdf";
+  const dealUrl = "https://buyingbuddy.com.au/deal";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -474,8 +474,8 @@ export function contractPackBuyerEmailHtml(input: Partial<ContractPackInput>) {
         <div style="background:#ecfdf5;border:1px solid #ccfbf1;border-radius:14px;padding:18px;margin:20px 0;">
           <p style="margin:0;font-size:15px;line-height:1.6;"><strong>You’re in control.</strong> Review every field before signing. If the PPSR, ID, payment, safety certificate or vehicle details do not add up, pause before money changes hands.</p>
         </div>
-        <p style="font-size:15px;line-height:1.65;margin:0 0 16px;">Before you sign, use the PDF workspace to keep the listing, inspection notes, PPSR, paperwork and seller messages in one sale-control record.</p>
-        <p style="margin:24px 0;"><a href="${dealUrl}" style="display:inline-block;background:#0D9488;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:999px;">Open PDF</a></p>
+        <p style="font-size:15px;line-height:1.65;margin:0 0 16px;">Before you sign, use the Deal Room workspace to keep the listing, inspection notes, PPSR, paperwork and seller messages in one sale-control record.</p>
+        <p style="margin:24px 0;"><a href="${dealUrl}" style="display:inline-block;background:#0D9488;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:999px;">Open Deal Room</a></p>
         <p style="font-size:12px;line-height:1.6;color:#6b7280;margin:0;">This template is a practical private-sale record, not legal advice. Buying Buddy is not a party to the sale.</p>
       </div>
     </div>

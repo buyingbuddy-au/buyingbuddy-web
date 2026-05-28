@@ -15,7 +15,7 @@ Public launch products:
 
 - Free Listing Check
 - $4.95 PPSR Report
-- $9.99 PDF
+- $9.99 Deal Room
 - Free inspection checklist and QLD contract PDF builder
 
 ## Do not reintroduce drift

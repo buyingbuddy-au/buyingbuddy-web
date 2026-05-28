@@ -1,3 +1,10 @@
-import PdfWorkspacePage from "@/app/deal/[id]/page";
+import { redirect } from "next/navigation";
 
-export default PdfWorkspacePage;
+export default async function LegacyPdfWorkspaceRedirect({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  redirect(`/deal/${id}`);
+}

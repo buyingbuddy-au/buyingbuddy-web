@@ -5,8 +5,8 @@ const PRODUCT_LABELS: Record<ProductType, string> = {
   ppsr: "PPSR Report",
   dealer_review: "Hidden Quick Review",
   full_pack: "Legacy Pack",
-  pdf: "PDF",
-  deal_room: "Legacy PDF Alias",
+  pdf: "Legacy PDF Alias",
+  deal_room: "Deal Room",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
