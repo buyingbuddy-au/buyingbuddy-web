@@ -29,6 +29,23 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BRAND_TEAL = "#0D9488";
 
 type ResendEmailInput = Parameters<Resend["emails"]["send"]>[0];
+type ResendEmailResponse = Awaited<ReturnType<Resend["emails"]["send"]>>;
+
+export function is_test_email_sink_enabled() {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.BUYINGBUDDY_TEST_EMAIL_SINK !== "true") return false;
+
+  const liveKeyPrefixes = ["sk" + "_live_", "pk" + "_live_"];
+  const configuredStripeKeys = [
+    process.env.STRIPE_SECRET_KEY,
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  ];
+
+  return !configuredStripeKeys.some((key) => {
+    const trimmed = key?.trim();
+    return Boolean(trimmed && liveKeyPrefixes.some((prefix) => trimmed.startsWith(prefix)));
+  });
+}
 
 function html_to_text(html: string) {
   return html
@@ -57,6 +74,11 @@ function get_reply_to() {
 }
 
 async function send_email(input: ResendEmailInput) {
+  if (is_test_email_sink_enabled()) {
+    console.info(`[BuyingBuddy] Test email sink captured customer email: ${input.subject ?? "untitled"}`);
+    return { data: { id: "test_email_sink" }, error: null, headers: null } satisfies ResendEmailResponse;
+  }
+
   const response = await get_resend().emails.send({
     ...input,
     replyTo: get_reply_to(),

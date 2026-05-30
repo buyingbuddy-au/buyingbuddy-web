@@ -4,12 +4,32 @@ import { get_stripe } from "@/lib/stripe";
 import { create_deal_from_checkout_session } from "@/lib/deals";
 import { create_order_from_checkout_session } from "@/lib/engine";
 import {
+  is_test_email_sink_enabled,
   send_pdf_buyer_email,
   send_ppsr_confirmation_email,
 } from "@/lib/email";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
+
+type InternalEmailInput = Parameters<Resend["emails"]["send"]>[0];
+
+async function send_internal_email(input: InternalEmailInput) {
+  if (is_test_email_sink_enabled()) {
+    console.info(`[BuyingBuddy] Test email sink captured internal email: ${input.subject ?? "untitled"}`);
+    return;
+  }
+
+  const api_key = process.env.RESEND_API_KEY?.trim();
+  if (!api_key) {
+    throw new Error("RESEND_API_KEY is not configured.");
+  }
+
+  const response = await new Resend(api_key).emails.send(input);
+  if (response.error) {
+    throw new Error(`Failed to send internal email: ${response.error.message}`);
+  }
+}
 
 async function send_telegram_ppsr_notification({
   order_id,
@@ -145,8 +165,7 @@ export async function POST(request: Request) {
             deal_url,
           });
 
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          await resend.emails.send({
+          await send_internal_email({
             from: "Buying Buddy <info@buyingbuddy.com.au>",
             to: "info@buyingbuddy.com.au",
             subject: "NEW DEAL ROOM PAID",
@@ -191,8 +210,7 @@ export async function POST(request: Request) {
         
         console.info(`[BuyingBuddy] NEW ORDER SAVED: Product: ${product}, Email: ${email}, Listing: ${listing_url}`);
         
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        await resend.emails.send({
+        await send_internal_email({
           from: "Buying Buddy <info@buyingbuddy.com.au>",
           to: "info@buyingbuddy.com.au",
           subject: `NEW ORDER PAID: ${product.toUpperCase()}`,

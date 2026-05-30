@@ -10,12 +10,147 @@ import type {
   OrderRecord,
 } from "@/lib/types";
 
+type TestStore = {
+  orders: Map<string, OrderRecord>;
+  deals: Map<string, DealRecord>;
+  emailCaptures: Map<string, EmailCaptureRecord>;
+};
+
+declare global {
+  var __buyingBuddyTestStore: TestStore | undefined;
+}
+
+function has_live_stripe_key_configured() {
+  const liveKeyPrefixes = ["sk" + "_live_", "pk" + "_live_"];
+  const configuredStripeKeys = [
+    process.env.STRIPE_SECRET_KEY,
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  ];
+
+  return configuredStripeKeys.some((key) => {
+    const trimmed = key?.trim();
+    return Boolean(trimmed && liveKeyPrefixes.some((prefix) => trimmed.startsWith(prefix)));
+  });
+}
+
+function is_memory_test_store_enabled() {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.BUYINGBUDDY_TEST_DATA_STORE !== "memory") return false;
+  return !has_live_stripe_key_configured();
+}
+
+function testStore() {
+  globalThis.__buyingBuddyTestStore ??= {
+    orders: new Map<string, OrderRecord>(),
+    deals: new Map<string, DealRecord>(),
+    emailCaptures: new Map<string, EmailCaptureRecord>(),
+  };
+  return globalThis.__buyingBuddyTestStore;
+}
+
+function build_test_order(
+  input: Partial<OrderRecord> & Pick<OrderRecord, "id" | "product" | "customer_email">,
+): OrderRecord {
+  const now = new Date().toISOString();
+  return {
+    id: input.id,
+    created_at: input.created_at ?? now,
+    updated_at: input.updated_at ?? now,
+    product: input.product,
+    customer_email: input.customer_email,
+    customer_name: input.customer_name ?? null,
+    status: input.status ?? "pending",
+    price_cents: input.price_cents ?? 0,
+    stripe_session_id: input.stripe_session_id ?? null,
+    stripe_payment_intent: input.stripe_payment_intent ?? null,
+    listing_url: input.listing_url ?? null,
+    vehicle_identifier: input.vehicle_identifier ?? null,
+    vehicle_make: input.vehicle_make ?? null,
+    vehicle_model: input.vehicle_model ?? null,
+    vehicle_year: input.vehicle_year ?? null,
+    vehicle_rego: input.vehicle_rego ?? null,
+    vehicle_vin: input.vehicle_vin ?? null,
+    vehicle_mileage: input.vehicle_mileage ?? null,
+    vehicle_price_listed: input.vehicle_price_listed ?? null,
+    market_value_low: input.market_value_low ?? null,
+    market_value_high: input.market_value_high ?? null,
+    days_listed: input.days_listed ?? null,
+    red_flags: input.red_flags ?? [],
+    listing_verdict: input.listing_verdict ?? null,
+    ppsr_result: input.ppsr_result ?? null,
+    ppsr_checked_at: input.ppsr_checked_at ?? null,
+    dealer_verdict: input.dealer_verdict ?? null,
+    dealer_reviewed_at: input.dealer_reviewed_at ?? null,
+    report_pdf_path: input.report_pdf_path ?? null,
+    report_sent_at: input.report_sent_at ?? null,
+    negotiation_script: input.negotiation_script ?? null,
+    contract_included: input.contract_included ?? 0,
+  };
+}
+
+function build_test_deal(
+  input: Partial<DealRecord> & Pick<DealRecord, "id" | "status">,
+): DealRecord {
+  const now = new Date().toISOString();
+  return {
+    id: input.id,
+    created_at: input.created_at ?? now,
+    updated_at: input.updated_at ?? now,
+    status: input.status,
+    stripe_session_id: input.stripe_session_id ?? null,
+    vehicle_make: input.vehicle_make ?? null,
+    vehicle_model: input.vehicle_model ?? null,
+    vehicle_year: input.vehicle_year ?? null,
+    vehicle_vin: input.vehicle_vin ?? null,
+    vehicle_rego: input.vehicle_rego ?? null,
+    vehicle_km: input.vehicle_km ?? null,
+    vehicle_colour: input.vehicle_colour ?? null,
+    vehicle_transmission: input.vehicle_transmission ?? null,
+    asking_price: input.asking_price ?? null,
+    offered_price: input.offered_price ?? null,
+    agreed_price: input.agreed_price ?? null,
+    deposit_amount: input.deposit_amount ?? null,
+    payment_method: input.payment_method ?? null,
+    conditions: input.conditions ?? null,
+    handover_date: input.handover_date ?? null,
+    handover_location: input.handover_location ?? null,
+    notes: input.notes ?? null,
+    buyer_name: input.buyer_name ?? null,
+    buyer_email: input.buyer_email ?? null,
+    buyer_phone: input.buyer_phone ?? null,
+    buyer_address: input.buyer_address ?? null,
+    buyer_licence_url: input.buyer_licence_url ?? null,
+    buyer_completed_at: input.buyer_completed_at ?? null,
+    seller_name: input.seller_name ?? null,
+    seller_email: input.seller_email ?? null,
+    seller_phone: input.seller_phone ?? null,
+    seller_address: input.seller_address ?? null,
+    seller_licence_url: input.seller_licence_url ?? null,
+    seller_rego_papers_url: input.seller_rego_papers_url ?? null,
+    seller_safety_cert_url: input.seller_safety_cert_url ?? null,
+    seller_bank_bsb: input.seller_bank_bsb ?? null,
+    seller_bank_account: input.seller_bank_account ?? null,
+    seller_payid: input.seller_payid ?? null,
+    seller_completed_at: input.seller_completed_at ?? null,
+    seller_confirmed_price: input.seller_confirmed_price ?? 0,
+    seller_confirmed_conditions: input.seller_confirmed_conditions ?? 0,
+    summary_pdf_url: input.summary_pdf_url ?? null,
+    finalised_at: input.finalised_at ?? null,
+  };
+}
+
 // ── Orders ────────────────────────────────────────────────────────
 
 export async function insert_order(
   input: Partial<OrderRecord> &
     Pick<OrderRecord, "id" | "product" | "customer_email">,
 ) {
+  if (is_memory_test_store_enabled()) {
+    const row = build_test_order(input);
+    testStore().orders.set(row.id, row);
+    return row;
+  }
+
   const row = {
     id: input.id,
     product: input.product,
@@ -54,6 +189,14 @@ export async function insert_order(
 }
 
 export async function update_order(id: string, updates: Partial<OrderRecord>) {
+  if (is_memory_test_store_enabled()) {
+    const existing = testStore().orders.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...updates, id, updated_at: new Date().toISOString() };
+    testStore().orders.set(id, updated);
+    return updated;
+  }
+
   const clean: Record<string, unknown> = { updated_at: new Date().toISOString() };
   for (const [key, value] of Object.entries(updates)) {
     if (key === "id" || key === "created_at" || value === undefined) continue;
@@ -67,6 +210,10 @@ export async function update_order(id: string, updates: Partial<OrderRecord>) {
 }
 
 export async function get_order_by_id(id: string) {
+  if (is_memory_test_store_enabled()) {
+    return testStore().orders.get(id) ?? null;
+  }
+
   const { data } = await supabase
     .from("orders")
     .select("*")
@@ -76,6 +223,10 @@ export async function get_order_by_id(id: string) {
 }
 
 export async function get_order_by_stripe_session_id(session_id: string) {
+  if (is_memory_test_store_enabled()) {
+    return Array.from(testStore().orders.values()).find((order) => order.stripe_session_id === session_id) ?? null;
+  }
+
   const { data } = await supabase
     .from("orders")
     .select("*")
@@ -85,6 +236,10 @@ export async function get_order_by_stripe_session_id(session_id: string) {
 }
 
 export async function get_order_by_payment_intent(intent: string) {
+  if (is_memory_test_store_enabled()) {
+    return Array.from(testStore().orders.values()).find((order) => order.stripe_payment_intent === intent) ?? null;
+  }
+
   const { data } = await supabase
     .from("orders")
     .select("*")
@@ -94,6 +249,29 @@ export async function get_order_by_payment_intent(intent: string) {
 }
 
 export async function list_orders(filters: OrderFilters = {}) {
+  if (is_memory_test_store_enabled()) {
+    let rows = Array.from(testStore().orders.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+    if (filters.status && filters.status !== "all") {
+      rows = rows.filter((order) => order.status === filters.status);
+    }
+    if (filters.product && filters.product !== "all") {
+      rows = rows.filter((order) => order.product === filters.product);
+    }
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      rows = rows.filter((order) =>
+        [order.customer_email, order.listing_url, order.vehicle_make, order.vehicle_model, order.vehicle_identifier, order.vehicle_rego, order.vehicle_vin]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
+    }
+    if (typeof filters.limit === "number" && Number.isFinite(filters.limit)) {
+      rows = rows.slice(0, filters.limit);
+    }
+    return rows;
+  }
+
   let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
 
   if (filters.status && filters.status !== "all") {
@@ -120,6 +298,21 @@ export async function list_orders(filters: OrderFilters = {}) {
 export async function upsert_email_capture(
   input: Partial<EmailCaptureRecord> & Pick<EmailCaptureRecord, "id" | "email">,
 ) {
+  if (is_memory_test_store_enabled()) {
+    const existing = testStore().emailCaptures.get(input.email);
+    const now = new Date().toISOString();
+    const row: EmailCaptureRecord = {
+      id: existing?.id ?? input.id,
+      created_at: existing?.created_at ?? input.created_at ?? now,
+      email: input.email,
+      listing_url: input.listing_url ?? existing?.listing_url ?? null,
+      vehicle_summary: input.vehicle_summary ?? existing?.vehicle_summary ?? null,
+      converted_to_order: input.converted_to_order ?? existing?.converted_to_order ?? null,
+    };
+    testStore().emailCaptures.set(row.email, row);
+    return row;
+  }
+
   await supabase.from("email_captures").upsert(
     {
       id: input.id,
@@ -134,6 +327,10 @@ export async function upsert_email_capture(
 }
 
 export async function get_email_capture_by_email(email: string) {
+  if (is_memory_test_store_enabled()) {
+    return testStore().emailCaptures.get(email) ?? null;
+  }
+
   const { data } = await supabase
     .from("email_captures")
     .select("*")
@@ -147,6 +344,12 @@ export async function get_email_capture_by_email(email: string) {
 export async function insert_deal(
   input: Partial<DealRecord> & Pick<DealRecord, "id" | "status">,
 ) {
+  if (is_memory_test_store_enabled()) {
+    const row = build_test_deal(input);
+    testStore().deals.set(row.id, row);
+    return row;
+  }
+
   const row: Record<string, unknown> = { id: input.id, status: input.status };
   for (const [key, value] of Object.entries(input)) {
     if (key === "id" || key === "status" || value === undefined) continue;
@@ -158,6 +361,14 @@ export async function insert_deal(
 }
 
 export async function update_deal(id: string, updates: Partial<DealRecord>) {
+  if (is_memory_test_store_enabled()) {
+    const existing = testStore().deals.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...updates, id, updated_at: new Date().toISOString() };
+    testStore().deals.set(id, updated);
+    return updated;
+  }
+
   const clean: Record<string, unknown> = { updated_at: new Date().toISOString() };
   for (const [key, value] of Object.entries(updates)) {
     if (key === "id" || key === "created_at" || value === undefined) continue;
@@ -171,6 +382,10 @@ export async function update_deal(id: string, updates: Partial<DealRecord>) {
 }
 
 export async function get_deal_by_id(id: string) {
+  if (is_memory_test_store_enabled()) {
+    return testStore().deals.get(id) ?? null;
+  }
+
   const { data } = await supabase
     .from("deals")
     .select("*")
@@ -180,6 +395,13 @@ export async function get_deal_by_id(id: string) {
 }
 
 export async function get_deals_by_email(email: string): Promise<DealRecord[]> {
+  if (is_memory_test_store_enabled()) {
+    return Array.from(testStore().deals.values())
+      .filter((deal) => deal.buyer_email === email)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, 20);
+  }
+
   const { data } = await supabase
     .from("deals")
     .select("*")
@@ -190,6 +412,12 @@ export async function get_deals_by_email(email: string): Promise<DealRecord[]> {
 }
 
 export async function get_deal_by_email_and_rego(email: string, rego: string) {
+  if (is_memory_test_store_enabled()) {
+    return Array.from(testStore().deals.values())
+      .filter((deal) => deal.buyer_email === email && deal.vehicle_rego === rego.toUpperCase())
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))[0] ?? null;
+  }
+
   const { data } = await supabase
     .from("deals")
     .select("*")
@@ -202,6 +430,10 @@ export async function get_deal_by_email_and_rego(email: string, rego: string) {
 }
 
 export async function get_deal_by_stripe_session_id(session_id: string) {
+  if (is_memory_test_store_enabled()) {
+    return Array.from(testStore().deals.values()).find((deal) => deal.stripe_session_id === session_id) ?? null;
+  }
+
   const { data } = await supabase
     .from("deals")
     .select("*")
@@ -263,6 +495,14 @@ export function to_public_deal_record(deal: DealRecord): DealPublicRecord {
 // ── Email → Order link ────────────────────────────────────────────
 
 export async function link_email_capture_to_order(email: string, order_id: string) {
+  if (is_memory_test_store_enabled()) {
+    const existing = testStore().emailCaptures.get(email);
+    if (!existing) return null;
+    const updated = { ...existing, converted_to_order: order_id };
+    testStore().emailCaptures.set(email, updated);
+    return updated;
+  }
+
   await supabase
     .from("email_captures")
     .update({ converted_to_order: order_id })

@@ -18,3 +18,12 @@ test("shared Resend helper always applies a validated Reply-To header", () => {
   assert.match(source, /replyTo: get_reply_to\(\)/, "helper should apply Reply-To after spreading caller input");
   assert.doesNotMatch(source, /replyTo:\s*REPLY_TO/);
 });
+
+test("shared Resend helper has a non-production test email sink that refuses live Stripe keys", () => {
+  assert.match(source, /export function is_test_email_sink_enabled\(\)/);
+  assert.match(source, /BUYINGBUDDY_TEST_EMAIL_SINK/);
+  assert.match(source, /process\.env\.NODE_ENV === "production"/);
+  assert.match(source, /"sk" \+ "_live_"/);
+  assert.match(source, /"pk" \+ "_live_"/);
+  assert.match(source, /id: "test_email_sink"/);
+});

@@ -17,3 +17,12 @@ test("PPSR admin webhook rejects requests before bearer comparison when shared s
   assert.match(source, /Webhook secret is not configured/);
   assert.doesNotMatch(source, /`Bearer \$\{process\.env\.STRIPE_WEBHOOK_SECRET\}`/);
 });
+
+test("main Stripe webhook uses the non-production test email sink for internal notification emails", () => {
+  const source = readFileSync("src/app/api/stripe/webhook/route.ts", "utf8");
+
+  assert.match(source, /is_test_email_sink_enabled/);
+  assert.match(source, /async function send_internal_email/);
+  assert.match(source, /Test email sink captured internal email/);
+  assert.doesNotMatch(source, /new Resend\(process\.env\.RESEND_API_KEY\)/);
+});
