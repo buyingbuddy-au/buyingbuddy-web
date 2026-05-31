@@ -41,12 +41,12 @@ const PRODUCTS = [
   {
     name: "Deal Room",
     price: "$9.99",
-    description: "For the car that passes the first sniff test and is worth chasing properly.",
+    description: "For the car that has cleared the checks and is ready for handover.",
     href: "/deal",
     buttonText: "Open Deal Room",
     highlight: false,
     features: [
-      "PPSR next-step guidance",
+      "Post-PPSR handover workspace",
       "Private-sale contract PDF",
       "Guided handover checklist",
       "Deal Room record",
@@ -56,10 +56,10 @@ const PRODUCTS = [
 ] as const;
 
 const COMPARISON = [
-  { feature: "Listing red-flag check", free: true, ppsr: false, deal: true },
+  { feature: "Listing red-flag check", free: true, ppsr: false, deal: false },
   { feature: "Inspection checklist", free: true, ppsr: false, deal: true },
-  { feature: "Finance owing / encumbrance check", free: false, ppsr: true, deal: true },
-  { feature: "Stolen and written-off status", free: false, ppsr: true, deal: true },
+  { feature: "Finance owing / encumbrance check", free: false, ppsr: true, deal: false },
+  { feature: "Stolen and written-off status", free: false, ppsr: true, deal: false },
   { feature: "Private-sale contract PDF", free: true, ppsr: false, deal: true },
   { feature: "Guided handover record", free: false, ppsr: false, deal: true },
 ] as const;
@@ -73,7 +73,7 @@ export default function PricingPage() {
           Buyer-side help without the premium fee.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-7 text-gray-500">
-          Start free. Only pay when the car looks worth chasing — without a traditional buyer's-agent fee.
+          Start free. Only pay when the car looks worth chasing — no premium service fee.
         </p>
       </section>
 

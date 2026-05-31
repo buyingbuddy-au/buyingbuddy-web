@@ -29,7 +29,7 @@ const PRODUCT_DEFINITIONS: Record<PaidProductType, ProductDefinition> = {
   deal_room: {
     product: "deal_room",
     name: "Deal Room",
-    description: "PPSR next-step guidance, QLD paperwork, and guided handover record.",
+    description: "Post-PPSR handover workspace, QLD paperwork, and guided sale record.",
     price_cents: 999,
   },
 };

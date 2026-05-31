@@ -15,7 +15,7 @@ export default function StructuredData() {
         name: "Buying Buddy",
         url: "https://buyingbuddy.com.au",
         description:
-          "Buying Buddy is a self-serve buyer's-agent alternative that helps used-car buyers avoid expensive mistakes with cheap, practical tools.",
+          "Buying Buddy gives private used-car buyers cheap, practical self-serve tools to avoid expensive mistakes.",
         founder: {
           "@type": "Person",
           name: "Jordan Lansbury",
@@ -52,7 +52,7 @@ export default function StructuredData() {
             price: "9.99",
             priceCurrency: "AUD",
             description:
-              "PPSR next-step guidance, QLD paperwork, and guided handover steps for private car sales.",
+              "Post-PPSR handover workspace with QLD paperwork, buyer/seller detail capture, and a guided sale record.",
           },
         ],
       },

@@ -15,12 +15,14 @@ const PUBLIC_SURFACE_FILES = [
 ];
 
 const CUSTOMER_DEAL_ROOM_SURFACES = [
+  "src/app/layout.tsx",
   "src/app/page.tsx",
   "src/app/pricing/page.tsx",
   "src/app/ppsr/page.tsx",
   "src/app/deal/page.tsx",
   "src/app/deal/[id]/page.tsx",
   "src/app/deal/demo/page.tsx",
+  "src/app/api/buddy/route.ts",
   "src/app/api/deal/[id]/route.ts",
   "src/app/api/deal/[id]/seller/route.ts",
   "src/app/order/success/page.tsx",
@@ -36,6 +38,7 @@ const CUSTOMER_DEAL_ROOM_SURFACES = [
   "src/lib/email.ts",
   "src/lib/free-check.ts",
   "src/lib/ppsr-customer-guide.ts",
+  "src/lib/stripe.ts",
 ];
 
 test("public surface consistently names the new digital contract PDF instead of old download/pack wording", () => {
@@ -62,6 +65,27 @@ test("pricing keeps product names aligned with public navigation", () => {
   assert.match(pricing, /href: "\/deal"/);
   assert.match(pricing, /Deal Room record/i);
   assert.doesNotMatch(pricing, /Generate PDF|Deal Pack|contract pack/i);
+});
+
+test("pricing keeps Deal Room as the post-PPSR handover workspace, not a second PPSR report", () => {
+  const pricing = read("src/app/pricing/page.tsx");
+
+  assert.match(pricing, /name: "PPSR Report"[\s\S]*price: "\$4\.95"/);
+  assert.match(pricing, /name: "Deal Room"[\s\S]*price: "\$9\.99"/);
+  assert.match(pricing, /description: "For the car that has cleared the checks and is ready for handover\."/);
+  assert.doesNotMatch(pricing, /feature: "Finance owing \/ encumbrance check"[\s\S]{0,90}deal: true/);
+  assert.doesNotMatch(pricing, /feature: "Stolen and written-off status"[\s\S]{0,90}deal: true/);
+});
+
+test("Deal Room is described as post-PPSR handover, not a bundled PPSR report or old PDF product", () => {
+  const offenders = CUSTOMER_DEAL_ROOM_SURFACES.flatMap((path) => {
+    const lines = read(path).split("\n");
+    return lines
+      .map((line, index) => ({ path, line: index + 1, text: line }))
+      .filter(({ text }) => /PPSR \+ contract \+ record|PPSR next-step guidance|PDF \(\$9\.99\)|Recommend the PDF|Mention the PDF \(\$9\.99\)|buyer'?s-agent|buyer'?s agent|concierge|handle the whole|premium done-for-you/i.test(text));
+  });
+
+  assert.deepEqual(offenders, []);
 });
 
 test("customer handoff surfaces consistently call the paid handover product Deal Room", () => {

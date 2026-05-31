@@ -228,7 +228,7 @@ export default function HomePage() {
               <FileText className="h-6 w-6 shrink-0 text-teal-700" aria-hidden="true" />
               <div>
                 <h3 className="text-base font-black tracking-[-0.02em] text-gray-950 sm:mt-4 sm:text-lg">$9.99 Deal Room</h3>
-                <p className="mt-1 text-xs leading-5 text-gray-600 sm:mt-2 sm:text-sm sm:leading-6">PPSR + contract + record.</p>
+                <p className="mt-1 text-xs leading-5 text-gray-600 sm:mt-2 sm:text-sm sm:leading-6">Contract + handover record.</p>
               </div>
             </Link>
           </div>

@@ -272,7 +272,7 @@ export async function send_order_report_email({
     dealer_review: "A post-purchase listing review retained as a hidden support product.",
     full_pack: "A legacy package retained for existing order compatibility.",
     pdf: "Legacy checkout slug retained for older PDF orders.",
-    deal_room: "PPSR next-step guidance, QLD paperwork, and guided handover steps for private vehicle sales.",
+    deal_room: "Post-PPSR handover workspace with QLD paperwork, buyer/seller detail capture, and a guided sale record.",
   };
 
   const label = product_labels[product] ?? "Vehicle Report";

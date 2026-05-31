@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "Buying Buddy",
     title: "Buying Buddy | Used Car Buying Help & Buyer-Side Tools",
     description:
-      "A self-serve buyer's-agent alternative with free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
+      "Self-serve used-car buyer tools: free listing checks, $4.95 PPSR reports, inspection prompts, and private-sale paperwork.",
   },
   twitter: {
     card: "summary_large_image",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   keywords: [
     "used car buying help Australia",
-    "buyer agent alternative Australia",
+    "used car buyer tools Australia",
     "used car check Australia",
     "PPSR report Australia",
     "PPSR check QLD",
