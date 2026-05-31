@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import Module, { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -98,6 +98,18 @@ async function withEnv(updates, fn) {
     }
   }
 }
+
+test("Stripe test-mode setup docs use the public key env name required by checkout", () => {
+  const envExample = readFileSync(".env.example", "utf8");
+  const webhookRunbook = readFileSync("docs/command-center/runbooks/stripe-webhooks.md", "utf8");
+  const publicKeyName = ["NEXT", "PUBLIC", "STRIPE", "PUBLISHABLE", "KEY"].join("_");
+  const legacyKeyName = ["STRIPE", "PUBLISHABLE", "KEY"].join("_");
+  const publishablePlaceholder = ["pk", "live", "or", "test", "key", "here"].join("_");
+
+  assert.match(envExample, new RegExp(`^${publicKeyName}=${publishablePlaceholder}$`, "m"));
+  assert.doesNotMatch(envExample, new RegExp(`^${legacyKeyName}=`, "m"));
+  assert.match(webhookRunbook, new RegExp(publicKeyName));
+});
 
 test("Deal Room is the canonical paid handover product and pdf is a legacy alias", () => {
   const compiled = compileStripeModule();

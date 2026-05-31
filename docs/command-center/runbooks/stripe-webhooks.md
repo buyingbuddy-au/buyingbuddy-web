@@ -21,7 +21,7 @@ Get-Content src\app\api\stripe\webhook\route.ts
 Expected current launch products:
 
 - PPSR Report - $4.95.
-- Deal Pack - $9.99.
+- Deal Room - $9.99.
 - Hidden/future Quick Review is not public front-door copy.
 
 ## Vercel Env Check
@@ -35,7 +35,7 @@ vercel env ls | Select-String "SITE_URL"
 
 Required env names for production payment safety:
 
-- `STRIPE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_SITE_URL` or `SITE_URL`

@@ -151,6 +151,15 @@ function getRatingLabel(rating: Rating) {
   return "Not checked";
 }
 
+const INSPECTION_SCORE_CARD_BASE =
+  "inspection-score-card print-card min-w-0 rounded-xl border px-2 py-2 sm:rounded-2xl sm:px-4 sm:py-3 print:border-slate-300 print:bg-white";
+const INSPECTION_SCORE_LABEL_BASE =
+  "truncate text-[9px] font-bold uppercase tracking-[0.08em] sm:text-[11px] sm:tracking-[0.16em] print:text-slate-500";
+const INSPECTION_SCORE_VALUE_BASE =
+  "mt-0.5 text-xl font-black sm:mt-1 sm:text-2xl print:text-lg print:text-slate-950";
+const INSPECTION_CONTROL_BASE =
+  "flex min-h-[2.75rem] w-full items-center justify-center rounded-xl transition active:scale-95 sm:h-9 sm:min-h-0 sm:w-9";
+
 /* ── Component ── */
 
 export function InspectionApp() {
@@ -348,33 +357,33 @@ export function InspectionApp() {
           </div>
         </section>
 
-        <section className="pointer-events-none sticky top-14 z-20 -mx-4 border-b border-slate-200/10 bg-slate-950/92 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:top-16 lg:-mx-8 lg:px-8 print:static print:mx-0 print:border-0 print:bg-white print:px-0 print:py-3">
-          <div className="print-summary-strip grid gap-2 sm:grid-cols-4">
-            <div className="print-card rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 print:border-slate-300 print:bg-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400 print:text-slate-500">Progress</p>
-              <p className="mt-1 text-2xl font-black text-white print:text-lg print:text-slate-950">{rated}/{TOTAL}</p>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10 print:hidden">
+        <section className="pointer-events-none sticky top-0 z-20 -mx-4 border-b border-slate-200/10 bg-slate-950/92 px-3 py-2 backdrop-blur sm:-mx-6 sm:px-6 sm:py-3 lg:-mx-8 lg:px-8 print:static print:mx-0 print:border-0 print:bg-white print:px-0 print:py-3">
+          <div className="print-summary-strip grid grid-cols-4 gap-1.5 sm:gap-2">
+            <div className={`${INSPECTION_SCORE_CARD_BASE} border-white/10 bg-white/[0.05]`}>
+              <p className={`${INSPECTION_SCORE_LABEL_BASE} text-slate-400`}>Progress</p>
+              <p className={`${INSPECTION_SCORE_VALUE_BASE} text-white`}>{rated}/{TOTAL}</p>
+              <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/10 sm:mt-2 sm:h-1.5 print:hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-teal-300 to-emerald-300 transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
-            <div className="print-card rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 print:border-slate-300 print:bg-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-200 print:text-slate-500">Pass</p>
-              <p className="mt-1 text-2xl font-black text-emerald-100 print:text-lg print:text-slate-950">{passes}</p>
+            <div className={`${INSPECTION_SCORE_CARD_BASE} border-emerald-400/20 bg-emerald-400/10`}>
+              <p className={`${INSPECTION_SCORE_LABEL_BASE} text-emerald-200`}>Pass</p>
+              <p className={`${INSPECTION_SCORE_VALUE_BASE} text-emerald-100`}>{passes}</p>
             </div>
-            <div className="print-card rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 print:border-slate-300 print:bg-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-100 print:text-slate-500">Concern</p>
-              <p className="mt-1 text-2xl font-black text-amber-100 print:text-lg print:text-slate-950">{concerns}</p>
+            <div className={`${INSPECTION_SCORE_CARD_BASE} border-amber-300/20 bg-amber-300/10`}>
+              <p className={`${INSPECTION_SCORE_LABEL_BASE} text-amber-100`}>Concern</p>
+              <p className={`${INSPECTION_SCORE_VALUE_BASE} text-amber-100`}>{concerns}</p>
             </div>
-            <div className="print-card rounded-2xl border border-red-300/20 bg-red-300/10 px-4 py-3 print:border-slate-300 print:bg-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-red-100 print:text-slate-500">Fail</p>
-              <p className="mt-1 text-2xl font-black text-red-100 print:text-lg print:text-slate-950">{fails}</p>
+            <div className={`${INSPECTION_SCORE_CARD_BASE} border-red-300/20 bg-red-300/10`}>
+              <p className={`${INSPECTION_SCORE_LABEL_BASE} text-red-100`}>Fail</p>
+              <p className={`${INSPECTION_SCORE_VALUE_BASE} text-red-100`}>{fails}</p>
             </div>
           </div>
 
-          <div className="pointer-events-none mt-3 min-h-[4.75rem] print:min-h-0">
+          <div className="pointer-events-none mt-2 min-h-[2.75rem] sm:mt-3 sm:min-h-[4.75rem] print:min-h-0">
             {verdict ? (
               <div className={`print-card rounded-2xl border px-4 py-3 ${verdict.border} ${verdict.bg} print:border-slate-300 print:bg-white`}>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -455,13 +464,13 @@ export function InspectionApp() {
 
                       return (
                         <div key={item.id} className={`print-row min-w-0 rounded-2xl border px-3 py-3 transition-colors print:rounded-none print:border-0 print:px-0 ${ratingTone(itemState.rating)}`}>
-                          <div className="flex min-w-0 items-center gap-3">
+                          <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 sm:flex sm:items-center">
                             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white print:h-5 print:w-5 print:rounded-sm print:border print:border-slate-400 print:bg-white print:text-[10px] print:text-slate-950">
                               <span className="screen-only">{absoluteIndex}</span>
                               <span className="hidden print:inline">{printRatingGlyph(itemState.rating)}</span>
                             </span>
 
-                            <div className="min-w-0 flex-1">
+                            <div className="min-w-0">
                               <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                                 <span className="print-row-label text-sm font-bold leading-snug text-slate-900">
                                   {item.label}
@@ -475,11 +484,11 @@ export function InspectionApp() {
                               )}
                             </div>
 
-                            <div className="screen-only flex shrink-0 gap-1">
+                            <div className="screen-only col-span-2 grid grid-cols-4 gap-1.5 sm:col-span-1 sm:flex sm:shrink-0 sm:gap-1">
                               <button
                                 type="button"
                                 onClick={() => setRating(item.id, itemState.rating === "pass" ? null : "pass")}
-                                className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
+                                className={`${INSPECTION_CONTROL_BASE} ${
                                   itemState.rating === "pass"
                                     ? "bg-emerald-600 text-white shadow-sm"
                                     : "bg-white text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"
@@ -493,7 +502,7 @@ export function InspectionApp() {
                               <button
                                 type="button"
                                 onClick={() => setRating(item.id, itemState.rating === "concern" ? null : "concern")}
-                                className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
+                                className={`${INSPECTION_CONTROL_BASE} ${
                                   itemState.rating === "concern"
                                     ? "bg-amber-500 text-white shadow-sm"
                                     : "bg-white text-slate-400 hover:bg-amber-50 hover:text-amber-600"
@@ -507,7 +516,7 @@ export function InspectionApp() {
                               <button
                                 type="button"
                                 onClick={() => setRating(item.id, itemState.rating === "fail" ? null : "fail")}
-                                className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
+                                className={`${INSPECTION_CONTROL_BASE} ${
                                   itemState.rating === "fail"
                                     ? "bg-red-600 text-white shadow-sm"
                                     : "bg-white text-slate-400 hover:bg-red-50 hover:text-red-600"
@@ -518,16 +527,16 @@ export function InspectionApp() {
                               >
                                 <X className="h-4 w-4" strokeWidth={3} />
                               </button>
-                            </div>
 
-                            <button
-                              type="button"
-                              onClick={() => toggleNote(item.id)}
-                              className="screen-only flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                              aria-label={`${item.label}: add note`}
-                            >
-                              <ChevronDown className={`h-4 w-4 transition-transform ${isNoteOpen ? "rotate-180" : ""}`} />
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() => toggleNote(item.id)}
+                                className={`${INSPECTION_CONTROL_BASE} bg-white text-slate-400 hover:bg-slate-100 hover:text-slate-600`}
+                                aria-label={`${item.label}: add note`}
+                              >
+                                <ChevronDown className={`h-4 w-4 transition-transform ${isNoteOpen ? "rotate-180" : ""}`} />
+                              </button>
+                            </div>
                           </div>
 
                           {itemState.note ? (

@@ -88,3 +88,43 @@ test("inspection and pricing surfaces avoid clipped mobile cards", () => {
     "pricing comparison should not require nested horizontal scrolling on phones",
   );
 });
+
+test("inspection checklist keeps the sticky scorebar compact on phones", () => {
+  const inspection = read("src/components/inspection-app.tsx");
+
+  assert.match(
+    inspection,
+    /print-summary-strip grid grid-cols-4 gap-1\.5 sm:gap-2/,
+    "mobile scorebar should be four compact columns, not four tall stacked cards",
+  );
+  assert.match(
+    inspection,
+    /inspection-score-card[^"`]*px-2 py-2[^"`]*sm:px-4 sm:py-3/,
+    "score cards need mobile padding first, then roomier desktop padding",
+  );
+  assert.match(
+    inspection,
+    /className="pointer-events-none mt-2 min-h-\[2\.75rem\] sm:mt-3 sm:min-h-\[4\.75rem\] print:min-h-0"/,
+    "mobile verdict spacer should be short enough not to cover the checklist rows",
+  );
+});
+
+test("inspection checklist rating controls sit below the label on phones", () => {
+  const inspection = read("src/components/inspection-app.tsx");
+
+  assert.match(
+    inspection,
+    /grid min-w-0 grid-cols-\[auto_minmax\(0,1fr\)\] gap-3 sm:flex sm:items-center/,
+    "mobile checklist rows should give long labels the full line before controls",
+  );
+  assert.match(
+    inspection,
+    /col-span-2 grid grid-cols-4 gap-1\.5 sm:col-span-1 sm:flex sm:shrink-0 sm:gap-1/,
+    "rating and note buttons should become a full-width tap row on phones",
+  );
+  assert.match(
+    inspection,
+    /min-h-\[2\.75rem\] w-full[^"`]*rounded-xl[^"`]*sm:h-9[^"`]*sm:w-9/,
+    "mobile checklist controls need larger phone-friendly tap targets without squeezing labels",
+  );
+});
