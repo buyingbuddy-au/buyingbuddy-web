@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { escape_html, rate_limit_response } from "@/lib/security";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -12,6 +13,9 @@ const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 
 export async function POST(req: Request) {
+  const limited = rate_limit_response(req, { key: "ppi", limit: 5, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = await req.json() as {
       name?: string; phone?: string; email?: string;
@@ -20,13 +24,25 @@ export async function POST(req: Request) {
     };
 
     const { name, phone, email, carYear, carMake, carModel, location, preferredDate, notes } = body;
+    const safeEmail = email?.trim() ?? "";
 
-    if (!email || !email.includes("@")) {
+    if (!safeEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeEmail)) {
       return NextResponse.json({ error: "Valid email required." }, { status: 400 });
     }
 
-    const car = [carYear, carMake, carModel].filter(Boolean).join(" ") || "Not specified";
-    const firstName = name?.split(" ")[0] ?? "there";
+    const clean = (value: string | undefined, fallback: string) =>
+      escape_html((value?.trim() || fallback).slice(0, 500));
+
+    const carRaw = [carYear, carMake, carModel].map((part) => part?.trim()).filter(Boolean).join(" ") || "Not specified";
+    const car = escape_html(carRaw.slice(0, 180));
+    const nameText = (name?.trim() || safeEmail).slice(0, 120);
+    const nameHtml = escape_html(nameText);
+    const phoneHtml = clean(phone, "Not provided");
+    const emailHtml = escape_html(safeEmail);
+    const locationHtml = clean(location, "Not provided");
+    const preferredDateHtml = clean(preferredDate, "Not specified");
+    const notesHtml = clean(notes, "None");
+    const firstName = escape_html((nameText.split(" ")[0] || "there").slice(0, 80));
 
     const resend = getResend();
 
@@ -34,18 +50,18 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: FROM,
       to: NOTIFY_EMAIL,
-      subject: `New PPI Enquiry: ${car} — ${name ?? email}`,
+      subject: `New PPI Enquiry: ${carRaw.slice(0, 120)} — ${nameText}`,
       html: `
 <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;">
   <h2 style="color:#0D9488;">New PPI Enquiry</h2>
   <table style="width:100%;border-collapse:collapse;font-size:14px;">
-    <tr><td style="padding:6px 0;color:#6B7280;width:140px;">Name</td><td style="padding:6px 0;font-weight:600;">${name ?? "Not provided"}</td></tr>
-    <tr><td style="padding:6px 0;color:#6B7280;">Phone</td><td style="padding:6px 0;font-weight:600;">${phone ?? "Not provided"}</td></tr>
-    <tr><td style="padding:6px 0;color:#6B7280;">Email</td><td style="padding:6px 0;font-weight:600;">${email}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;width:140px;">Name</td><td style="padding:6px 0;font-weight:600;">${nameHtml}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;">Phone</td><td style="padding:6px 0;font-weight:600;">${phoneHtml}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;">Email</td><td style="padding:6px 0;font-weight:600;">${emailHtml}</td></tr>
     <tr><td style="padding:6px 0;color:#6B7280;">Car</td><td style="padding:6px 0;font-weight:600;">${car}</td></tr>
-    <tr><td style="padding:6px 0;color:#6B7280;">Location</td><td style="padding:6px 0;">${location ?? "Not provided"}</td></tr>
-    <tr><td style="padding:6px 0;color:#6B7280;">Preferred date</td><td style="padding:6px 0;">${preferredDate ?? "Not specified"}</td></tr>
-    <tr><td style="padding:6px 0;color:#6B7280;">Notes</td><td style="padding:6px 0;">${notes ?? "None"}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;">Location</td><td style="padding:6px 0;">${locationHtml}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;">Preferred date</td><td style="padding:6px 0;">${preferredDateHtml}</td></tr>
+    <tr><td style="padding:6px 0;color:#6B7280;">Notes</td><td style="padding:6px 0;">${notesHtml}</td></tr>
   </table>
 </div>`,
     });
@@ -53,7 +69,7 @@ export async function POST(req: Request) {
     // Confirm to user
     await resend.emails.send({
       from: FROM,
-      to: email,
+      to: safeEmail,
       subject: "PPI Enquiry Received — Buying Buddy",
       html: `
 <div style="font-family:sans-serif;max-width:500px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">

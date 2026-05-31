@@ -2,7 +2,17 @@ import { NextResponse } from "next/server";
 import { OrderRecord } from "@/lib/types";
 import { generate_order_report } from "@/lib/pdf";
 
+function is_internal_pdf_demo_enabled(req: Request) {
+  const secret = process.env.INTERNAL_PDF_REPORT_SECRET?.trim();
+  if (secret) return req.headers.get("authorization") === `Bearer ${secret}`;
+  return process.env.NODE_ENV !== "production";
+}
+
 export async function POST(req: Request) {
+  if (!is_internal_pdf_demo_enabled(req)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   try {
     const payload = await req.json();
 

@@ -1,4 +1,5 @@
 ﻿import { Resend } from "resend";
+import { escape_attr, escape_html } from "@/lib/security";
 import type { ProductType } from "@/lib/types";
 
 let resend_client: Resend | null = null;
@@ -160,8 +161,10 @@ export async function send_free_check_email({
 
   const flags_html =
     red_flags && red_flags.length > 0
-      ? red_flags.map((f) => `<p class="red-flag">⚠ ${f}</p>`).join("")
+      ? red_flags.map((f) => `<p class="red-flag">⚠ ${escape_html(f)}</p>`).join("")
       : '<p style="font-size:14px; color:#16A34A;">✓ No red flags detected.</p>';
+  const listing_href = escape_attr(listing_url);
+  const listing_text = escape_html(listing_url);
 
   const content = `
   <div class="header">
@@ -170,7 +173,7 @@ export async function send_free_check_email({
   </div>
   <div class="body">
     <p class="section-title">Listing Check Result</p>
-    ${vehicle_summary ? `<div class="vehicle-card"><p>${vehicle_summary}</p></div>` : ""}
+    ${vehicle_summary ? `<div class="vehicle-card"><p>${escape_html(vehicle_summary)}</p></div>` : ""}
 
     <p class="section-title">Market Value Range</p>
     <p style="font-size:16px; color:#1F2937;">${formatted_low} — ${formatted_high}</p>
@@ -180,10 +183,10 @@ export async function send_free_check_email({
     ${flags_html}
 
     <p class="section-title">Our Verdict</p>
-    <div class="verdict-box">${verdict}</div>
+    <div class="verdict-box">${escape_html(verdict)}</div>
 
     <p style="font-size:13px; color:#6B7280; margin-top:8px;">
-      Listing: <a href="${listing_url}" style="color:${BRAND_TEAL};">${listing_url}</a>
+      Listing: <a href="${listing_href}" style="color:${BRAND_TEAL};">${listing_text}</a>
     </p>
 
     <a href="https://buyingbuddy.com.au" class="cta">Want the full picture? Get a PPSR Report for $4.95</a>
@@ -221,8 +224,8 @@ export async function send_ppsr_confirmation_email({
     </p>
 
     <div class="vehicle-card">
-      <p><strong>Order ID:</strong> ${order_id}</p>
-      <p><strong>VIN / Rego:</strong> ${vehicle_identifier}</p>
+      <p><strong>Order ID:</strong> ${escape_html(order_id)}</p>
+      <p><strong>VIN / Rego:</strong> ${escape_html(vehicle_identifier)}</p>
       <p><strong>Delivery window:</strong> Within 2 hours</p>
     </div>
 
@@ -289,7 +292,7 @@ export async function send_order_report_email({
 
     <div class="vehicle-card">
       <p><strong>Product:</strong> <span class="product-badge">${label}</span></p>
-      <p><strong>Order ID:</strong> ${order_id}</p>
+      <p><strong>Order ID:</strong> ${escape_html(order_id)}</p>
       <p>${description}</p>
     </div>
 
@@ -326,6 +329,9 @@ export async function send_pdf_buyer_email({
   deal_id: string;
   deal_url: string;
 }) {
+  const safe_deal_id = escape_html(deal_id);
+  const safe_deal_href = escape_attr(deal_url);
+  const safe_deal_text = escape_html(deal_url);
   const content = `
   <div class="header">
     <h1>Buying Buddy</h1>
@@ -335,15 +341,15 @@ export async function send_pdf_buyer_email({
     <p style="font-size:15px; color:#374151;">Your shared Deal Room workspace is live.</p>
 
     <div class="vehicle-card">
-      <p><strong>Deal ID:</strong> ${deal_id}</p>
-      <p><strong>Seller share link:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
+      <p><strong>Deal ID:</strong> ${safe_deal_id}</p>
+      <p><strong>Seller share link:</strong> <a href="${safe_deal_href}" style="color:${BRAND_TEAL};">${safe_deal_text}</a></p>
     </div>
 
     <div class="verdict-box">
       This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
     </div>
 
-    <a href="${deal_url}" class="cta">Open Deal Room</a>
+    <a href="${safe_deal_href}" class="cta">Open Deal Room</a>
   </div>`;
 
   const html = email_html(content);
@@ -372,6 +378,9 @@ export async function send_deal_summary_email({
   report_filename: string;
   seller_email: string;
 }) {
+  const safe_deal_id = escape_html(deal_id);
+  const safe_deal_href = escape_attr(deal_url);
+  const safe_deal_text = escape_html(deal_url);
   const content = `
   <div class="header">
     <h1>Buying Buddy</h1>
@@ -381,8 +390,8 @@ export async function send_deal_summary_email({
     <p style="font-size:15px; color:#374151;">The Deal Room has been finalised.</p>
 
     <div class="vehicle-card">
-      <p><strong>Deal ID:</strong> ${deal_id}</p>
-      <p><strong>Deal Room:</strong> <a href="${deal_url}" style="color:${BRAND_TEAL};">${deal_url}</a></p>
+      <p><strong>Deal ID:</strong> ${safe_deal_id}</p>
+      <p><strong>Deal Room:</strong> <a href="${safe_deal_href}" style="color:${BRAND_TEAL};">${safe_deal_text}</a></p>
       <p><strong>Attached:</strong> Deal Record PDF summary</p>
     </div>
 
@@ -390,7 +399,7 @@ export async function send_deal_summary_email({
       This Deal Record is a voluntary summary of transaction details. Not a legal contract. Not legal advice.
     </div>
 
-    <a href="${deal_url}" class="cta">Open Deal Room</a>
+    <a href="${safe_deal_href}" class="cta">Open Deal Room</a>
   </div>`;
 
   const html = email_html(content);

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rate_limit_response } from "@/lib/security";
 import { runQldOfficialRegoCheck } from "@/lib/qld-rego/official";
 import { validateQldRego } from "@/lib/qld-rego/normalise";
 import type { QldRegoCheckFailure } from "@/lib/qld-rego/types";
@@ -84,6 +85,9 @@ async function parseRegoCheckRequest(request: Request): Promise<RegoCheckParseRe
 }
 
 export async function POST(request: Request) {
+  const limited = rate_limit_response(request, { key: "rego-check", limit: 20, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const parsed = await parseRegoCheckRequest(request);
     if (parsed.ok === false) {

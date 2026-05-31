@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rate_limit_response } from "@/lib/security";
 
 const SYSTEM_PROMPT = `You are Buddy — the AI inside BuyingBuddy, built by Jordan Lansbury, a licensed QLD car dealer with 15+ years of wholesale and retail experience across Lexus, BMW, and Audi.
 
@@ -36,16 +37,28 @@ const QUICK_REPLY_CONTEXT: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const limited = rate_limit_response(req, { key: "buddy", limit: 20, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
-    const userMessage: string = body.message;
-    const history: ChatMessage[] = Array.isArray(body.history) ? body.history.slice(-8) : [];
+    const rawMessage = typeof body.message === "string" ? body.message : "";
+    const history: ChatMessage[] = Array.isArray(body.history)
+      ? body.history
+          .slice(-8)
+          .filter((msg: Partial<ChatMessage>) => (msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string")
+          .map((msg: ChatMessage) => ({ role: msg.role, content: msg.content.slice(0, 1000) }))
+      : [];
 
-    if (!userMessage || typeof userMessage !== "string" || userMessage.trim().length === 0) {
+    if (!rawMessage || rawMessage.trim().length === 0) {
       return NextResponse.json({ ok: false, error: "Please include a message." }, { status: 400 });
     }
+    if (rawMessage.length > 2000) {
+      return NextResponse.json({ ok: false, error: "Keep Buddy questions under 2,000 characters." }, { status: 400 });
+    }
 
-    const contextHint = QUICK_REPLY_CONTEXT[userMessage.trim()] ?? "";
+    const userMessage = rawMessage.trim();
+    const contextHint = QUICK_REPLY_CONTEXT[userMessage] ?? "";
     const userContent = contextHint
       ? `${userMessage}\n\n(Context: ${contextHint})`
       : userMessage;

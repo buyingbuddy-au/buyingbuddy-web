@@ -49,8 +49,10 @@ function compileRegoCheckRoute({ lookupHandler } = {}) {
 
     const routePath = join(outDir, "src", "app", "api", "rego", "check", "route.js");
     const normalisePath = join(outDir, "src", "lib", "qld-rego", "normalise.js");
+    const securityPath = join(outDir, "src", "lib", "security.js");
     assert.ok(existsSync(routePath), `Compiled route.js not found at ${routePath}`);
     assert.ok(existsSync(normalisePath), `Compiled normalise.js not found at ${normalisePath}`);
+    assert.ok(existsSync(securityPath), `Compiled security helper not found at ${securityPath}`);
 
     const originalLoad = Module._load;
     const nextServer = require("next/server");
@@ -81,6 +83,10 @@ function compileRegoCheckRoute({ lookupHandler } = {}) {
 
       if (request === "@/lib/qld-rego/normalise") {
         return require(normalisePath);
+      }
+
+      if (request === "@/lib/security") {
+        return require(securityPath);
       }
 
       return originalLoad.call(this, request, parent, isMain);

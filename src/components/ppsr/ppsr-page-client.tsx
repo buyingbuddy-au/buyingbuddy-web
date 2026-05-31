@@ -36,7 +36,7 @@ const INCLUDED = [
 
 /* ── Trust signals ── */
 const TRUST_BADGES = [
-  { icon: ShieldCheck, label: "Official PPSR data source" },
+  { icon: ShieldCheck, label: "PPSR-sourced status explained plainly" },
   { icon: Timer, label: "Same business day, usually within 2 hours" },
   { icon: Lock, label: "Secure Stripe checkout" },
 ] as const;
@@ -208,7 +208,7 @@ export default function PpsrPageClient() {
             </span>
           </div>
           <p className="mt-2 text-xs text-gray-400">
-            Dealers charge $30–$50 for the same data.
+            Fixed price. No subscription or upsell hidden behind checkout.
           </p>
 
           {/* What's included */}
@@ -345,8 +345,8 @@ export default function PpsrPageClient() {
               aria-hidden="true"
             />
             <span>
-              Pay securely via Stripe. Your report is prepared by a licensed
-              dealer and emailed same business day, usually within 2 hours.
+              Pay securely via Stripe. Buying Buddy prepares the plain-English
+              guide and emails it same business day, usually within 2 hours.
             </span>
           </div>
         </form>
@@ -483,6 +483,9 @@ export default function PpsrPageClient() {
               </p>
             </div>
           </article>
+          <p className="mt-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-xs leading-5 text-gray-500 lg:col-span-2">
+            Buying Buddy is not affiliated with, endorsed by, or acting for the PPSR, NEVDIS, TMR, or any government agency. PPSR results are point-in-time information; always match the VIN, seller ID, certificate and vehicle before paying.
+          </p>
         </div>
       </section>
     </div>

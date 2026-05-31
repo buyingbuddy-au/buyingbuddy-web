@@ -49,7 +49,9 @@ function compileCheckoutRoute(options = {}) {
     execFileSync(tsc, ["--project", tsconfigPath], { cwd: process.cwd(), encoding: "utf8", stdio: "pipe" });
 
     const routePath = join(outDir, "src", "app", "api", "stripe", "checkout", "route.js");
+    const securityPath = join(outDir, "src", "lib", "security.js");
     assert.ok(existsSync(routePath), `Compiled checkout route not found at ${routePath}`);
+    assert.ok(existsSync(securityPath), `Compiled security helper not found at ${securityPath}`);
 
     const originalLoad = Module._load;
     const nextServer = require("next/server");
@@ -69,6 +71,10 @@ function compileCheckoutRoute(options = {}) {
             return { id: "cs_test_checkout_whitelist", url: "https://checkout.stripe.test/session" };
           },
         };
+      }
+
+      if (request === "@/lib/security") {
+        return require(securityPath);
       }
 
       return originalLoad.call(this, request, parent, isMain);

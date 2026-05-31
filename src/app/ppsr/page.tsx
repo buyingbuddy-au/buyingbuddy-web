@@ -4,7 +4,7 @@ import PpsrPageClient from "@/components/ppsr/ppsr-page-client";
 
 export const metadata: Metadata = {
   title: "PPSR Check — $4.95 Finance, Stolen & Written-Off Report",
-  description: "Run a $4.95 PPSR check before you buy: finance owing, stolen and written-off status from official PPSR data, explained in plain English.",
+  description: "Run a $4.95 PPSR check before you buy: finance owing, stolen and written-off status explained in plain English before deposit or handover.",
   alternates: { canonical: "https://buyingbuddy.com.au/ppsr" },
   openGraph: {
     title: "PPSR Check — $4.95 Finance, Stolen & Written-Off Report",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { run_free_listing_check } from "@/lib/engine";
 import { generateVehicleReport } from "@/lib/free-check-report";
+import { rate_limit_response } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -38,6 +39,9 @@ function isPlaceholderManualCheck(input: {
 }
 
 export async function POST(request: Request) {
+  const limited = rate_limit_response(request, { key: "free-check", limit: 12, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as {
       email?: string;

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rate_limit_response } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -96,6 +97,9 @@ async function tryOpenAI(make: string, model: string, year: number, transmission
 }
 
 export async function POST(request: Request) {
+  const limited = rate_limit_response(request, { key: "check-issues", limit: 20, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as {
       make?: string;

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rate_limit_response } from "@/lib/security";
 
 // Simple in-memory store for shared results (Vercel serverless functions
 // don't share memory, so this only works within a single function invocation.
@@ -20,6 +21,9 @@ interface CreateShareRequest {
 }
 
 export async function POST(request: Request) {
+  const limited = rate_limit_response(request, { key: "shared-create", limit: 20, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as CreateShareRequest;
 
@@ -30,6 +34,21 @@ export async function POST(request: Request) {
       );
     }
 
+    const allowedTypes = new Set(["free_check", "ppsr", "inspect"]);
+    if (!allowedTypes.has(body.type)) {
+      return NextResponse.json({ ok: false, error: "Unsupported share type." }, { status: 400 });
+    }
+
+    const cleanText = (value: string | undefined, fallback: string, max = 280) =>
+      (value?.trim() || fallback).slice(0, max);
+    const cleanPoints = Array.isArray(body.summary_points)
+      ? body.summary_points.map((point) => String(point).trim().slice(0, 180)).filter(Boolean).slice(0, 6)
+      : [];
+
+    const riskLevel = body.risk_level === "low" || body.risk_level === "medium" || body.risk_level === "high"
+      ? body.risk_level
+      : "medium";
+
     // Generate a short unique ID
     const id = generateShareId();
 
@@ -37,28 +56,28 @@ export async function POST(request: Request) {
       id,
       type: body.type,
       created_at: new Date().toISOString(),
-      vehicle_heading: body.vehicle_heading ?? "Used car",
-      verdict: body.verdict,
-      risk_level: body.risk_level ?? "medium",
-      summary_points: body.summary_points ?? [],
+      vehicle_heading: cleanText(body.vehicle_heading, "Used car", 120),
+      verdict: cleanText(body.verdict, "Shared Buying Buddy result", 500),
+      risk_level: riskLevel,
+      summary_points: cleanPoints,
       upsell_message:
         body.type === "free_check"
           ? "Want to check if this car has finance owing or has been written off?"
           : body.type === "ppsr"
             ? "Now run the inspection tool to check the car in person."
-            : "Get the full PPSR report and QLD contract pack.",
+            : "Open the Deal Room for guided QLD handover paperwork.",
       upsell_href:
         body.type === "free_check"
           ? "/ppsr"
           : body.type === "ppsr"
             ? "/inspect"
-            : "/contract-pack",
+            : "/deal",
       upsell_cta:
         body.type === "free_check"
           ? "Run PPSR Check — $4.95"
           : body.type === "ppsr"
             ? "Open Inspect Tool — Free"
-            : "Get Contract Pack — $9.95",
+            : "Open Deal Room — $9.99",
     };
 
     // For now, encode the result as base64 in the URL.

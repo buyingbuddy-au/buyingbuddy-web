@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { escape_html, rate_limit_response } from "@/lib/security";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -12,21 +13,29 @@ const FROM = "Buying Buddy <info@buyingbuddy.com.au>";
 const NOTIFY_EMAIL = "info@buyingbuddy.com.au";
 
 export async function POST(req: Request) {
+  const limited = rate_limit_response(req, { key: "free-kit", limit: 5, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const { name, email } = await req.json() as { name?: string; email?: string };
+    const safeEmail = email?.trim() ?? "";
+    const safeName = (name?.trim() || "there").slice(0, 120);
 
-    if (!email || !email.includes("@")) {
+    if (!safeEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeEmail)) {
       return NextResponse.json({ error: "Valid email required." }, { status: 400 });
     }
 
-    const firstName = name?.split(" ")[0] ?? "there";
+    const firstName = safeName.split(" ")[0] || "there";
+    const firstNameHtml = escape_html(firstName);
+    const nameHtml = escape_html(safeName === "there" ? "Not provided" : safeName);
+    const emailHtml = escape_html(safeEmail);
 
     const resend = getResend();
 
     // Send kit email to user
     await resend.emails.send({
       from: FROM,
-      to: email,
+      to: safeEmail,
       subject: "Your Used Car Buyer's Protection Kit — Buying Buddy",
       html: `
 <!DOCTYPE html>
@@ -39,7 +48,7 @@ export async function POST(req: Request) {
       <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:14px;">Your Used Car Buyer's Protection Kit</p>
     </div>
     <div style="padding:32px 40px;">
-      <p style="font-size:15px;color:#374151;">Hey ${firstName},</p>
+      <p style="font-size:15px;color:#374151;">Hey ${firstNameHtml},</p>
       <p style="font-size:15px;color:#374151;">Thanks for grabbing the kit. Here's what you've got:</p>
       <div style="background:#F0FDF9;border-left:4px solid #0D9488;border-radius:0 6px 6px 0;padding:14px 18px;margin:20px 0;">
         <p style="margin:4px 0;font-size:14px;color:#065F55;"><strong>01 — Pre-Purchase Checklist</strong><br/>20 checks before you make any offer.</p>
@@ -64,8 +73,8 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: FROM,
       to: NOTIFY_EMAIL,
-      subject: `New kit download: ${email}`,
-      html: `<p>New lead from free kit download.</p><p><strong>Name:</strong> ${name ?? "Not provided"}<br/><strong>Email:</strong> ${email}</p>`,
+      subject: `New kit download: ${safeEmail}`,
+      html: `<p>New lead from free kit download.</p><p><strong>Name:</strong> ${nameHtml}<br/><strong>Email:</strong> ${emailHtml}</p>`,
     });
 
     return NextResponse.json({ ok: true });

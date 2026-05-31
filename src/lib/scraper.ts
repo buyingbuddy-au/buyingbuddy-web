@@ -1,4 +1,5 @@
 import { to_sqlite_datetime } from "@/lib/time";
+import { assert_public_fetch_url } from "@/lib/security";
 import type { JsonValue, ScrapedListing } from "@/lib/types";
 
 const KNOWN_MAKES = [
@@ -245,22 +246,22 @@ export function build_fallback_listing(listing_url: string): ScrapedListing {
 }
 
 export async function scrape_listing(raw_listing_url: string): Promise<ScrapedListing> {
-  const listing_url = raw_listing_url.trim();
-  const url = new URL(listing_url);
-
-  if (!/^https?:$/i.test(url.protocol)) {
-    throw new Error("Only HTTP and HTTPS listing URLs are supported.");
-  }
+  const safe_url = await assert_public_fetch_url(raw_listing_url, "Listing URL");
+  const listing_url = safe_url.toString();
+  const url = safe_url;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const response = await fetch(listing_url, {
       cache: "no-store",
+      signal: controller.signal,
       headers: {
         "accept-language": "en-AU,en;q=0.9",
         "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36",
       },
-    });
+    }).finally(() => clearTimeout(timeout));
 
     if (!response.ok) {
       return build_fallback_listing(listing_url);

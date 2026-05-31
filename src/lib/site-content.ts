@@ -1,76 +1,70 @@
-export const CONFIDENCE_REPORT_LINK =
-  "https://buy.stripe.com/9B614o8Qa1212ks8Jo7Zu01";
+export const CONFIDENCE_REPORT_LINK = "/ppsr";
 
-export const FULL_BUNDLE_LINK =
-  "https://buy.stripe.com/dRmbJ27M6fWVcZ6f7M7Zu02";
+export const FULL_BUNDLE_LINK = "/deal";
 
 export const NAV_LINKS = [
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "Pricing", href: "/#pricing" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Trust", href: "/#trust" },
   { label: "Blog", href: "/blog" },
   { label: "FAQ", href: "/#faq" },
 ] as const;
 
 export const HERO_FEATURES = [
-  "✅ PPSR Check: See if there's finance owing",
-  "✅ Rego History: Spot accident damage",
-  "✅ Theft Check: Make sure it's not stolen",
-  "✅ Write-off Status: Avoid insurance nightmares",
+  "✅ Rego first: check QLD status before you waste a drive",
+  "✅ PPSR next: finance, stolen and written-off status before deposit",
+  "✅ Inspect properly: use a phone-friendly checklist beside the car",
+  "✅ Paperwork last: keep the handover record tidy if the car survives",
 ];
 
 export const PROBLEM_CARDS = [
   {
-    title: "🚨 Facebook Marketplace is Full of Dodgy Bastards",
+    title: "🚨 Private buying is messy",
     copy:
-      "Stolen cars, accident write-offs, finance owing... the lot. One bad buy and you're out $15k with no comeback.",
+      "Listings can hide finance, write-off history, seller pressure, missing paperwork and expensive surprises. Slow it down before you pay.",
   },
   {
-    title: "✅ Know Before You Go",
+    title: "✅ Know before you go",
     copy:
-      "Our reports show you everything: PPSR checks, rego history, finance owing, even if it's been flooded. Don't rock up blind.",
+      "Start with the rego, run PPSR only when the car is worth checking properly, then use the inspection and handover tools if it still stacks up.",
   },
   {
-    title: "💰 Save Thousands, Sleep Easy",
-    copy: "Spend $9.95 to avoid a $15,000 mistake. Fair dinkum.",
+    title: "💰 Cheap checks before expensive mistakes",
+    copy: "Start free. PPSR is $4.95. Deal Room is $9.99 when the car survives the checks.",
   },
 ];
 
 export const TRUST_BADGES = [
   {
-    title: "✓ OFFICIAL PPSR DATABASE ACCESS",
+    title: "✓ PPSR-SOURCED STATUS EXPLAINED PLAINLY",
     copy:
-      "We use the same government databases as licensed dealers - no dodgy third-party data",
+      "Finance, stolen and written-off indicators explained in buyer language before deposit",
   },
   {
-    title: "⚡ PDF DELIVERED IN 30 SECONDS",
-    copy: "Report hits your inbox before you finish your coffee",
+    title: "⚡ SAME BUSINESS DAY TARGET",
+    copy: "PPSR report summaries are usually emailed within 2 hours when the supplied details are complete",
   },
   {
     title: "🔒 SECURE STRIPE PAYMENTS",
     copy:
-      "Bank-level security used by Netflix, Uber, and millions of Aussie businesses",
+      "Card payment is handled through Stripe checkout; Buying Buddy does not store full card details",
   },
   {
-    title: "💰 100% SATISFACTION GUARANTEE",
-    copy: "Not happy? Full refund, no questions asked",
-  },
-  {
-    title: "🇦🇺 PROUDLY AUSTRALIAN OWNED",
-    copy: "Local business supporting local car buyers",
+    title: "🇦🇺 AUSTRALIAN BUYER-SIDE SERVICE",
+    copy: "Built for private used-car buyers who want the deal slowed down before money moves",
   },
 ];
 
 export const VERIFICATION_POINTS = [
-  "Our reports pull directly from official Australian government databases including PPSR, NEVDIS, and state transport authorities. Same data, fraction of the dealer price.",
-  "Your personal information stays in Australia and is never shared with third parties. We're not here to spam you - just help you buy smart.",
-  "Developed by former car dealers and automotive finance experts who know every trick in the book.",
+  "Buying Buddy is not affiliated with PPSR, NEVDIS, TMR or any government agency.",
+  "PPSR, rego and listing checks are point-in-time information. Always match the VIN, seller ID, certificate and vehicle before payment.",
+  "The tools are buyer-side information only — not legal, finance, mechanical or safety advice.",
 ];
 
 export const DELIVERY_POINTS = [
-  "Report delivered to your email within 30 seconds of payment confirmation",
-  "PDF formatted for easy reading on your phone while you're at the car yard",
-  "Keep your report forever - handy for insurance claims or resale",
+  "PPSR summaries are emailed same business day, usually within 2 hours when details are complete",
+  "Deal Room keeps private-sale paperwork and handover notes together",
+  "Free tools stay available without forcing a checkout",
 ];
 
 export const TESTIMONIALS = [
@@ -78,19 +72,19 @@ export const TESTIMONIALS = [
     name: "Sarah M.",
     location: "Redcliffe QLD",
     quote:
-      "Saved me from buying a flood-damaged Camry in Brisbane. The seller swore black and blue it was perfect. Buying Buddy showed it had been written off twice. Dodged a $12k bullet!",
+      "The checklist slowed me down enough to ask better questions before I drove across Brisbane.",
   },
   {
     name: "Emma K.",
     location: "Gold Coast QLD",
     quote:
-      "First time buying a car in Australia as a backpacker. This report showed me exactly what to look for and gave me confidence to negotiate. Got $2k off the asking price!",
+      "It made the process feel less chaotic. Rego first, PPSR next, paperwork only if the car still made sense.",
   },
   {
     name: "Michelle T.",
     location: "Toowoomba QLD",
     quote:
-      "The PPSR check alone was worth it. Car had $8k finance owing that the seller 'forgot' to mention. Would've been my problem if I'd bought it.",
+      "The plain-English next steps were what helped. I knew what to ask the seller before sending money.",
   },
 ];
 
@@ -98,71 +92,65 @@ export const FAQS = [
   {
     question: "How quick do I get my report?",
     answer:
-      "Instant mate. Soon as your payment goes through, you'll get a PDF in your inbox. Usually takes about 30 seconds.",
+      "Same business day, usually within 2 hours when the details are complete. If something needs manual confirmation, we will not pretend it is instant.",
   },
   {
-    question: "What if the car's clean but I still don't want it?",
+    question: "Does a clear PPSR mean the car is safe to buy?",
     answer:
-      "No worries. The report's yours to keep. Use it to negotiate or just walk away knowing you made a smart choice.",
+      "No. PPSR is the money/history check. You still need to inspect the car, match the VIN, check seller ID, and decide whether the condition and paperwork stack up.",
   },
   {
-    question: "Is this legit or some dodgy overseas mob?",
+    question: "Is Buying Buddy a government service?",
     answer:
-      "100% Aussie owned and operated. We use official government databases - same ones the dealers use, just without the dealer markup.",
+      "No. Buying Buddy is not affiliated with PPSR, NEVDIS, TMR or any government agency. It is a buyer-side tool that helps explain the checks and next steps.",
   },
   {
     question: "What's this PPSR thing anyway?",
     answer:
-      "Personal Property Securities Register. Shows if there's finance owing, if it's stolen, written off, or used as security for a loan. Basically tells you if you'll actually own the car after you buy it.",
+      "Personal Property Securities Register. It helps identify finance owing/security interests and can include stolen or written-off indicators. Treat it as essential before money changes hands.",
   },
   {
     question: "Can I use this for any car in Australia?",
     answer:
-      "Yep, any registered vehicle. Cars, utes, bikes, caravans - if it's got a VIN or rego, we can check it.",
-  },
-  {
-    question: "What if I'm buying from a dealer?",
-    answer:
-      "Even more reason to check! Some dealers are dodgier than private sellers. At least with Facebook Marketplace, you know what you're getting into.",
+      "The workflow is built for Australian used-car buyers, with a strong QLD focus for rego and paperwork. VIN-based PPSR checks are the safer option where available.",
   },
 ];
 
 export const COMPARISON_ROWS = [
-  { label: "Price", values: ["Free", "$9.95", "$39"] },
-  { label: "PPSR Check", values: ["❌", "✅", "✅"] },
-  { label: "Rego History", values: ["❌", "✅", "✅"] },
-  { label: "Basic Contract", values: ["✅", "✅", "✅"] },
-  { label: "Negotiation Scripts", values: ["❌", "❌", "✅"] },
-  { label: "Advanced Templates", values: ["❌", "❌", "✅"] },
-  { label: "Inspection Guide", values: ["✅ Basic", "❌", "✅ Detailed"] },
+  { label: "Price", values: ["Free", "$4.95", "$9.99"] },
+  { label: "PPSR Check", values: ["❌", "✅", "❌"] },
+  { label: "Rego First Filter", values: ["✅", "❌", "❌"] },
+  { label: "Contract PDF", values: ["✅", "❌", "✅"] },
+  { label: "Inspection Guide", values: ["✅", "❌", "✅"] },
+  { label: "Handover Record", values: ["❌", "❌", "✅"] },
 ];
 
 export const PRICING_PLANS = [
   {
-    name: "FREE CHECKLIST",
+    name: "FREE TOOLS",
     price: "Free",
-    ctaLabel: "Download Free",
-    ctaHref: "#checklist",
+    ctaLabel: "Start Free",
+    ctaHref: "/rego-check",
     featured: false,
   },
   {
-    name: "CONFIDENCE REPORT",
-    price: "$9.95",
-    ctaLabel: "Get Report Now",
+    name: "PPSR REPORT",
+    price: "$4.95",
+    ctaLabel: "Run PPSR Check",
     ctaHref: CONFIDENCE_REPORT_LINK,
     featured: true,
   },
   {
-    name: "FULL BUNDLE",
-    price: "$39",
-    ctaLabel: "Get Everything",
+    name: "DEAL ROOM",
+    price: "$9.99",
+    ctaLabel: "Open Deal Room",
     ctaHref: FULL_BUNDLE_LINK,
     featured: false,
   },
 ];
 
 export const LEAD_MAGNET_BULLETS = [
-  "✓ 47-Point Inspection Guide",
-  "✓ Negotiation Scripts That Work",
-  "✓ Red Flags Every Aussie Should Know",
+  "✓ 21-check inspection guide",
+  "✓ Seller question prompts",
+  "✓ Red flags every private buyer should slow down for",
 ];

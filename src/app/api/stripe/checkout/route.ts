@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { create_checkout_session, get_configured_stripe_mode, is_paid_product, normalise_public_product } from "@/lib/stripe";
+import { rate_limit_response } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,9 @@ function resolve_base_url(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const limited = rate_limit_response(request, { key: "stripe-checkout", limit: 10, windowMs: 10 * 60 * 1000 });
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as {
       customer_name?: string;
