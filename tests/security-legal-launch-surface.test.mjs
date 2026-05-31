@@ -43,6 +43,14 @@ test("public write/API surfaces use launch-week abuse throttling", () => {
   }
 });
 
+test("cron email nurture endpoint fails closed and escapes stored lead data", () => {
+  const source = read("src/app/api/cron/email-nurture/route.ts");
+  assert.match(source, /if \(!secret\) return false/, "cron route must not become public when CRON_SECRET is unset");
+  assert.match(source, /Authorization"\) === `Bearer \$\{secret\}`/, "cron route must require the bearer secret");
+  assert.match(source, /escape_html\(vehicleDesc\)/, "stored lead vehicle summaries must be escaped before email HTML");
+  assert.doesNotMatch(source, /official PPSR Check|official PPSR check/, "cron email copy should not imply official affiliation");
+});
+
 test("public URL scraping rejects private/internal targets before fetch", () => {
   const security = read("src/lib/security.ts");
   const scraper = read("src/lib/scraper.ts");
