@@ -43,14 +43,17 @@ test("public write/API surfaces use launch-week abuse throttling", () => {
   }
 });
 
-test("free listing scraper blocks SSRF-style private or internal fetches", () => {
+test("public URL scraping rejects private/internal targets before fetch", () => {
   const security = read("src/lib/security.ts");
   const scraper = read("src/lib/scraper.ts");
+  const checkRoute = read("src/app/api/check/route.ts");
 
-  assert.match(security, /assert_public_fetch_url/, "shared public fetch validator should exist");
+  assert.match(security, /assert_public_fetch_url/, "public URL assertion helper should exist");
+  assert.match(security, /dns\.lookup\(hostname, \{ all: true/, "hostnames should be resolved before fetching");
   assert.match(security, /is_ipv4_private_or_reserved|is_ipv6_private_or_reserved|is_private_or_reserved_ip/, "private IP ranges should be blocked");
-  assert.match(security, /localhost|loopback|link-local|multicast|reserved/i, "internal/reserved targets should be blocked");
-  assert.match(scraper, /assert_public_fetch_url\(raw_listing_url/, "listing scraper must validate URLs before fetch");
+  assert.match(scraper, /assert_public_fetch_url\(raw_listing_url, "Listing URL"\)/, "scraper should validate listing URL before fetch");
+  assert.match(checkRoute, /isListingUrlValidationError/, "listing URL validation errors should be handled explicitly");
+  assert.match(checkRoute, /const status = isListingUrlValidationError\(message\) \? 400 : 500/, "listing URL validation errors should return client errors, not generic server failures");
 });
 
 test("legal and PPSR surfaces avoid government-affiliation drift", () => {

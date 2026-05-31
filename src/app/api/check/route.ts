@@ -38,6 +38,10 @@ function isPlaceholderManualCheck(input: {
   );
 }
 
+function isListingUrlValidationError(message: string) {
+  return message.startsWith("Listing URL ") || message.includes("Listing URL must");
+}
+
 export async function POST(request: Request) {
   const limited = rate_limit_response(request, { key: "free-check", limit: 12, windowMs: 10 * 60 * 1000 });
   if (limited) return limited;
@@ -158,12 +162,15 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to process the listing check.";
+    const status = isListingUrlValidationError(message) ? 400 : 500;
+
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Unable to process the listing check.",
+        error: message,
       },
-      { status: 500 },
+      { status },
     );
   }
 }
